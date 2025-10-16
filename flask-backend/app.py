@@ -24,9 +24,12 @@ def create_app():
         supports_credentials=True,
     )
 
-    # Initialize DB
-    from models import db
+    # Initialize DB and migrations
+    from extensions import db, migrate
+    from models import User  # ensure models are imported so migrations detect them
+
     db.init_app(app)
+    migrate.init_app(app, db)
 
     # Create tables if they don't exist (simple convenience for demo/prod)
     with app.app_context():

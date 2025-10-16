@@ -1,4 +1,37 @@
 Flask backend for TechBazaar
+
+Quickstart
+
+1. Create and activate a virtual environment:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+2. Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+3. Initialize and run database migrations (uses SQLite `instance/data.db` by default):
+
+```bash
+flask db init    # only the first time
+flask db migrate -m "initial"
+flask db upgrade
+```
+
+Alternatively, the app will call `db.create_all()` on startup if migrations are not used.
+
+Run the app:
+
+```bash
+export FLASK_APP=app.py
+flask run --port=5001
+```
+Flask backend for TechBazaar
 ===========================
 
 This is a minimal Flask backend designed to demonstrate connecting the existing React frontend to a Flask API.

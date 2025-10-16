@@ -1,7 +1,10 @@
+import * as React from "react";
 import { X, Minus, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { useCart } from "@/hooks/use-cart";
 import { useLocation } from "wouter";
 
@@ -21,6 +24,18 @@ export default function ShoppingCartComponent() {
   const handleCheckout = () => {
     setIsOpen(false);
     setLocation("/checkout");
+  };
+
+  // Customer info state
+  const [customer, setCustomer] = React.useState({
+    name: "",
+    email: "",
+    address: ""
+  });
+
+  const handleCustomerChange = (e) => {
+    const { name, value } = e.target;
+    setCustomer((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -60,7 +75,6 @@ export default function ShoppingCartComponent() {
                         </div>
                       )}
                     </div>
-                    
                     <div className="ml-4 flex-1">
                       <h4 className="font-medium font-geist text-foreground" data-testid={`text-product-name-${item.id}`}>
                         {item.product?.name || 'Unknown Product'}
@@ -68,7 +82,6 @@ export default function ShoppingCartComponent() {
                       <p className="text-sm text-muted-foreground" data-testid={`text-price-${item.id}`}>
                         ${item.product?.price || '0.00'}
                       </p>
-                      
                       <div className="flex items-center mt-2">
                         <Button
                           variant="ghost"
@@ -92,7 +105,6 @@ export default function ShoppingCartComponent() {
                         </Button>
                       </div>
                     </div>
-                    
                     <Button
                       variant="ghost"
                       size="sm"
@@ -107,6 +119,42 @@ export default function ShoppingCartComponent() {
               </div>
             )}
           </div>
+
+          {/* Customer Info Section */}
+          {cartItems.length > 0 && (
+            <div className="mb-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Customer Information</CardTitle>
+                  <CardDescription>Enter your details for checkout</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Input
+                    name="name"
+                    placeholder="Full Name"
+                    value={customer.name}
+                    onChange={handleCustomerChange}
+                    className="font-geist"
+                  />
+                  <Input
+                    name="email"
+                    type="email"
+                    placeholder="Email Address"
+                    value={customer.email}
+                    onChange={handleCustomerChange}
+                    className="font-geist"
+                  />
+                  <Input
+                    name="address"
+                    placeholder="Shipping Address"
+                    value={customer.address}
+                    onChange={handleCustomerChange}
+                    className="font-geist"
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           {/* Cart Footer */}
           {cartItems.length > 0 && (

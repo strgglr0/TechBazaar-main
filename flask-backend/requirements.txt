@@ -5,3 +5,6 @@ PyJWT==2.8.0
 python-dotenv==1.0.0
 Werkzeug==2.3.7
 Flask-SQLAlchemy==3.0.3
+
+# DB migrations
+Flask-Migrate==4.0.4
