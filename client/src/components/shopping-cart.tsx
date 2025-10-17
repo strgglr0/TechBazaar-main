@@ -86,7 +86,7 @@ export default function ShoppingCartComponent() {
                         {item.product?.name || 'Unknown Product'}
                       </h4>
                       <p className="text-sm text-muted-foreground" data-testid={`text-price-${item.id}`}>
-                        ${item.product?.price || '0.00'}
+                        ₱{item.product?.price || '0.00'}
                       </p>
                       <div className="flex items-center mt-2">
                         <Button
@@ -183,7 +183,7 @@ export default function ShoppingCartComponent() {
               <div className="flex items-center justify-between mb-4">
                 <span className="font-semibold font-geist text-foreground">Total:</span>
                 <span className="text-2xl font-bold font-lora text-primary" data-testid="text-cart-total">
-                  ${totalAmount.toFixed(2)}
+                  ₱{totalAmount.toFixed(2)}
                 </span>
               </div>
               <Button

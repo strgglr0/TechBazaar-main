@@ -30,6 +30,11 @@ def create_app():
 
     db.init_app(app)
     migrate.init_app(app, db)
+    
+    # Initialize and start order processing queue
+    from order_queue import order_queue
+    order_queue.init_app(app)
+    order_queue.start()
 
     # Create tables if they don't exist (simple convenience for demo/prod)
     with app.app_context():
@@ -55,12 +60,14 @@ def create_app():
     from routes.cart import cart_bp
     from routes.orders import orders_bp
     from routes.admin import admin_bp
+    from routes.recommendations import recommendations_bp
 
     app.register_blueprint(auth_bp, url_prefix='/api')
     app.register_blueprint(products_bp, url_prefix='/api')
     app.register_blueprint(cart_bp, url_prefix='/api')
     app.register_blueprint(orders_bp, url_prefix='/api')
     app.register_blueprint(admin_bp, url_prefix='/api')
+    app.register_blueprint(recommendations_bp, url_prefix='/api')
 
     # Install any blueprint-specific app-level hooks (e.g. seeding)
     try:

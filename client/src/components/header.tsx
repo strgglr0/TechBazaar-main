@@ -7,12 +7,11 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
-import ShoppingCartComponent from "@/components/shopping-cart";
 
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const [, setLocation] = useLocation();
-  const { totalItems, setIsOpen } = useCart();
+  const { totalItems } = useCart();
   const { user, isAuthenticated, logout } = useAuth();
 
   const handleSearch = (e: React.FormEvent) => {
@@ -99,22 +98,20 @@ export default function Header() {
               )}
               
               {/* Cart */}
-              <Button
-                variant="ghost"
-                className="relative p-2 text-foreground hover:text-primary"
-                onClick={() => setIsOpen(true)}
-                data-testid="button-cart"
-                aria-label={`Open shopping cart, ${totalItems} items`}
-                aria-haspopup="dialog"
-                aria-expanded={totalItems > 0}
-              >
-                <ShoppingCart className="h-5 w-5" />
-                {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center cart-badge font-geist">
-                    {totalItems}
-                  </span>
-                )}
-              </Button>
+              <Link href="/cart" data-testid="button-cart">
+                <Button
+                  variant="ghost"
+                  className="relative p-2 text-foreground hover:text-primary"
+                  aria-label={`View shopping cart, ${totalItems} items`}
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  {totalItems > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center cart-badge font-geist">
+                      {totalItems}
+                    </span>
+                  )}
+                </Button>
+              </Link>
               
               {/* Admin Link */}
               <Link href="/admin" data-testid="link-admin">
@@ -154,15 +151,15 @@ export default function Header() {
                         </Button>
                       </Link>
                       
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start font-geist"
-                        onClick={() => setIsOpen(true)}
-                        data-testid="button-cart-mobile"
-                      >
-                        <ShoppingCart className="h-4 w-4 mr-2" />
-                        Cart ({totalItems})
-                      </Button>
+                      <Link href="/cart" data-testid="button-cart-mobile">
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start font-geist"
+                        >
+                          <ShoppingCart className="h-4 w-4 mr-2" />
+                          Cart ({totalItems})
+                        </Button>
+                      </Link>
                       
                       <Link href="/admin" data-testid="link-admin-mobile">
                         <Button variant="outline" className="w-full font-geist">
@@ -206,8 +203,6 @@ export default function Header() {
           </div>
         </div>
       </header>
-
-      <ShoppingCartComponent />
     </>
   );
 }

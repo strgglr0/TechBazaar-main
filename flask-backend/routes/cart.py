@@ -73,6 +73,41 @@ def remove_from_cart():
     return jsonify({'ok': True})
 
 
+@cart_bp.route('/cart/<item_id>', methods=['PUT'])
+def update_cart_item(item_id):
+    """Update quantity of a cart item"""
+    data = request.get_json() or {}
+    quantity = data.get('quantity')
+    
+    if quantity is None or quantity < 0:
+        return jsonify({'error': 'Valid quantity required'}), 400
+    
+    item = CartItem.query.get(item_id)
+    if not item:
+        return jsonify({'error': 'Cart item not found'}), 404
+    
+    if quantity == 0:
+        # Remove item if quantity is 0
+        db.session.delete(item)
+    else:
+        item.quantity = int(quantity)
+    
+    db.session.commit()
+    return jsonify(item.to_dict() if quantity > 0 else {'ok': True})
+
+
+@cart_bp.route('/cart/<item_id>', methods=['DELETE'])
+def delete_cart_item(item_id):
+    """Remove a specific cart item"""
+    item = CartItem.query.get(item_id)
+    if not item:
+        return jsonify({'error': 'Cart item not found'}), 404
+    
+    db.session.delete(item)
+    db.session.commit()
+    return jsonify({'ok': True})
+
+
 @cart_bp.route('/cart', methods=['DELETE'])
 def clear_cart():
     key = _key_for_request()

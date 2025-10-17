@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ProductCard from "@/components/product-card";
 import ProductFiltersComponent from "@/components/product-filters";
+import BrowsingHistory from "@/components/browsing-history";
 import type { Product, Category, ProductFilters } from "@/lib/types";
 
 export default function Home() {
@@ -128,6 +129,9 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      {/* Browsing History */}
+      <BrowsingHistory />
 
       {/* Products Section */}
       <div id="products" className="grid grid-cols-1 lg:grid-cols-4 gap-8">

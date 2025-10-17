@@ -130,7 +130,7 @@ export default function ProductTable({ products, isLoading }: ProductTableProps)
                     {product.category}
                   </TableCell>
                   <TableCell className="font-geist" data-testid={`text-price-${product.id}`}>
-                    ${product.price}
+                    ₱{product.price}
                   </TableCell>
                   <TableCell className="font-geist" data-testid={`text-stock-${product.id}`}>
                     {product.stock}

@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from utils import token_required, get_current_user_id
 from models import Order, CartItem
 from extensions import db
+from order_queue import order_queue
 
 orders_bp = Blueprint('orders', __name__)
 
@@ -17,6 +18,16 @@ def get_order(order_id):
     order = Order.query.get(order_id)
     if not order:
         return jsonify({'error': 'not found'}), 404
+    
+    # Update order status from queue if available
+    try:
+        queue_status = order_queue.get_order_status(order_id)
+        if queue_status and queue_status != order.status:
+            order.status = queue_status
+            db.session.commit()
+    except Exception:
+        pass  # Use DB status if queue check fails
+    
     return jsonify(order.to_dict())
 
 
@@ -45,6 +56,7 @@ def checkout():
             shipping_address=data.get('shippingAddress'),
             items=items,
             total=float(total_value or 0),
+            status='processing'  # Initial status
         )
         db.session.add(order)
 
@@ -57,6 +69,10 @@ def checkout():
                 CartItem.query.filter_by(session_id=session_id).delete()
 
         db.session.commit()
+        
+        # Add order to processing queue
+        order_queue.add_order(order.id)
+        
         return jsonify(order.to_dict()), 201
     except Exception as e:
         db.session.rollback()

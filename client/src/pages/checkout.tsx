@@ -111,12 +111,12 @@ export default function Checkout() {
     },
     onSuccess: (order) => {
       setOrderId(order.id);
-      setOrderStatus('pending');
+      setOrderStatus('processing');
       // do not mark complete yet; poll will update status
       clearCart();
       toast({
         title: "Order placed successfully!",
-        description: `Your order #${order.id.slice(-8)} has been created. Tracking will update shortly.`,
+        description: `Your order #${order.id.slice(-8)} is now being processed.`,
       });
     },
     onError: () => {
@@ -132,7 +132,7 @@ export default function Checkout() {
     createOrderMutation.mutate(data);
   };
 
-  // Poll order status for created order every 5s until complete
+  // Poll order status for created order every 3s until received
   useEffect(() => {
     let interval: any;
     const poll = async () => {
@@ -142,7 +142,7 @@ export default function Checkout() {
         if (!res.ok) return;
         const json = await res.json();
         setOrderStatus(json.status || null);
-        if (json.status === 'complete') {
+        if (json.status === 'received') {
           setOrderComplete(true);
           clearInterval(interval);
         }
@@ -152,7 +152,7 @@ export default function Checkout() {
     };
     if (orderId) {
       poll();
-      interval = setInterval(poll, 5000);
+      interval = setInterval(poll, 3000);  // Poll every 3 seconds
     }
     return () => clearInterval(interval);
   }, [orderId]);
@@ -215,24 +215,70 @@ export default function Checkout() {
     );
   }
 
-  // If order was created and not yet complete, show status page
+  // If order was created and not yet received, show status page
   if (orderId && !orderComplete) {
+    const getStatusIcon = () => {
+      switch (orderStatus) {
+        case 'processing':
+          return <div className="h-16 w-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />;
+        case 'delivered':
+          return <Truck className="h-16 w-16 text-primary animate-pulse" />;
+        default:
+          return <Truck className="h-16 w-16 text-primary" />;
+      }
+    };
+
+    const getStatusMessage = () => {
+      switch (orderStatus) {
+        case 'processing':
+          return 'Your order is being processed';
+        case 'delivered':
+          return 'Your order is out for delivery';
+        case 'received':
+          return 'Order received';
+        default:
+          return 'Processing your order';
+      }
+    };
+
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Card className="bg-card border-border text-center">
           <CardContent className="p-12">
             <div className="flex justify-center mb-6">
-              <Truck className="h-16 w-16 text-primary" />
+              {getStatusIcon()}
             </div>
-            <h2 className="text-2xl font-bold font-lora text-foreground mb-4">Order Processing</h2>
-            <p className="text-muted-foreground mb-4">Your order is being processed. We'll update the status shortly.</p>
+            <h2 className="text-2xl font-bold font-lora text-foreground mb-4">Order Status</h2>
+            <div className="mb-6">
+              <div aria-live="polite" className="text-lg font-semibold text-primary mb-4">
+                {getStatusMessage()}
+              </div>
+              <div className="flex justify-center items-center gap-2 mb-4">
+                <div className={`px-4 py-2 rounded-full font-geist text-sm ${
+                  orderStatus === 'processing' ? 'bg-yellow-100 text-yellow-800' :
+                  orderStatus === 'delivered' ? 'bg-blue-100 text-blue-800' :
+                  'bg-gray-100 text-gray-800'
+                }`}>
+                  Processing
+                </div>
+                <div className="h-1 w-8 bg-border"></div>
+                <div className={`px-4 py-2 rounded-full font-geist text-sm ${
+                  orderStatus === 'delivered' || orderStatus === 'received' ? 'bg-blue-100 text-blue-800' :
+                  'bg-gray-100 text-gray-800'
+                }`}>
+                  Delivered
+                </div>
+                <div className="h-1 w-8 bg-border"></div>
+                <div className={`px-4 py-2 rounded-full font-geist text-sm ${
+                  orderStatus === 'received' ? 'bg-green-100 text-green-800' :
+                  'bg-gray-100 text-gray-800'
+                }`}>
+                  Received
+                </div>
+              </div>
+            </div>
             <div className="mb-4">
               <strong>Order ID:</strong> #{orderId.slice(-8)}
-            </div>
-            <div className="mb-6">
-              <div aria-live="polite" className="text-lg font-semibold">
-                Status: {orderStatus || 'pending'}
-              </div>
             </div>
             <div>
               <Button onClick={handleBackToShopping} size="lg">Continue Shopping</Button>
@@ -441,11 +487,11 @@ export default function Checkout() {
                         {item.product?.name || 'Unknown Product'}
                       </h4>
                       <p className="text-sm text-muted-foreground">
-                        Qty: {item.quantity} × ${item.product?.price || '0.00'}
+                        Qty: {item.quantity} × ₱{item.product?.price || '0.00'}
                       </p>
                     </div>
                     <div className="text-sm font-medium font-geist text-foreground">
-                      ${((parseFloat(item.product?.price || '0') * item.quantity)).toFixed(2)}
+                      ₱{((parseFloat(item.product?.price || '0') * item.quantity)).toFixed(2)}
                     </div>
                   </div>
                 ))}
@@ -458,19 +504,19 @@ export default function Checkout() {
                 <div className="flex justify-between text-sm">
                   <span className="font-geist text-muted-foreground">Subtotal</span>
                   <span className="font-geist text-foreground" data-testid="text-subtotal">
-                    ${totalAmount.toFixed(2)}
+                    ₱{totalAmount.toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="font-geist text-muted-foreground">Shipping</span>
                   <span className="font-geist text-foreground" data-testid="text-shipping">
-                    {shippingCost === 0 ? 'Free' : `$${shippingCost.toFixed(2)}`}
+                    {shippingCost === 0 ? 'Free' : `₱${shippingCost.toFixed(2)}`}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="font-geist text-muted-foreground">Tax</span>
                   <span className="font-geist text-foreground" data-testid="text-tax">
-                    ${tax.toFixed(2)}
+                    ₱{tax.toFixed(2)}
                   </span>
                 </div>
 
@@ -479,7 +525,7 @@ export default function Checkout() {
                 <div className="flex justify-between text-lg font-bold">
                   <span className="font-lora text-foreground">Total</span>
                   <span className="font-lora text-primary" data-testid="text-total">
-                    ${finalTotal.toFixed(2)}
+                    ₱{finalTotal.toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -488,7 +534,7 @@ export default function Checkout() {
               {totalAmount < 100 && (
                 <div className="bg-accent/50 border border-accent rounded-lg p-3">
                   <p className="text-xs font-geist text-accent-foreground">
-                    Add ${(100 - totalAmount).toFixed(2)} more for free shipping!
+                    Add ₱{(100 - totalAmount).toFixed(2)} more for free shipping!
                   </p>
                 </div>
               )}

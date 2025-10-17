@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "wouter";
 import { ArrowLeft, Star, ShoppingCart, Truck, Shield, RefreshCw } from "lucide-react";
@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/hooks/use-cart";
 import { useToast } from "@/hooks/use-toast";
+import ProductCard from "@/components/product-card";
 import type { Product } from "@/lib/types";
 
 export default function ProductDetail() {
@@ -21,6 +22,44 @@ export default function ProductDetail() {
     queryFn: async () => {
       const response = await fetch(`/api/products/${id}`);
       if (!response.ok) throw new Error('Product not found');
+      return response.json();
+    },
+    enabled: !!id,
+  });
+
+  // Track browsing history
+  useEffect(() => {
+    if (product?.id) {
+      const token = localStorage.getItem('token');
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      else headers['x-session-id'] = 'default-session';
+      
+      fetch('/api/browsing-history', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ productId: product.id })
+      }).catch(console.error);
+    }
+  }, [product?.id]);
+
+  // Fetch recommendations
+  const { data: recommendations = [] } = useQuery<Product[]>({
+    queryKey: ['/api/recommendations', id],
+    queryFn: async () => {
+      const response = await fetch(`/api/recommendations?productId=${id}&limit=4`);
+      if (!response.ok) return [];
+      return response.json();
+    },
+    enabled: !!id,
+  });
+
+  // Fetch frequently bought together
+  const { data: frequentlyBought = [] } = useQuery<Product[]>({
+    queryKey: ['/api/frequently-bought-together', id],
+    queryFn: async () => {
+      const response = await fetch(`/api/frequently-bought-together?productId=${id}`);
+      if (!response.ok) return [];
       return response.json();
     },
     enabled: !!id,
@@ -157,7 +196,7 @@ export default function ProductDetail() {
 
           <div>
             <span className="text-4xl font-bold font-lora text-primary" data-testid="text-price">
-              ${product.price}
+              ₱{product.price}
             </span>
           </div>
 
@@ -225,7 +264,7 @@ export default function ProductDetail() {
 
       {/* Specifications */}
       {Object.keys(specifications).length > 0 && (
-        <Card className="bg-card border-border">
+        <Card className="bg-card border-border mb-8">
           <CardContent className="p-6">
             <h3 className="text-xl font-bold font-lora text-foreground mb-4">Specifications</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -242,6 +281,34 @@ export default function ProductDetail() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Frequently Bought Together */}
+      {frequentlyBought.length > 0 && (
+        <div className="mb-12">
+          <h3 className="text-2xl font-bold font-lora text-foreground mb-6">
+            Frequently Bought Together
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {frequentlyBought.map((item) => (
+              <ProductCard key={item.id} product={item} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* You May Also Like */}
+      {recommendations.length > 0 && (
+        <div>
+          <h3 className="text-2xl font-bold font-lora text-foreground mb-6">
+            You May Also Like
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {recommendations.map((item) => (
+              <ProductCard key={item.id} product={item} />
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );

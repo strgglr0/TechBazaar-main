@@ -66,3 +66,75 @@ def list_categories():
 def list_brands():
     brands = db.session.query(Product.brand).distinct().all()
     return jsonify([{'id': b[0].lower() if b[0] else '', 'name': b[0]} for b in brands if b[0]])
+
+
+@products_bp.route('/products', methods=['POST'])
+def create_product():
+    data = request.get_json() or {}
+    try:
+        # Generate a simple ID if not provided
+        if not data.get('id'):
+            max_id = db.session.query(db.func.max(db.cast(Product.id, db.Integer))).scalar() or 0
+            data['id'] = str(max_id + 1)
+        
+        product = Product(
+            id=data.get('id'),
+            name=data.get('name', ''),
+            description=data.get('description', ''),
+            price=str(data.get('price', '0.00')),
+            category=data.get('category', 'phones'),
+            brand=data.get('brand', ''),
+            stock=int(data.get('stock', 0)),
+            imageUrl=data.get('imageUrl')
+        )
+        db.session.add(product)
+        db.session.commit()
+        return jsonify(product.to_dict()), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to create product', 'details': str(e)}), 500
+
+
+@products_bp.route('/products/<id>', methods=['PUT'])
+def update_product(id):
+    product = Product.query.get(id)
+    if not product:
+        return jsonify({'error': 'Product not found'}), 404
+    
+    data = request.get_json() or {}
+    try:
+        if 'name' in data:
+            product.name = data['name']
+        if 'description' in data:
+            product.description = data['description']
+        if 'price' in data:
+            product.price = str(data['price'])
+        if 'category' in data:
+            product.category = data['category']
+        if 'brand' in data:
+            product.brand = data['brand']
+        if 'stock' in data:
+            product.stock = int(data['stock'])
+        if 'imageUrl' in data:
+            product.imageUrl = data['imageUrl']
+        
+        db.session.commit()
+        return jsonify(product.to_dict())
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to update product', 'details': str(e)}), 500
+
+
+@products_bp.route('/products/<id>', methods=['DELETE'])
+def delete_product(id):
+    product = Product.query.get(id)
+    if not product:
+        return jsonify({'error': 'Product not found'}), 404
+    
+    try:
+        db.session.delete(product)
+        db.session.commit()
+        return '', 204
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to delete product', 'details': str(e)}), 500

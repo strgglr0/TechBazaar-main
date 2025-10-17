@@ -95,8 +95,8 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
         
         <div className="flex items-center justify-between">
-          <span className="text-2xl font-bold font-lora text-primary" data-testid={`text-price-${product.id}`}>
-            ${product.price}
+          <span className="text-2xl font-bold font-lora text-orange-700 dark:text-orange-600" data-testid={`text-price-${product.id}`}>
+            ₱{product.price}
           </span>
           <Button
             className="bg-primary text-primary-foreground font-geist font-medium hover:bg-primary/90"

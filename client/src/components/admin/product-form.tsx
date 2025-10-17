@@ -168,7 +168,7 @@ export default function ProductForm({ product, open, onOpenChange }: ProductForm
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="font-geist">Price ($)</FormLabel>
+                    <FormLabel className="font-geist">Price (₱)</FormLabel>
                     <FormControl>
                       <Input {...field} type="number" step="0.01" data-testid="input-product-price" />
                     </FormControl>

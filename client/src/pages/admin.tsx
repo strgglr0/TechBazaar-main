@@ -45,9 +45,9 @@ export default function Admin() {
     },
     {
       title: "Revenue",
-      value: `$${stats?.revenue?.toLocaleString() || 0}`,
+      value: `₱${stats?.revenue?.toLocaleString() || 0}`,
       icon: DollarSign,
-      color: "bg-chart-3/10 text-chart-3",
+      color: "bg-green-500/10 text-green-500"
     },
     {
       title: "Low Stock",
