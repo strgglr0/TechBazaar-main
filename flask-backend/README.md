@@ -28,8 +28,9 @@ Alternatively, the app will call `db.create_all()` on startup if migrations are 
 Run the app:
 
 ```bash
+# recommended for development (binds to 0.0.0.0 so Codespaces/containers can forward the port)
 export FLASK_APP=app.py
-flask run --port=5001
+flask run --host=0.0.0.0 --port=5001
 ```
 Flask backend for TechBazaar
 ===========================
@@ -46,15 +47,23 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-2. Run the Flask app:
+2. Run the Flask app (development):
+
+Option A — run with Flask CLI (recommended in devcontainers/Codespaces):
 
 ```bash
 export FLASK_APP=app.py
 export FLASK_ENV=development
+flask run --host=0.0.0.0 --port=5001
+```
+
+Option B — run directly with Python (app binds to 0.0.0.0 by default in __main__):
+
+```bash
 python app.py
 ```
 
-The server will run on port 5000. The frontend (React) can be run with `npm run dev:frontend` (from the repo root) or `cd client && npx vite` and will call `http://localhost:5000/api/...`.
+By default the app listens on port 5001. The frontend (React/Vite) should proxy API requests to this port (see project `vite.config.ts`).
 
 Database setup
 --------------

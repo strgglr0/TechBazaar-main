@@ -26,7 +26,7 @@ fi
 export FLASK_APP="$FLASK_DIR/app.py"
 export FLASK_ENV=development
 export FLASK_SECRET="${FLASK_SECRET:-dev-secret}"
-export FLASK_RUN_PORT=5002
+export FLASK_RUN_PORT=${FLASK_RUN_PORT:-5001}
 
 cd "$FLASK_DIR"
 echo "Starting Flask backend... (logs -> $FLASK_DIR/flask.log)"

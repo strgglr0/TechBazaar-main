@@ -3,6 +3,26 @@ from extensions import db
 from models import User
 from utils import hash_password, verify_password, generate_token, token_required
 
+def admin_required(f):
+    from functools import wraps
+    from flask import request, jsonify
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        # token_required sets request.user_id
+        token_resp = token_required(lambda *a, **k: None)
+        try:
+            # call token_required to validate token
+            resp = token_required(lambda *a, **k: None)(*args, **kwargs)
+        except Exception:
+            # token missing or invalid
+            return jsonify({'error': 'unauthorized'}), 401
+        user = User.query.get(request.user_id)
+        if not user or not getattr(user, 'is_admin', False):
+            return jsonify({'error': 'forbidden'}), 403
+        return f(*args, **kwargs)
+    return decorated
+
 auth_bp = Blueprint('auth', __name__)
 
 

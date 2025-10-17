@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Input } from "@/components/ui/input";
 import { useCart } from "@/hooks/use-cart";
 import { useLocation } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function ShoppingCartComponent() {
   const { 
@@ -22,6 +23,10 @@ export default function ShoppingCartComponent() {
   const [, setLocation] = useLocation();
 
   const handleCheckout = () => {
+    // save any customer info entered in the cart so checkout page can prefill
+    try {
+      sessionStorage.setItem('checkoutCustomer', JSON.stringify(customer));
+    } catch (e) {}
     setIsOpen(false);
     setLocation("/checkout");
   };
@@ -32,9 +37,10 @@ export default function ShoppingCartComponent() {
     email: "",
     address: ""
   });
+  const { user } = useAuth();
 
-  const handleCustomerChange = (e) => {
-    const { name, value } = e.target;
+  const handleCustomerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target as HTMLInputElement;
     setCustomer((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -129,6 +135,21 @@ export default function ShoppingCartComponent() {
                   <CardDescription>Enter your details for checkout</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {user && (
+                    <div className="mb-2 text-sm text-muted-foreground">
+                      Signed in as <strong className="text-foreground">{user.name || user.email}</strong>
+                      <button
+                        className="ml-3 text-primary underline"
+                        onClick={() => setCustomer({
+                          name: user.name || '',
+                          email: user.email || '',
+                          address: customer.address,
+                        })}
+                      >
+                        Use account details
+                      </button>
+                    </div>
+                  )}
                   <Input
                     name="name"
                     placeholder="Full Name"

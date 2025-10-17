@@ -63,7 +63,9 @@ export default defineConfig({
     },
     proxy: {
       "/api": {
-        target: process.env.VITE_API_PROXY_TARGET || "http://localhost:5002",
+        // Default proxy target should match the Flask backend port (5001).
+        // Can still be overridden with VITE_API_PROXY_TARGET env var.
+        target: process.env.VITE_API_PROXY_TARGET || "http://localhost:5001",
         changeOrigin: true,
         secure: false,
       },

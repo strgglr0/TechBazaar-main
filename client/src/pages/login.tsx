@@ -33,16 +33,25 @@ export default function Login() {
     
     setLoading(true);
     try {
-      const res = await apiFetch('/login', {
+      const { res, data } = await apiFetch('/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: form.email, password: form.password }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Login failed');
-      
-      login(data.token, data.user);
-      toast({ title: 'Signed in', description: `Welcome back ${data.user.name || ''}` });
+
+      if (!res.ok) {
+        const errMsg = data?.error || (typeof data === 'string' ? data : 'Login failed');
+        throw new Error(errMsg);
+      }
+
+      const token = data?.token ?? null;
+      const user = data?.user ?? null;
+      if (!token || !user) {
+        throw new Error('Invalid server response');
+      }
+
+      login(token, user);
+      toast({ title: 'Signed in', description: `Welcome back ${user.name || ''}` });
       setLocation('/');
     } catch (err: any) {
       toast({ title: 'Error', description: err.message || 'Login failed', variant: 'destructive' });

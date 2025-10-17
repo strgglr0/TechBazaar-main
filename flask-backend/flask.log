@@ -1,4 +1,54 @@
+[2025-10-17 14:04:15,602] ERROR in products: Failed to ensure seeded products
 Traceback (most recent call last):
-  File "/workspaces/TechBazaar-main/flask-backend/app.py", line 3, in <module>
-    from flask import Flask, send_from_directory
-ModuleNotFoundError: No module named 'flask'
+  File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 35, in register_products
+    ensure_seeded()
+  File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 20, in ensure_seeded
+    current_app.logger.exception('Failed to seed products')
+    ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/werkzeug/local.py", line 311, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/werkzeug/local.py", line 508, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+ * Serving Flask app 'app'
+ * Debug mode: on
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.2.109:5001
+Press CTRL+C to quit
+ * Restarting with stat
+[2025-10-17 14:04:16,697] ERROR in products: Failed to ensure seeded products
+Traceback (most recent call last):
+  File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 35, in register_products
+    ensure_seeded()
+  File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 20, in ensure_seeded
+    current_app.logger.exception('Failed to seed products')
+    ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/werkzeug/local.py", line 311, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/werkzeug/local.py", line 508, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+ * Debugger is active!
+ * Debugger PIN: 494-874-324
+127.0.0.1 - - [17/Oct/2025 14:05:22] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [17/Oct/2025 14:05:22] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [17/Oct/2025 14:05:22] "GET /api/brands HTTP/1.1" 200 -
+127.0.0.1 - - [17/Oct/2025 14:05:22] "GET /api/me HTTP/1.1" 404 -
+127.0.0.1 - - [17/Oct/2025 14:05:22] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [17/Oct/2025 14:05:33] "POST /api/login HTTP/1.1" 401 -
+127.0.0.1 - - [17/Oct/2025 14:05:48] "POST /api/register HTTP/1.1" 201 -
+127.0.0.1 - - [17/Oct/2025 14:05:56] "GET /api/admin/stats HTTP/1.1" 200 -
+127.0.0.1 - - [17/Oct/2025 14:05:56] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [17/Oct/2025 14:08:36] "POST /api/login HTTP/1.1" 200 -

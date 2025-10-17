@@ -104,6 +104,9 @@ export default function Header() {
                 className="relative p-2 text-foreground hover:text-primary"
                 onClick={() => setIsOpen(true)}
                 data-testid="button-cart"
+                aria-label={`Open shopping cart, ${totalItems} items`}
+                aria-haspopup="dialog"
+                aria-expanded={totalItems > 0}
               >
                 <ShoppingCart className="h-5 w-5" />
                 {totalItems > 0 && (

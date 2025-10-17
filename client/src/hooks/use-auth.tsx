@@ -37,15 +37,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchCurrentUser = async (authToken: string) => {
     try {
-      const response = await apiFetch('/me', {
+      const { res, data } = await apiFetch('/me', {
         headers: {
           'Authorization': `Bearer ${authToken}`,
         },
       });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data.user);
+
+      if (res.ok) {
+        setUser(data?.user || null);
       } else {
         // Token is invalid, clear it
         localStorage.removeItem('token');

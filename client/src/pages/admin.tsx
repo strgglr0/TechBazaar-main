@@ -7,8 +7,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProductTable from "@/components/admin/product-table";
 import type { Product, AdminStats } from "@/lib/types";
+import { useAuth } from "@/hooks/use-auth";
+import { useEffect } from "react";
+import { useLocation } from "wouter";
 
 export default function Admin() {
+  const { user, loading } = useAuth();
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    if (!loading) {
+      if (!user || !user.isAdmin) {
+        setLocation('/login');
+      }
+    }
+  }, [user, loading]);
   const { data: stats } = useQuery<AdminStats>({
     queryKey: ['/api/admin/stats'],
   });

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/hooks/use-cart";
+import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { z } from "zod";
@@ -32,14 +33,16 @@ export default function Checkout() {
   const [, setLocation] = useLocation();
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderId, setOrderId] = useState<string>("");
+  const [orderStatus, setOrderStatus] = useState<string | null>(null);
   const { cartItems, totalAmount, clearCart } = useCart();
+  const { user, token } = useAuth();
   const { toast } = useToast();
 
   const form = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
-      customerName: "",
-      customerEmail: "",
+      customerName: user?.name || "",
+      customerEmail: user?.email || "",
       customerPhone: "",
       address: "",
       city: "",
@@ -48,6 +51,23 @@ export default function Checkout() {
       country: "United States",
     },
   });
+
+  // If user came from cart and populated customer fields there, prefer those values
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('checkoutCustomer');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        form.reset({
+          ...form.getValues(),
+          customerName: parsed.name || user?.name || '',
+          customerEmail: parsed.email || user?.email || '',
+          address: parsed.address || form.getValues().address,
+        });
+        sessionStorage.removeItem('checkoutCustomer');
+      }
+    } catch (e) {}
+  }, []);
 
   const createOrderMutation = useMutation({
     mutationFn: async (data: CheckoutFormData) => {
@@ -71,16 +91,32 @@ export default function Checkout() {
         totalAmount: totalAmount.toFixed(2),
       };
 
-      const response = await apiRequest("POST", "/api/orders", orderData);
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      // include session header for guest carts
+      headers['x-session-id'] = 'default-session';
+
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(orderData),
+      });
+
+      if (!response.ok) {
+        const txt = await response.text();
+        throw new Error(txt || response.statusText);
+      }
+
       return response.json();
     },
     onSuccess: (order) => {
       setOrderId(order.id);
-      setOrderComplete(true);
+      setOrderStatus('pending');
+      // do not mark complete yet; poll will update status
       clearCart();
       toast({
         title: "Order placed successfully!",
-        description: `Your order #${order.id.slice(-8)} has been confirmed.`,
+        description: `Your order #${order.id.slice(-8)} has been created. Tracking will update shortly.`,
       });
     },
     onError: () => {
@@ -96,12 +132,38 @@ export default function Checkout() {
     createOrderMutation.mutate(data);
   };
 
+  // Poll order status for created order every 5s until complete
+  useEffect(() => {
+    let interval: any;
+    const poll = async () => {
+      if (!orderId) return;
+      try {
+        const res = await fetch(`/api/orders/${orderId}`);
+        if (!res.ok) return;
+        const json = await res.json();
+        setOrderStatus(json.status || null);
+        if (json.status === 'complete') {
+          setOrderComplete(true);
+          clearInterval(interval);
+        }
+      } catch (e) {
+        // ignore
+      }
+    };
+    if (orderId) {
+      poll();
+      interval = setInterval(poll, 5000);
+    }
+    return () => clearInterval(interval);
+  }, [orderId]);
+
   const handleBackToShopping = () => {
     setLocation("/");
   };
 
   // Redirect if cart is empty and order is not complete
-  if (cartItems.length === 0 && !orderComplete) {
+  // If cart is empty and no active order, redirect to shopping
+  if (cartItems.length === 0 && !orderComplete && !orderId) {
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Card className="bg-card border-border text-center">
@@ -146,6 +208,34 @@ export default function Checkout() {
               <Button onClick={handleBackToShopping} size="lg" data-testid="button-continue-shopping">
                 Continue Shopping
               </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // If order was created and not yet complete, show status page
+  if (orderId && !orderComplete) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <Card className="bg-card border-border text-center">
+          <CardContent className="p-12">
+            <div className="flex justify-center mb-6">
+              <Truck className="h-16 w-16 text-primary" />
+            </div>
+            <h2 className="text-2xl font-bold font-lora text-foreground mb-4">Order Processing</h2>
+            <p className="text-muted-foreground mb-4">Your order is being processed. We'll update the status shortly.</p>
+            <div className="mb-4">
+              <strong>Order ID:</strong> #{orderId.slice(-8)}
+            </div>
+            <div className="mb-6">
+              <div aria-live="polite" className="text-lg font-semibold">
+                Status: {orderStatus || 'pending'}
+              </div>
+            </div>
+            <div>
+              <Button onClick={handleBackToShopping} size="lg">Continue Shopping</Button>
             </div>
           </CardContent>
         </Card>

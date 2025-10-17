@@ -34,17 +34,41 @@ def create_app():
     # Create tables if they don't exist (simple convenience for demo/prod)
     with app.app_context():
         db.create_all()
+        # seed admin user if environment variables provided
+        try:
+            from models import User
+            from utils import hash_password
+            admin_email = os.environ.get('FLASK_ADMIN_EMAIL')
+            admin_pass = os.environ.get('FLASK_ADMIN_PASSWORD')
+            if admin_email and admin_pass:
+                existing = User.query.filter_by(email=admin_email).first()
+                if not existing:
+                    u = User(email=admin_email, password_hash=hash_password(admin_pass), name='Admin', is_admin=True)
+                    db.session.add(u)
+                    db.session.commit()
+        except Exception:
+            app.logger.exception('Failed to seed admin user')
 
     # Register blueprints
     from routes.auth import auth_bp
     from routes.products import products_bp
     from routes.cart import cart_bp
     from routes.orders import orders_bp
+    from routes.admin import admin_bp
 
     app.register_blueprint(auth_bp, url_prefix='/api')
     app.register_blueprint(products_bp, url_prefix='/api')
     app.register_blueprint(cart_bp, url_prefix='/api')
     app.register_blueprint(orders_bp, url_prefix='/api')
+    app.register_blueprint(admin_bp, url_prefix='/api')
+
+    # Install any blueprint-specific app-level hooks (e.g. seeding)
+    try:
+        from routes.products import register_products
+        register_products(app)
+    except Exception:
+        # If import/registration fails, log but continue — seed is optional
+        app.logger.exception('Failed to register products hooks')
 
     # Serve React build in production
     @app.route('/', defaults={'path': ''})

@@ -8,15 +8,19 @@ const SESSION_ID = "default-session";
 export function useCart() {
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
+  // include auth token if present so cart endpoints operate on user cart
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
   const { data: cartItems = [], isLoading } = useQuery<CartItemWithProduct[]>({
     queryKey: ['/api/cart'],
     queryFn: async () => {
-      const response = await fetch('/api/cart', {
-        headers: {
-          'x-session-id': SESSION_ID,
-        },
-      });
+      const headers: Record<string,string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      } else {
+        headers['x-session-id'] = SESSION_ID;
+      }
+      const response = await fetch('/api/cart', { headers });
       if (!response.ok) throw new Error('Failed to fetch cart');
       return response.json();
     },
@@ -24,12 +28,12 @@ export function useCart() {
 
   const addToCartMutation = useMutation({
     mutationFn: async ({ productId, quantity = 1 }: { productId: string; quantity?: number }) => {
+      const headers: Record<string,string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      else headers['x-session-id'] = SESSION_ID;
       const response = await fetch('/api/cart', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-session-id': SESSION_ID,
-        },
+        headers,
         body: JSON.stringify({ productId, quantity }),
       });
       if (!response.ok) throw new Error('Failed to add to cart');
@@ -68,11 +72,11 @@ export function useCart() {
 
   const updateQuantityMutation = useMutation({
     mutationFn: async ({ id, quantity }: { id: string; quantity: number }) => {
+      const headers: Record<string,string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
       const response = await fetch(`/api/cart/${id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({ quantity }),
       });
       if (!response.ok) throw new Error('Failed to update cart item');
@@ -85,8 +89,12 @@ export function useCart() {
 
   const removeFromCartMutation = useMutation({
     mutationFn: async (id: string) => {
+      const headers: Record<string,string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      else headers['x-session-id'] = SESSION_ID;
       const response = await fetch(`/api/cart/${id}`, {
         method: 'DELETE',
+        headers,
       });
       if (!response.ok) throw new Error('Failed to remove from cart');
     },
@@ -97,11 +105,12 @@ export function useCart() {
 
   const clearCartMutation = useMutation({
     mutationFn: async () => {
+      const headers: Record<string,string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      else headers['x-session-id'] = SESSION_ID;
       const response = await fetch('/api/cart', {
         method: 'DELETE',
-        headers: {
-          'x-session-id': SESSION_ID,
-        },
+        headers,
       });
       if (!response.ok) throw new Error('Failed to clear cart');
     },

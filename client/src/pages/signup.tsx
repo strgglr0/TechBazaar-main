@@ -36,15 +36,25 @@ export default function SignUp() {
     
     setLoading(true);
     try {
-      const res = await apiFetch('/register', {
+      const { res, data } = await apiFetch('/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to register');
-      
-      login(data.token, data.user);
+
+      if (!res.ok) {
+        const errMsg = data?.error || (typeof data === 'string' ? data : 'Failed to register');
+        throw new Error(errMsg);
+      }
+
+      // data may be null if server returned empty body — guard against that
+      const token = data?.token ?? null;
+      const user = data?.user ?? null;
+      if (!token || !user) {
+        throw new Error('Invalid server response');
+      }
+
+      login(token, user);
       toast({ title: 'Account created', description: 'Welcome!' });
       setLocation('/');
     } catch (err: any) {
