@@ -39,11 +39,54 @@ def register_products(app):
 
 @products_bp.route('/products', methods=['GET'])
 def list_products():
+    # Start with base query
+    query = Product.query
+    
+    # Apply category filter (case-insensitive)
     category = request.args.get('category')
     if category:
-        items = Product.query.filter_by(category=category).all()
-    else:
-        items = Product.query.all()
+        query = query.filter(Product.category.ilike(category))
+    
+    # Apply brand filter (case-insensitive)
+    brand = request.args.get('brand')
+    if brand:
+        query = query.filter(Product.brand.ilike(brand))
+    
+    # Apply price range filter
+    min_price = request.args.get('minPrice')
+    if min_price:
+        try:
+            query = query.filter(db.cast(Product.price, db.Float) >= float(min_price))
+        except ValueError:
+            pass
+    
+    max_price = request.args.get('maxPrice')
+    if max_price:
+        try:
+            query = query.filter(db.cast(Product.price, db.Float) <= float(max_price))
+        except ValueError:
+            pass
+    
+    # Apply rating filter
+    rating = request.args.get('rating')
+    if rating:
+        try:
+            query = query.filter(db.cast(Product.rating, db.Float) >= float(rating))
+        except ValueError:
+            pass
+    
+    # Apply search filter
+    search = request.args.get('search')
+    if search:
+        search_pattern = f'%{search}%'
+        query = query.filter(
+            db.or_(
+                Product.name.ilike(search_pattern),
+                Product.description.ilike(search_pattern)
+            )
+        )
+    
+    items = query.all()
     return jsonify([p.to_dict() for p in items])
 
 
@@ -72,10 +115,16 @@ def list_brands():
 def create_product():
     data = request.get_json() or {}
     try:
+        import json
+        
         # Generate a simple ID if not provided
         if not data.get('id'):
             max_id = db.session.query(db.func.max(db.cast(Product.id, db.Integer))).scalar() or 0
             data['id'] = str(max_id + 1)
+        
+        # Generate SKU if not provided
+        if not data.get('sku'):
+            data['sku'] = f"SKU-{data['id']}"
         
         product = Product(
             id=data.get('id'),
@@ -84,8 +133,13 @@ def create_product():
             price=str(data.get('price', '0.00')),
             category=data.get('category', 'phones'),
             brand=data.get('brand', ''),
+            sku=data.get('sku'),
             stock=int(data.get('stock', 0)),
-            imageUrl=data.get('imageUrl')
+            imageUrl=data.get('imageUrl'),
+            specifications=json.dumps(data.get('specifications', {})),
+            rating=str(data.get('rating', '0')),
+            reviewCount=int(data.get('reviewCount', 0)),
+            isActive=data.get('isActive', True)
         )
         db.session.add(product)
         db.session.commit()
@@ -103,6 +157,8 @@ def update_product(id):
     
     data = request.get_json() or {}
     try:
+        import json
+        
         if 'name' in data:
             product.name = data['name']
         if 'description' in data:
@@ -113,10 +169,20 @@ def update_product(id):
             product.category = data['category']
         if 'brand' in data:
             product.brand = data['brand']
+        if 'sku' in data:
+            product.sku = data['sku']
         if 'stock' in data:
             product.stock = int(data['stock'])
         if 'imageUrl' in data:
             product.imageUrl = data['imageUrl']
+        if 'specifications' in data:
+            product.specifications = json.dumps(data['specifications'])
+        if 'rating' in data:
+            product.rating = str(data['rating'])
+        if 'reviewCount' in data:
+            product.reviewCount = int(data['reviewCount'])
+        if 'isActive' in data:
+            product.isActive = data['isActive']
         
         db.session.commit()
         return jsonify(product.to_dict())

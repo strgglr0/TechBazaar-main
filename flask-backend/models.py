@@ -33,10 +33,17 @@ class Product(db.Model):
     price = db.Column(db.String(64), nullable=False)
     category = db.Column(db.String(128), nullable=True)
     brand = db.Column(db.String(128), nullable=True)
+    sku = db.Column(db.String(128), nullable=True, unique=True)
     stock = db.Column(db.Integer, default=0)
     imageUrl = db.Column(db.String(1024), nullable=True)
+    specifications = db.Column(db.Text, nullable=True)  # JSON as text
+    rating = db.Column(db.String(16), nullable=True, default='0')
+    reviewCount = db.Column(db.Integer, default=0)
+    isActive = db.Column(db.Boolean, default=True)
+    createdAt = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
+        import json
         return {
             'id': self.id,
             'name': self.name,
@@ -44,8 +51,14 @@ class Product(db.Model):
             'price': self.price,
             'category': self.category,
             'brand': self.brand,
+            'sku': self.sku,
             'stock': self.stock,
             'imageUrl': self.imageUrl,
+            'specifications': json.loads(self.specifications) if self.specifications else {},
+            'rating': self.rating,
+            'reviewCount': self.reviewCount,
+            'isActive': self.isActive,
+            'createdAt': self.createdAt.isoformat() if self.createdAt else None,
         }
 
 
