@@ -195,7 +195,7 @@ export default function ProductDetail() {
           </div>
 
           <div>
-            <span className="text-4xl font-bold font-lora text-primary" data-testid="text-price">
+            <span className="text-4xl font-bold font-lora text-orange-700 dark:text-orange-600" data-testid="text-price">
               ₱{product.price}
             </span>
           </div>

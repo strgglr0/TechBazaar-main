@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProductTable from "@/components/admin/product-table";
-import type { Product, AdminStats } from "@/lib/types";
+import OrderManagement from "@/components/admin/order-management";
+import AnalyticsDashboard from "@/components/admin/analytics-dashboard";
+import type { Product, AdminStats, Order } from "@/lib/types";
 import { useAuth } from "@/hooks/use-auth";
 import { useEffect } from "react";
 import { useLocation } from "wouter";
@@ -28,6 +30,17 @@ export default function Admin() {
 
   const { data: products = [], isLoading: productsLoading } = useQuery<Product[]>({
     queryKey: ['/api/products'],
+  });
+
+  const { data: orders = [], isLoading: ordersLoading } = useQuery<Order[]>({
+    queryKey: ['/api/orders'],
+    queryFn: async () => {
+      const response = await fetch('/api/orders', {
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to fetch orders');
+      return response.json();
+    },
   });
 
   const statsCards = [
@@ -113,17 +126,11 @@ export default function Admin() {
             </TabsContent>
 
             <TabsContent value="orders" className="mt-0">
-              <div className="text-center py-8">
-                <h3 className="text-lg font-semibold font-lora text-foreground mb-2">Order Management</h3>
-                <p className="text-muted-foreground">Order management functionality coming soon.</p>
-              </div>
+              <OrderManagement orders={orders} isLoading={ordersLoading} />
             </TabsContent>
 
             <TabsContent value="analytics" className="mt-0">
-              <div className="text-center py-8">
-                <h3 className="text-lg font-semibold font-lora text-foreground mb-2">Analytics</h3>
-                <p className="text-muted-foreground">Analytics dashboard coming soon.</p>
-              </div>
+              <AnalyticsDashboard isLoading={false} />
             </TabsContent>
           </CardContent>
         </Tabs>

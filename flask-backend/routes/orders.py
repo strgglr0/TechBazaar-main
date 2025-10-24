@@ -31,6 +31,44 @@ def get_order(order_id):
     return jsonify(order.to_dict())
 
 
+@orders_bp.route('/orders/<order_id>/status', methods=['PUT'])
+def update_order_status(order_id):
+    """Update order status"""
+    order = Order.query.get(order_id)
+    if not order:
+        return jsonify({'error': 'Order not found'}), 404
+    
+    data = request.get_json() or {}
+    new_status = data.get('status')
+    
+    if not new_status:
+        return jsonify({'error': 'Status is required'}), 400
+    
+    try:
+        order.status = new_status
+        db.session.commit()
+        return jsonify(order.to_dict())
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to update order status', 'details': str(e)}), 500
+
+
+@orders_bp.route('/orders/<order_id>', methods=['DELETE'])
+def delete_order(order_id):
+    """Delete an order"""
+    order = Order.query.get(order_id)
+    if not order:
+        return jsonify({'error': 'Order not found'}), 404
+    
+    try:
+        db.session.delete(order)
+        db.session.commit()
+        return jsonify({'message': 'Order deleted successfully', 'id': order_id})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to delete order', 'details': str(e)}), 500
+
+
 @orders_bp.route('/checkout', methods=['POST'])
 def checkout():
     """Create an order. If an Authorization token is present, the user is associated with the order.

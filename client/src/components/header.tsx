@@ -89,6 +89,10 @@ export default function Header() {
                       {user?.email}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => setLocation('/profile')}>
+                      <User className="h-4 w-4 mr-2" />
+                      My Profile
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleLogout}>
                       <LogOut className="h-4 w-4 mr-2" />
                       Sign out
@@ -185,6 +189,15 @@ export default function Header() {
                           <div className="px-3 py-2 text-sm text-muted-foreground">
                             Signed in as {user?.name}
                           </div>
+                          <Link href="/profile" data-testid="link-profile-mobile">
+                            <Button 
+                              variant="ghost" 
+                              className="w-full justify-start font-geist"
+                            >
+                              <User className="h-4 w-4 mr-2" />
+                              My Profile
+                            </Button>
+                          </Link>
                           <Button 
                             variant="ghost" 
                             className="w-full justify-start font-geist"

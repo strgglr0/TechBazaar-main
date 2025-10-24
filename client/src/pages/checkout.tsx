@@ -23,7 +23,7 @@ const checkoutSchema = z.object({
   address: z.string().min(1, "Address is required"),
   city: z.string().min(1, "City is required"),
   state: z.string().min(1, "State is required"),
-  zipCode: z.string().min(5, "ZIP code is required"),
+  zipCode: z.string().min(0, "ZIP code is required"),
   country: z.string().min(1, "Country is required"),
 });
 

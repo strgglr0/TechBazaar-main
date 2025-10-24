@@ -13,6 +13,7 @@ import Checkout from "@/pages/checkout";
 import SignUp from "@/pages/signup";
 import RegisterPlatform from "@/pages/register-platform";
 import Login from "@/pages/login";
+import Profile from "@/pages/profile";
 import Header from "@/components/header";
 
 function Router() {
@@ -23,6 +24,7 @@ function Router() {
         <Route path="/login" component={Login} />
         <Route path="/register-platform" component={RegisterPlatform} />
         <Route path="/admin" component={Admin} />
+        <Route path="/profile" component={Profile} />
         <Route path="/product/:id" component={ProductDetail} />
         <Route path="/cart" component={Cart} />
         <Route path="/checkout" component={Checkout} />
