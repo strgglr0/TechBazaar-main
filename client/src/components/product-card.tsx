@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/hooks/use-cart";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
+import { formatPrice } from "@/lib/formatters";
 import type { Product } from "@/lib/types";
 
 interface ProductCardProps {
@@ -96,7 +97,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         
         <div className="flex items-center justify-between">
           <span className="text-2xl font-bold font-lora text-orange-700 dark:text-orange-600" data-testid={`text-price-${product.id}`}>
-            ₱{product.price}
+            ₱{formatPrice(product.price)}
           </span>
           <Button
             className="bg-primary text-primary-foreground font-geist font-medium hover:bg-primary/90"

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Search, ShoppingCart, Menu, X, LogOut, User } from "lucide-react";
+import { Search, ShoppingCart, Menu, X, LogOut, User, Shield } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -93,6 +93,12 @@ export default function Header() {
                       <User className="h-4 w-4 mr-2" />
                       My Profile
                     </DropdownMenuItem>
+                    {user?.isAdmin && (
+                      <DropdownMenuItem onClick={() => setLocation('/admin')}>
+                        <Shield className="h-4 w-4 mr-2" />
+                        Admin Panel
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem onClick={handleLogout}>
                       <LogOut className="h-4 w-4 mr-2" />
                       Sign out
@@ -114,13 +120,6 @@ export default function Header() {
                       {totalItems}
                     </span>
                   )}
-                </Button>
-              </Link>
-              
-              {/* Admin Link */}
-              <Link href="/admin" data-testid="link-admin">
-                <Button className="bg-secondary text-secondary-foreground font-geist font-medium hover:bg-secondary/90">
-                  Admin
                 </Button>
               </Link>
             </nav>
@@ -165,12 +164,6 @@ export default function Header() {
                         </Button>
                       </Link>
                       
-                      <Link href="/admin" data-testid="link-admin-mobile">
-                        <Button variant="outline" className="w-full font-geist">
-                          Admin Panel
-                        </Button>
-                      </Link>
-                      
                       {!isAuthenticated ? (
                         <>
                           <Link href="/signup" data-testid="link-signup-mobile">
@@ -198,6 +191,17 @@ export default function Header() {
                               My Profile
                             </Button>
                           </Link>
+                          {user?.isAdmin && (
+                            <Link href="/admin" data-testid="link-admin-mobile">
+                              <Button 
+                                variant="outline" 
+                                className="w-full justify-start font-geist"
+                              >
+                                <Shield className="h-4 w-4 mr-2" />
+                                Admin Panel
+                              </Button>
+                            </Link>
+                          )}
                           <Button 
                             variant="ghost" 
                             className="w-full justify-start font-geist"

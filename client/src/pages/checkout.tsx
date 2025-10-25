@@ -14,6 +14,7 @@ import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { sanitizePhoneInput, formatPrice } from "@/lib/formatters";
 import { z } from "zod";
 
 const checkoutSchema = z.object({
@@ -360,7 +361,17 @@ export default function Checkout() {
                       <FormItem>
                         <FormLabel className="font-geist">Phone Number</FormLabel>
                         <FormControl>
-                          <Input {...field} type="tel" data-testid="input-phone" />
+                          <Input 
+                            value={field.value}
+                            onChange={(e) => {
+                              const sanitized = sanitizePhoneInput(e.target.value);
+                              field.onChange(sanitized);
+                            }}
+                            type="tel"
+                            placeholder="09171234567"
+                            maxLength={11}
+                            data-testid="input-phone" 
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -487,11 +498,11 @@ export default function Checkout() {
                         {item.product?.name || 'Unknown Product'}
                       </h4>
                       <p className="text-sm text-muted-foreground">
-                        Qty: {item.quantity} × ₱{item.product?.price || '0.00'}
+                        Qty: {item.quantity} × ₱{formatPrice(item.product?.price || '0.00')}
                       </p>
                     </div>
                     <div className="text-sm font-medium font-geist text-foreground">
-                      ₱{((parseFloat(item.product?.price || '0') * item.quantity)).toFixed(2)}
+                      ₱{formatPrice((parseFloat(item.product?.price || '0') * item.quantity))}
                     </div>
                   </div>
                 ))}
@@ -504,19 +515,19 @@ export default function Checkout() {
                 <div className="flex justify-between text-sm">
                   <span className="font-geist text-muted-foreground">Subtotal</span>
                   <span className="font-geist text-foreground" data-testid="text-subtotal">
-                    ₱{totalAmount.toFixed(2)}
+                    ₱{formatPrice(totalAmount)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="font-geist text-muted-foreground">Shipping</span>
                   <span className="font-geist text-foreground" data-testid="text-shipping">
-                    {shippingCost === 0 ? 'Free' : `₱${shippingCost.toFixed(2)}`}
+                    {shippingCost === 0 ? 'Free' : `₱${formatPrice(shippingCost)}`}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="font-geist text-muted-foreground">Tax</span>
                   <span className="font-geist text-foreground" data-testid="text-tax">
-                    ₱{tax.toFixed(2)}
+                    ₱{formatPrice(tax)}
                   </span>
                 </div>
 
@@ -525,7 +536,7 @@ export default function Checkout() {
                 <div className="flex justify-between text-lg font-bold">
                   <span className="font-lora text-foreground">Total</span>
                   <span className="font-lora text-primary" data-testid="text-total">
-                    ₱{finalTotal.toFixed(2)}
+                    ₱{formatPrice(finalTotal)}
                   </span>
                 </div>
               </div>
@@ -534,7 +545,7 @@ export default function Checkout() {
               {totalAmount < 100 && (
                 <div className="bg-accent/50 border border-accent rounded-lg p-3">
                   <p className="text-xs font-geist text-accent-foreground">
-                    Add ₱{(100 - totalAmount).toFixed(2)} more for free shipping!
+                    Add ₱{formatPrice(100 - totalAmount)} more for free shipping!
                   </p>
                 </div>
               )}

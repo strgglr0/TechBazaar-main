@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -11,6 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { formatNumberWithCommas, parseFormattedNumber, sanitizeNumberInput } from "@/lib/formatters";
 import type { Product, InsertProduct } from "@/lib/types";
 import { z } from "zod";
 
@@ -51,6 +52,42 @@ export default function ProductForm({ product, open, onOpenChange }: ProductForm
       isActive: product?.isActive ?? true,
     },
   });
+
+  // Reset form when product changes (for edit mode)
+  useEffect(() => {
+    if (product && open) {
+      form.reset({
+        name: product.name || "",
+        description: product.description || "",
+        price: product.price || "0.00",
+        category: product.category || "phones",
+        brand: product.brand || "",
+        sku: product.sku || "",
+        imageUrl: product.imageUrl || "",
+        specifications: JSON.stringify(product.specifications || {}, null, 2),
+        stock: product.stock || 0,
+        rating: product.rating || "0.00",
+        reviewCount: product.reviewCount || 0,
+        isActive: product.isActive ?? true,
+      });
+    } else if (!product && open) {
+      // Reset to empty for create mode
+      form.reset({
+        name: "",
+        description: "",
+        price: "0.00",
+        category: "phones",
+        brand: "",
+        sku: "",
+        imageUrl: "",
+        specifications: "{}",
+        stock: 0,
+        rating: "0.00",
+        reviewCount: 0,
+        isActive: true,
+      });
+    }
+  }, [product, open, form]);
 
   const createMutation = useMutation({
     mutationFn: async (data: InsertProduct) => {
@@ -170,7 +207,21 @@ export default function ProductForm({ product, open, onOpenChange }: ProductForm
                   <FormItem>
                     <FormLabel className="font-geist">Price (₱)</FormLabel>
                     <FormControl>
-                      <Input {...field} type="number" step="0.01" data-testid="input-product-price" />
+                      <Input 
+                        value={formatNumberWithCommas(field.value)}
+                        onChange={(e) => {
+                          const sanitized = sanitizeNumberInput(e.target.value, true);
+                          field.onChange(sanitized);
+                        }}
+                        onBlur={(e) => {
+                          const value = parseFormattedNumber(e.target.value);
+                          if (value) {
+                            field.onChange(parseFloat(value).toFixed(2));
+                          }
+                        }}
+                        placeholder="0.00"
+                        data-testid="input-product-price" 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -238,7 +289,15 @@ export default function ProductForm({ product, open, onOpenChange }: ProductForm
                   <FormItem>
                     <FormLabel className="font-geist">Stock</FormLabel>
                     <FormControl>
-                      <Input {...field} type="number" onChange={(e) => field.onChange(parseInt(e.target.value) || 0)} data-testid="input-product-stock" />
+                      <Input 
+                        value={formatNumberWithCommas(field.value || 0)}
+                        onChange={(e) => {
+                          const sanitized = sanitizeNumberInput(e.target.value, false);
+                          field.onChange(parseInt(sanitized) || 0);
+                        }}
+                        placeholder="0"
+                        data-testid="input-product-stock" 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -252,7 +311,26 @@ export default function ProductForm({ product, open, onOpenChange }: ProductForm
                   <FormItem>
                     <FormLabel className="font-geist">Rating (0-5)</FormLabel>
                     <FormControl>
-                      <Input {...field} value={field.value || ""} type="number" step="0.1" min="0" max="5" data-testid="input-product-rating" />
+                      <Input 
+                        value={field.value || ""}
+                        onChange={(e) => {
+                          const sanitized = sanitizeNumberInput(e.target.value, true);
+                          // Limit to 0-5 range
+                          const num = parseFloat(sanitized);
+                          if (sanitized === '' || (num >= 0 && num <= 5)) {
+                            field.onChange(sanitized);
+                          }
+                        }}
+                        onBlur={(e) => {
+                          const value = e.target.value;
+                          if (value) {
+                            const num = parseFloat(value);
+                            field.onChange(Math.min(5, Math.max(0, num)).toFixed(1));
+                          }
+                        }}
+                        placeholder="0.0"
+                        data-testid="input-product-rating" 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -266,7 +344,15 @@ export default function ProductForm({ product, open, onOpenChange }: ProductForm
                   <FormItem>
                     <FormLabel className="font-geist">Review Count</FormLabel>
                     <FormControl>
-                      <Input {...field} value={field.value || 0} type="number" onChange={(e) => field.onChange(parseInt(e.target.value) || 0)} data-testid="input-product-reviews" />
+                      <Input 
+                        value={formatNumberWithCommas(field.value || 0)}
+                        onChange={(e) => {
+                          const sanitized = sanitizeNumberInput(e.target.value, false);
+                          field.onChange(parseInt(sanitized) || 0);
+                        }}
+                        placeholder="0"
+                        data-testid="input-product-reviews" 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

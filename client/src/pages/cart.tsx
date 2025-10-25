@@ -6,6 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/hooks/use-cart";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
+import { formatPrice } from "@/lib/formatters";
 
 export default function CartPage() {
   const { 
@@ -110,7 +111,7 @@ export default function CartPage() {
                         )}
                       </p>
                       <p className="text-lg font-bold font-lora text-primary">
-                        ₱{item.product?.price || '0.00'}
+                        ₱{formatPrice(item.product?.price || '0.00')}
                       </p>
                     </div>
 
@@ -154,7 +155,7 @@ export default function CartPage() {
                     <div className="text-right">
                       <p className="text-sm text-muted-foreground mb-1">Subtotal</p>
                       <p className="text-lg font-bold font-lora text-foreground">
-                        ₱{((parseFloat(item.product?.price || '0') * item.quantity)).toFixed(2)}
+                        ₱{formatPrice((parseFloat(item.product?.price || '0') * item.quantity))}
                       </p>
                     </div>
                   </div>
@@ -234,7 +235,7 @@ export default function CartPage() {
             <CardContent className="space-y-4">
               <div className="flex justify-between text-sm">
                 <span className="font-geist text-muted-foreground">Subtotal</span>
-                <span className="font-geist text-foreground">₱{totalAmount.toFixed(2)}</span>
+                <span className="font-geist text-foreground">₱{formatPrice(totalAmount)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="font-geist text-muted-foreground">Shipping</span>
@@ -245,7 +246,7 @@ export default function CartPage() {
               <div className="flex justify-between text-sm">
                 <span className="font-geist text-muted-foreground">Tax (8%)</span>
                 <span className="font-geist text-foreground">
-                  ₱{(totalAmount * 0.08).toFixed(2)}
+                  ₱{formatPrice(totalAmount * 0.08)}
                 </span>
               </div>
 
@@ -254,14 +255,14 @@ export default function CartPage() {
               <div className="flex justify-between">
                 <span className="text-lg font-bold font-lora text-foreground">Total</span>
                 <span className="text-2xl font-bold font-lora text-primary">
-                  ₱{(totalAmount + (totalAmount > 100 ? 0 : 9.99) + (totalAmount * 0.08)).toFixed(2)}
+                  ₱{formatPrice(totalAmount + (totalAmount > 100 ? 0 : 9.99) + (totalAmount * 0.08))}
                 </span>
               </div>
 
               {totalAmount < 100 && (
                 <div className="bg-accent/50 border border-accent rounded-lg p-3">
                   <p className="text-xs font-geist text-accent-foreground">
-                    Add ₱{(100 - totalAmount).toFixed(2)} more for free shipping!
+                    Add ₱{formatPrice(100 - totalAmount)} more for free shipping!
                   </p>
                 </div>
               )}

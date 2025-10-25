@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/hooks/use-cart";
 import { useToast } from "@/hooks/use-toast";
+import { formatPrice } from "@/lib/formatters";
 import ProductCard from "@/components/product-card";
 import type { Product } from "@/lib/types";
 
@@ -196,7 +197,7 @@ export default function ProductDetail() {
 
           <div>
             <span className="text-4xl font-bold font-lora text-orange-700 dark:text-orange-600" data-testid="text-price">
-              ₱{product.price}
+              ₱{formatPrice(product.price)}
             </span>
           </div>
 

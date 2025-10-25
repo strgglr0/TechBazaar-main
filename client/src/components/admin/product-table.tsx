@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { formatPrice } from "@/lib/formatters";
 import ProductForm from "./product-form";
 import type { Product } from "@/lib/types";
 
@@ -130,7 +131,7 @@ export default function ProductTable({ products, isLoading }: ProductTableProps)
                     {product.category}
                   </TableCell>
                   <TableCell className="font-geist" data-testid={`text-price-${product.id}`}>
-                    ₱{product.price}
+                    ₱{formatPrice(product.price)}
                   </TableCell>
                   <TableCell className="font-geist" data-testid={`text-stock-${product.id}`}>
                     {product.stock}

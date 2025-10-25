@@ -1,4 +1,4 @@
-[2025-10-18 03:55:50,325] ERROR in products: Failed to ensure seeded products
+[2025-10-24 18:11:37,938] ERROR in products: Failed to ensure seeded products
 Traceback (most recent call last):
   File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 35, in register_products
     ensure_seeded()
@@ -21,10 +21,10 @@ with app.app_context(). See the documentation for more information.
 WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:5001
- * Running on http://10.0.1.161:5001
+ * Running on http://10.0.2.254:5001
 Press CTRL+C to quit
  * Restarting with stat
-[2025-10-18 03:55:51,610] ERROR in products: Failed to ensure seeded products
+[2025-10-24 18:11:39,244] ERROR in products: Failed to ensure seeded products
 Traceback (most recent call last):
   File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 35, in register_products
     ensure_seeded()
@@ -42,75 +42,28 @@ This typically means that you attempted to use functionality that needed
 the current application. To solve this, set up an application context
 with app.app_context(). See the documentation for more information.
  * Debugger is active!
- * Debugger PIN: 102-670-087
-127.0.0.1 - - [18/Oct/2025 03:55:58] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:55:58] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:55:58] "GET /api/categories HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:55:58] "GET /api/products HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:55:58] "GET /api/brands HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:55:58] "GET /api/me HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:56:02] "GET /api/products/1 HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:56:02] "GET /api/frequently-bought-together?productId=1 HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:56:02] "GET /api/recommendations?productId=1&limit=4 HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:56:02] "POST /api/browsing-history HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:56:07] "GET /api/products HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:56:07] "GET /api/orders HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:56:07] "GET /api/admin/stats HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:56:09] "GET /api/user/orders HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:56:09] "GET /api/profile HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:56:29] "GET /api/admin/analytics HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:57:23] "GET /favicon.ico HTTP/1.1" 404 -
-127.0.0.1 - - [18/Oct/2025 03:57:24] "GET / HTTP/1.1" 404 -
-127.0.0.1 - - [18/Oct/2025 03:57:29] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:57:29] "GET /api/me HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:57:29] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:57:29] "GET /api/categories HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:57:29] "GET /api/brands HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:57:29] "GET /api/products HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:57:33] "GET / HTTP/1.1" 404 -
-127.0.0.1 - - [18/Oct/2025 03:58:20] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:58:20] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:58:20] "GET /api/categories HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:58:20] "GET /api/me HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:58:20] "GET /api/brands HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:58:20] "GET /api/products HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:58:33] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:58:33] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:58:33] "GET /api/products HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:58:33] "GET /api/categories HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:58:33] "GET /api/brands HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:58:35] "GET /api/products?rating=4 HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:58:38] "GET /api/products?brand=iphone HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:58:40] "GET /api/products?brand=iphone&minPrice=1000 HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:58:41] "GET /api/products?brand=iphone&minPrice=500&maxPrice=1000 HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:58:42] "GET /api/products?brand=iphone&maxPrice=500 HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 03:58:54] "GET /api/products?brand=samsung HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:00:29] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:00:29] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:00:29] "GET /api/brands HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:00:29] "GET /api/categories HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:00:29] "GET /api/products HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:00:47] "GET /api/products?minPrice=500&maxPrice=1000 HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:00:48] "GET /api/products?minPrice=1000 HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:00:51] "GET /api/products?brand=samsung&minPrice=1000 HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:00:52] "GET /api/products?brand=samsung HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:05:37] "GET /api/user/orders HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:05:37] "GET /api/profile HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:05:57] "GET /api/orders HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:05:57] "GET /api/products HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:05:57] "GET /api/admin/stats HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:06:02] "PUT /api/orders/0a1374d3-4cf6-4d70-af00-4ddc968de4bf/status HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:06:02] "GET /api/admin/stats HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:06:02] "GET /api/orders HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:06:13] "GET /api/me HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:06:13] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:06:13] "GET /api/profile HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:06:13] "GET /api/user/orders HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:06:22] "GET /api/categories HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:06:22] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:06:22] "GET /api/products HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:06:22] "GET /api/brands HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:06:30] "GET /api/recommendations?productId=2&limit=4 HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:06:30] "GET /api/products/2 HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:06:30] "GET /api/frequently-bought-together?productId=2 HTTP/1.1" 200 -
-127.0.0.1 - - [18/Oct/2025 04:06:30] "POST /api/browsing-history HTTP/1.1" 200 -
+ * Debugger PIN: 541-202-393
+127.0.0.1 - - [24/Oct/2025 18:11:53] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
+127.0.0.1 - - [24/Oct/2025 18:11:53] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [24/Oct/2025 18:11:53] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [24/Oct/2025 18:11:53] "GET /api/brands HTTP/1.1" 200 -
+127.0.0.1 - - [24/Oct/2025 18:11:53] "GET /api/me HTTP/1.1" 200 -
+127.0.0.1 - - [24/Oct/2025 18:11:53] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [24/Oct/2025 18:12:23] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [24/Oct/2025 18:12:25] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
+127.0.0.1 - - [24/Oct/2025 18:12:25] "GET /api/brands HTTP/1.1" 200 -
+127.0.0.1 - - [24/Oct/2025 18:12:25] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [24/Oct/2025 18:12:25] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [24/Oct/2025 18:12:41] "POST /api/login HTTP/1.1" 200 -
+127.0.0.1 - - [24/Oct/2025 18:12:45] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [24/Oct/2025 18:12:45] "GET /api/brands HTTP/1.1" 200 -
+127.0.0.1 - - [24/Oct/2025 18:12:45] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [24/Oct/2025 18:12:45] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
+127.0.0.1 - - [24/Oct/2025 18:12:45] "GET /api/me HTTP/1.1" 200 -
+127.0.0.1 - - [24/Oct/2025 18:12:45] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [24/Oct/2025 18:12:53] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [24/Oct/2025 18:12:53] "GET /api/orders HTTP/1.1" 200 -
+127.0.0.1 - - [24/Oct/2025 18:12:53] "GET /api/admin/stats HTTP/1.1" 200 -
+127.0.0.1 - - [24/Oct/2025 18:12:53] "GET /api/admin/analytics HTTP/1.1" 200 -
+127.0.0.1 - - [24/Oct/2025 18:15:13] "GET /api/products?category=laptops HTTP/1.1" 200 -
+127.0.0.1 - - [24/Oct/2025 18:15:15] "GET /api/products?minPrice=1000 HTTP/1.1" 200 -

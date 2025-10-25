@@ -14,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { sanitizePhoneInput, hasMeaningfulChange } from "@/lib/formatters";
 import type { Order } from "@/lib/types";
 
 interface UserProfile {
@@ -159,11 +160,53 @@ export default function Profile() {
 
   const handleProfileSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if name has changed
+    const nameChanged = hasMeaningfulChange(profileForm.name, profile?.name || "");
+    const phoneChanged = hasMeaningfulChange(profileForm.phone, profile?.phone || "");
+    
+    if (!nameChanged && !phoneChanged) {
+      toast({
+        title: "No changes",
+        description: "Please make changes before saving",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Validate name is not empty
+    if (!profileForm.name.trim()) {
+      toast({
+        title: "Invalid name",
+        description: "Name cannot be empty",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     updateProfileMutation.mutate(profileForm);
   };
 
   const handleAddressSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if any address field has changed
+    const hasChanges = 
+      hasMeaningfulChange(addressForm.address, profile?.shippingAddress?.address || "") ||
+      hasMeaningfulChange(addressForm.city, profile?.shippingAddress?.city || "") ||
+      hasMeaningfulChange(addressForm.state, profile?.shippingAddress?.state || "") ||
+      hasMeaningfulChange(addressForm.zipCode, profile?.shippingAddress?.zipCode || "") ||
+      hasMeaningfulChange(addressForm.country, profile?.shippingAddress?.country || "");
+    
+    if (!hasChanges) {
+      toast({
+        title: "No changes",
+        description: "Please make changes before saving",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     updateAddressMutation.mutate(addressForm);
   };
 
@@ -308,10 +351,15 @@ export default function Profile() {
                       id="phone"
                       type="tel"
                       value={profileForm.phone}
-                      onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                      onChange={(e) => {
+                        const sanitized = sanitizePhoneInput(e.target.value);
+                        setProfileForm({ ...profileForm, phone: sanitized });
+                      }}
                       disabled={!isEditingProfile}
-                      placeholder="Enter your phone number"
+                      placeholder="Enter your phone number (digits only)"
+                      maxLength={11}
                     />
+                    <p className="text-xs text-muted-foreground">Numbers only (e.g., 09171234567)</p>
                   </div>
                 </div>
 
