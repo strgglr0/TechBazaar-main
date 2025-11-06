@@ -1,4 +1,4 @@
-[2025-10-24 18:11:37,938] ERROR in products: Failed to ensure seeded products
+[2025-10-25 05:53:00,652] ERROR in products: Failed to ensure seeded products
 Traceback (most recent call last):
   File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 35, in register_products
     ensure_seeded()
@@ -21,10 +21,10 @@ with app.app_context(). See the documentation for more information.
 WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:5001
- * Running on http://10.0.2.254:5001
+ * Running on http://10.0.13.11:5001
 Press CTRL+C to quit
  * Restarting with stat
-[2025-10-24 18:11:39,244] ERROR in products: Failed to ensure seeded products
+[2025-10-25 05:53:01,887] ERROR in products: Failed to ensure seeded products
 Traceback (most recent call last):
   File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 35, in register_products
     ensure_seeded()
@@ -42,28 +42,15 @@ This typically means that you attempted to use functionality that needed
 the current application. To solve this, set up an application context
 with app.app_context(). See the documentation for more information.
  * Debugger is active!
- * Debugger PIN: 541-202-393
-127.0.0.1 - - [24/Oct/2025 18:11:53] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
-127.0.0.1 - - [24/Oct/2025 18:11:53] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [24/Oct/2025 18:11:53] "GET /api/categories HTTP/1.1" 200 -
-127.0.0.1 - - [24/Oct/2025 18:11:53] "GET /api/brands HTTP/1.1" 200 -
-127.0.0.1 - - [24/Oct/2025 18:11:53] "GET /api/me HTTP/1.1" 200 -
-127.0.0.1 - - [24/Oct/2025 18:11:53] "GET /api/products HTTP/1.1" 200 -
-127.0.0.1 - - [24/Oct/2025 18:12:23] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [24/Oct/2025 18:12:25] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
-127.0.0.1 - - [24/Oct/2025 18:12:25] "GET /api/brands HTTP/1.1" 200 -
-127.0.0.1 - - [24/Oct/2025 18:12:25] "GET /api/products HTTP/1.1" 200 -
-127.0.0.1 - - [24/Oct/2025 18:12:25] "GET /api/categories HTTP/1.1" 200 -
-127.0.0.1 - - [24/Oct/2025 18:12:41] "POST /api/login HTTP/1.1" 200 -
-127.0.0.1 - - [24/Oct/2025 18:12:45] "GET /api/categories HTTP/1.1" 200 -
-127.0.0.1 - - [24/Oct/2025 18:12:45] "GET /api/brands HTTP/1.1" 200 -
-127.0.0.1 - - [24/Oct/2025 18:12:45] "GET /api/products HTTP/1.1" 200 -
-127.0.0.1 - - [24/Oct/2025 18:12:45] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
-127.0.0.1 - - [24/Oct/2025 18:12:45] "GET /api/me HTTP/1.1" 200 -
-127.0.0.1 - - [24/Oct/2025 18:12:45] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [24/Oct/2025 18:12:53] "GET /api/products HTTP/1.1" 200 -
-127.0.0.1 - - [24/Oct/2025 18:12:53] "GET /api/orders HTTP/1.1" 200 -
-127.0.0.1 - - [24/Oct/2025 18:12:53] "GET /api/admin/stats HTTP/1.1" 200 -
-127.0.0.1 - - [24/Oct/2025 18:12:53] "GET /api/admin/analytics HTTP/1.1" 200 -
-127.0.0.1 - - [24/Oct/2025 18:15:13] "GET /api/products?category=laptops HTTP/1.1" 200 -
-127.0.0.1 - - [24/Oct/2025 18:15:15] "GET /api/products?minPrice=1000 HTTP/1.1" 200 -
+ * Debugger PIN: 315-007-032
+127.0.0.1 - - [25/Oct/2025 05:53:14] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
+127.0.0.1 - - [25/Oct/2025 05:53:14] "GET /api/brands HTTP/1.1" 200 -
+127.0.0.1 - - [25/Oct/2025 05:53:14] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [25/Oct/2025 05:53:14] "GET /api/me HTTP/1.1" 200 -
+127.0.0.1 - - [25/Oct/2025 05:53:14] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [25/Oct/2025 05:53:14] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [25/Oct/2025 05:53:44] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [25/Oct/2025 05:53:44] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [25/Oct/2025 05:53:44] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [25/Oct/2025 05:53:45] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
+127.0.0.1 - - [25/Oct/2025 05:53:45] "GET /api/brands HTTP/1.1" 200 -
