@@ -73,3 +73,10 @@ with app.app_context(). See the documentation for more information.
 127.0.0.1 - - [25/Nov/2025 07:13:53] "GET /api/cart HTTP/1.1" 200 -
 127.0.0.1 - - [25/Nov/2025 07:21:05] "GET /api/products?category=laptops HTTP/1.1" 200 -
 127.0.0.1 - - [25/Nov/2025 07:21:06] "GET /api/products?category=phones HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 07:21:42] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 07:21:42] "GET /api/brands HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 07:21:42] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 07:21:42] "GET /api/me HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 07:21:42] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 07:21:42] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 07:21:42] "GET /api/cart HTTP/1.1" 200 -
