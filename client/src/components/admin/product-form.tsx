@@ -312,21 +312,14 @@ export default function ProductForm({ product, open, onOpenChange }: ProductForm
                     <FormLabel className="font-geist">Rating (0-5)</FormLabel>
                     <FormControl>
                       <Input 
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="5"
                         value={field.value || ""}
                         onChange={(e) => {
-                          const sanitized = sanitizeNumberInput(e.target.value, true);
-                          // Limit to 0-5 range
-                          const num = parseFloat(sanitized);
-                          if (sanitized === '' || (num >= 0 && num <= 5)) {
-                            field.onChange(sanitized);
-                          }
-                        }}
-                        onBlur={(e) => {
                           const value = e.target.value;
-                          if (value) {
-                            const num = parseFloat(value);
-                            field.onChange(Math.min(5, Math.max(0, num)).toFixed(1));
-                          }
+                          field.onChange(value);
                         }}
                         placeholder="0.0"
                         data-testid="input-product-rating" 
