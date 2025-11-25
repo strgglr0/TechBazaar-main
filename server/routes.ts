@@ -151,6 +151,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Cart transfer route (for login)
+  app.post("/api/cart/transfer", async (req, res) => {
+    try {
+      const { fromSessionId, toSessionId } = req.body;
+      
+      if (!fromSessionId || !toSessionId) {
+        return res.status(400).json({ error: "Both fromSessionId and toSessionId are required" });
+      }
+
+      // Get items from the source cart
+      const fromItems = await storage.getCartItems(fromSessionId);
+      
+      // Get items from the destination cart
+      const toItems = await storage.getCartItems(toSessionId);
+      const toProductIds = new Set(toItems.map(item => item.productId));
+
+      // Transfer items that don't already exist in destination cart
+      for (const item of fromItems) {
+        if (!toProductIds.has(item.productId)) {
+          await storage.addToCart({
+            sessionId: toSessionId,
+            productId: item.productId,
+            quantity: item.quantity
+          });
+        } else {
+          // If item exists, add quantities together
+          const existingItem = toItems.find(i => i.productId === item.productId);
+          if (existingItem) {
+            await storage.updateCartItem(existingItem.id, existingItem.quantity + item.quantity);
+          }
+        }
+      }
+
+      res.json({ success: true, transferred: fromItems.length });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to transfer cart" });
+    }
+  });
+
   // Orders routes
   app.get("/api/orders", async (req, res) => {
     try {

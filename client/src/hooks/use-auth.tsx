@@ -64,9 +64,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('token', newToken);
     setToken(newToken);
     setUser(newUser);
+    
+    // Dispatch custom event for cart transfer
+    window.dispatchEvent(new CustomEvent('auth:login', { 
+      detail: { token: newToken, user: newUser } 
+    }));
   };
 
   const logout = () => {
+    // Dispatch custom event for cart clearing
+    if (token) {
+      window.dispatchEvent(new CustomEvent('auth:logout', { 
+        detail: { action: 'logout', token } 
+      }));
+    }
+    
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);

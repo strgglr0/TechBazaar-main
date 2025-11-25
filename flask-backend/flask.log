@@ -160,3 +160,60 @@ with app.app_context(). See the documentation for more information.
 127.0.0.1 - - [25/Nov/2025 04:52:58] "GET /api/brands HTTP/1.1" 200 -
 127.0.0.1 - - [25/Nov/2025 04:52:58] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
 127.0.0.1 - - [25/Nov/2025 04:52:58] "GET /api/categories HTTP/1.1" 200 -
+ * Detected change in '/workspaces/TechBazaar-main/flask-backend/email_service.py', reloading
+[OrderQueue] Order processing queue started
+ * Restarting with stat
+[2025-11-25 04:55:23,707] ERROR in products: Failed to ensure seeded products
+Traceback (most recent call last):
+  File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 35, in register_products
+    ensure_seeded()
+  File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 20, in ensure_seeded
+    current_app.logger.exception('Failed to seed products')
+    ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/werkzeug/local.py", line 311, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/werkzeug/local.py", line 508, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+ * Debugger is active!
+ * Debugger PIN: 886-913-855
+127.0.0.1 - - [25/Nov/2025 04:55:24] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 04:55:24] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 04:55:24] "GET /api/brands HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 04:55:24] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 04:55:24] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:03:05] "GET /api/products?category=laptops HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:03:05] "GET /api/products?category=phones HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:03:59] "POST /api/login HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:04:04] "DELETE /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:04:04] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:04:07] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:04:07] "GET /api/me HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:04:09] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:04:09] "GET /api/brands HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:04:09] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:04:09] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:04:10] "POST /api/cart HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2025 05:04:10] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:04:16] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:04:16] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:04:16] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:04:16] "GET /api/me HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:04:16] "GET /api/brands HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:04:16] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:04:20] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:04:20] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:04:21] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:04:21] "GET /api/brands HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:04:21] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:04:24] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:07:57] "GET /api/brands HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:07:57] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:07:57] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:07:57] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 05:08:46] "GET /api/cart HTTP/1.1" 200 -
