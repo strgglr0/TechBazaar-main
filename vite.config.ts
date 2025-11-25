@@ -9,7 +9,8 @@ const PROJECT_ROOT = path.resolve(import.meta.dirname);
 const CLIENT_ROOT = path.resolve(PROJECT_ROOT, "client");
 
 // Allow overriding dev ports/hosts via env (helpful in CI/remote editors).
-const DEV_PORT = Number(process.env.VITE_DEV_SERVER_PORT || process.env.PORT || 3000);
+// In Codespaces, we need to use port 5000 since that's what the Express server uses
+const DEV_PORT = Number(process.env.VITE_DEV_SERVER_PORT || process.env.PORT || 5000);
 const HMR_HOST = process.env.HMR_HOST || "localhost";
 const isCodespace = Boolean(
   process.env.CODESPACE_NAME && process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN,
@@ -53,18 +54,16 @@ export default defineConfig({
   server: {
     host: true,
     port: DEV_PORT,
-    // Explicitly set clientPort so the HMR client in the browser doesn't
-    // end up with an undefined port (this caused the wss://...:undefined error)
+    strictPort: false,
     hmr: {
       protocol: HMR_PROTOCOL,
       host: HMR_PUBLIC_HOST,
       port: DEV_PORT,
       clientPort: isCodespace ? 443 : DEV_PORT,
+      overlay: false, // Disable error overlay that can cause reloads
     },
     proxy: {
       "/api": {
-        // Default proxy target should match the Flask backend port (5001).
-        // Can still be overridden with VITE_API_PROXY_TARGET env var.
         target: process.env.VITE_API_PROXY_TARGET || "http://localhost:5001",
         changeOrigin: true,
         secure: false,
@@ -75,8 +74,8 @@ export default defineConfig({
       deny: ["**/.*"],
     },
     watch: {
-      // Reduce file watching in Codespaces to prevent excessive reloads
-      ignored: isCodespace ? ['**/node_modules/**', '**/.git/**'] : undefined,
+      usePolling: isCodespace,
+      ignored: ['**/node_modules/**', '**/.git/**', '**/dist/**', '**/.vscode/**'],
     },
   },
 });

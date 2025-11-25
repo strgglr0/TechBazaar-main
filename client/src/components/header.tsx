@@ -8,11 +8,15 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
 
+// Logo URL - you can change this to any image URL
+const LOGO_URL = "https://i.imgur.com/fQDzbRH.png";
+
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const [, setLocation] = useLocation();
   const { totalItems } = useCart();
   const { user, isAuthenticated, logout } = useAuth();
+  const [logoError, setLogoError] = useState(false);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,13 +37,29 @@ export default function Header() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center">
-              <Link href="/" data-testid="link-home" className="flex items-center gap-3">
-                <div className="flex items-center justify-center h-10 w-10 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105" style={{ background: 'hsl(39.27, 43.31%, 24.9%)' }}>
-                  <span className="text-white font-bold text-xl font-geist tracking-tight">HMN</span>
-                </div>
-                <span className="text-xl font-bold font-geist transition-all duration-300" style={{ color: 'hsl(39.27, 43.31%, 24.9%)' }}>
-                  Tech Store
-                </span>
+              <Link href="/" data-testid="link-home" className="flex items-center gap-2 group">
+                {!logoError && LOGO_URL ? (
+                  <>
+                    <img 
+                      src={LOGO_URL}
+                      alt="HMN Tech Store" 
+                      className="h-12 w-auto transition-all duration-300 group-hover:scale-105"
+                      onError={() => setLogoError(true)}
+                    />
+                    <span className="text-xl font-bold font-geist transition-all duration-300" style={{ color: 'hsl(39.27, 43.31%, 24.9%)' }}>
+                      Tech Store
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-center h-10 w-10 rounded-lg shadow-lg transition-all duration-300 group-hover:scale-105" style={{ background: 'hsl(39.27, 43.31%, 24.9%)' }}>
+                      <span className="text-white font-bold text-xl font-geist tracking-tight">HMN</span>
+                    </div>
+                    <span className="text-xl font-bold font-geist transition-all duration-300" style={{ color: 'hsl(39.27, 43.31%, 24.9%)' }}>
+                      Tech Store
+                    </span>
+                  </>
+                )}
               </Link>
             </div>
 
@@ -215,6 +235,20 @@ export default function Header() {
                           </Button>
                         </>
                       )}
+                    </div>
+                    
+                    {/* Contact Information */}
+                    <div className="mt-6 pt-6 border-t border-border">
+                      <p className="text-xs text-muted-foreground mb-2 font-geist">Need help?</p>
+                      <a 
+                        href="mailto:ryannoche116@gmail.com" 
+                        className="text-sm text-primary hover:underline font-geist"
+                      >
+                        ryannoche116@gmail.com
+                      </a>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        For password reset & support
+                      </p>
                     </div>
                   </div>
                 </SheetContent>

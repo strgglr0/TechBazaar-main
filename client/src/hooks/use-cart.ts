@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/use-auth";
 import type { CartItemWithProduct } from "@/lib/types";
 
 // Generate a persistent guest session ID
@@ -15,9 +15,13 @@ const getGuestSessionId = () => {
 
 export function useCart() {
   const queryClient = useQueryClient();
+  const { token } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-  const sessionId = token ? `user-${token.substring(0, 20)}` : getGuestSessionId();
+  const [guestSessionId] = useState(() => getGuestSessionId());
+
+  const sessionId = token 
+    ? `user-${token.substring(0, 20)}` 
+    : guestSessionId;
 
   const { data: cartItems = [], isLoading } = useQuery<CartItemWithProduct[]>({
     queryKey: ['/api/cart', sessionId],
@@ -30,81 +34,93 @@ export function useCart() {
       if (!response.ok) throw new Error('Failed to fetch cart');
       return response.json();
     },
+    staleTime: Infinity,
+    gcTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchInterval: false,
   });
 
-  // Listen for logout events to clear cart
+  // Listen for logout events to switch to guest cart view (DON'T clear user cart in backend)
   useEffect(() => {
     const handleLogout = (e: Event) => {
       const customEvent = e as CustomEvent;
-      if (customEvent.detail?.action === 'logout' && token) {
-        // Clear the authenticated user's cart
-        const userSessionId = `user-${token.substring(0, 20)}`;
-        fetch('/api/cart', {
-          method: 'DELETE',
-          headers: {
-            'x-session-id': userSessionId,
-            'Authorization': `Bearer ${token}`
-          }
-        }).then(() => {
-          queryClient.setQueryData(['/api/cart', userSessionId], []);
-          queryClient.invalidateQueries({ queryKey: ['/api/cart'] });
-        });
+      const logoutToken = customEvent.detail?.token;
+      if (customEvent.detail?.action === 'logout' && logoutToken) {
+        const userSessionId = `user-${logoutToken.substring(0, 20)}`;
+        // Just clear the local cache - don't delete from backend
+        // This allows the user's cart to persist in the backend for next login
+        queryClient.setQueryData(['/api/cart', userSessionId], []);
       }
     };
 
     window.addEventListener('auth:logout', handleLogout);
     return () => window.removeEventListener('auth:logout', handleLogout);
-  }, [queryClient, token]);
+  }, [queryClient]);
 
-  // Transfer guest cart to user cart on login
+  // Transfer guest cart to user cart on login and fetch user's existing cart
   useEffect(() => {
     const handleLogin = async (e: Event) => {
       const customEvent = e as CustomEvent;
       const newToken = customEvent.detail?.token;
       
       if (newToken) {
-        const guestSessionId = getGuestSessionId();
-        const userSessionId = `user-${newToken.substring(0, 20)}`;
-        
-        // Get guest cart items
-        const guestCartResponse = await fetch('/api/cart', {
-          headers: { 'x-session-id': guestSessionId }
-        });
-        
-        if (guestCartResponse.ok) {
-          const guestCartItems = await guestCartResponse.json();
+        try {
+          const userSessionId = `user-${newToken.substring(0, 20)}`;
           
-          // Transfer guest cart items to user cart
-          if (guestCartItems.length > 0) {
-            await fetch('/api/cart/transfer', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${newToken}`,
-                'x-session-id': userSessionId
-              },
-              body: JSON.stringify({
-                fromSessionId: guestSessionId,
-                toSessionId: userSessionId
-              })
-            });
+          // First, check if there are guest cart items to transfer
+          const guestCartResponse = await fetch('/api/cart', {
+            headers: { 'x-session-id': guestSessionId }
+          });
+          
+          if (guestCartResponse.ok) {
+            const guestCartItems = await guestCartResponse.json();
             
-            // Clear guest cart after transfer
-            await fetch('/api/cart', {
-              method: 'DELETE',
-              headers: { 'x-session-id': guestSessionId }
-            });
-            
-            // Refresh cart data
-            queryClient.invalidateQueries({ queryKey: ['/api/cart'] });
+            // If there are guest items, transfer them to user cart
+            if (guestCartItems.length > 0) {
+              await fetch('/api/cart/transfer', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${newToken}`,
+                  'x-session-id': userSessionId
+                },
+                body: JSON.stringify({
+                  fromSessionId: guestSessionId,
+                  toSessionId: userSessionId
+                })
+              });
+              
+              // Clear guest cart after successful transfer
+              await fetch('/api/cart', {
+                method: 'DELETE',
+                headers: { 'x-session-id': guestSessionId }
+              });
+            }
           }
+          
+          // Fetch the user's cart (which now includes transferred items + existing items)
+          const userCartResponse = await fetch('/api/cart', {
+            headers: {
+              'x-session-id': userSessionId,
+              'Authorization': `Bearer ${newToken}`
+            }
+          });
+          
+          if (userCartResponse.ok) {
+            const userCartItems = await userCartResponse.json();
+            queryClient.setQueryData(['/api/cart', userSessionId], userCartItems);
+          }
+        } catch (err) {
+          console.error('Failed to transfer cart on login:', err);
         }
       }
     };
 
     window.addEventListener('auth:login', handleLogin);
     return () => window.removeEventListener('auth:login', handleLogin);
-  }, [queryClient]);
+  }, [queryClient, guestSessionId, token]);
 
   const addToCartMutation = useMutation({
     mutationFn: async ({ productId, quantity = 1 }: { productId: string; quantity?: number }) => {
@@ -117,37 +133,16 @@ export function useCart() {
       const response = await fetch('/api/cart', {
         method: 'POST',
         headers,
+        credentials: 'include',
         body: JSON.stringify({ productId, quantity }),
       });
       if (!response.ok) throw new Error('Failed to add to cart');
       return response.json();
     },
-    onMutate: async ({ productId, quantity = 1 }: { productId: string; quantity?: number }) => {
-      await queryClient.cancelQueries({ queryKey: ['/api/cart', sessionId] });
-      const previous = queryClient.getQueryData<CartItemWithProduct[]>(['/api/cart', sessionId]);
-
-      const optimisticItem = {
-        id: `temp-${Date.now()}`,
-        sessionId: sessionId,
-        productId,
-        quantity,
-        createdAt: new Date().toISOString(),
-        product: undefined as any,
-      };
-
+    onSuccess: (data) => {
       queryClient.setQueryData(['/api/cart', sessionId], (old: any) => {
-        return old ? [...old, optimisticItem] : [optimisticItem];
+        return old ? [...old, data] : [data];
       });
-
-      return { previous };
-    },
-    onError: (err, variables, context: any) => {
-      if (context?.previous) {
-        queryClient.setQueryData(['/api/cart', sessionId], context.previous);
-      }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/cart', sessionId] });
     },
   });
 
@@ -162,13 +157,17 @@ export function useCart() {
       const response = await fetch(`/api/cart/${id}`, {
         method: 'PUT',
         headers,
+        credentials: 'include',
         body: JSON.stringify({ quantity }),
       });
       if (!response.ok) throw new Error('Failed to update cart item');
       return response.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/cart', sessionId] });
+    onSuccess: (data) => {
+      queryClient.setQueryData(['/api/cart', sessionId], (old: any) => {
+        if (!old) return old;
+        return old.map((item: any) => item.id === data.id ? data : item);
+      });
     },
   });
 
@@ -180,11 +179,16 @@ export function useCart() {
       const response = await fetch(`/api/cart/${id}`, {
         method: 'DELETE',
         headers,
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Failed to remove from cart');
+      return id;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/cart', sessionId] });
+    onSuccess: (removedId) => {
+      queryClient.setQueryData(['/api/cart', sessionId], (old: any) => {
+        if (!old) return old;
+        return old.filter((item: any) => item.id !== removedId);
+      });
     },
   });
 
@@ -196,11 +200,12 @@ export function useCart() {
       const response = await fetch('/api/cart', {
         method: 'DELETE',
         headers,
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Failed to clear cart');
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/cart', sessionId] });
+      queryClient.setQueryData(['/api/cart', sessionId], []);
     },
   });
 

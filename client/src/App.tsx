@@ -15,6 +15,7 @@ import RegisterPlatform from "@/pages/register-platform";
 import Login from "@/pages/login";
 import Profile from "@/pages/profile";
 import Header from "@/components/header";
+import Footer from "@/components/footer";
 
 function Router() {
   return (
@@ -38,9 +39,12 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <TooltipProvider>
-          <div className="min-h-screen bg-background">
+          <div className="min-h-screen bg-background flex flex-col">
             <Header />
-            <Router />
+            <main className="flex-1">
+              <Router />
+            </main>
+            <Footer />
           </div>
           <Toaster />
         </TooltipProvider>

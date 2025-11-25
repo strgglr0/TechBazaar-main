@@ -87,10 +87,10 @@ export default function Home() {
       <section className="bg-gradient-to-r from-primary to-primary/80 rounded-lg p-8 md:p-12 text-primary-foreground mb-12">
         <div className="max-w-3xl">
           <h2 className="text-4xl md:text-5xl font-bold font-lora mb-4">
-            Latest Tech at Your Fingertips
+            Accessible Tech Shopping Made Simple
           </h2>
           <p className="text-lg font-grotesk mb-6 opacity-90">
-            Discover cutting-edge phones, powerful desktops, sleek laptops, and innovative accessories from top brands.
+            Your trusted destination for the latest technology with competitive pricing and flexible options. We're committed to delivering not just premium products, but exceptional customer service every step of the way.
           </p>
           <Button 
             className="bg-secondary text-secondary-foreground font-geist font-semibold hover:bg-secondary/90"
