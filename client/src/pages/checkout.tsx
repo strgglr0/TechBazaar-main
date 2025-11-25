@@ -36,8 +36,20 @@ export default function Checkout() {
   const [orderId, setOrderId] = useState<string>("");
   const [orderStatus, setOrderStatus] = useState<string | null>(null);
   const { cartItems, totalAmount, clearCart } = useCart();
-  const { user, token } = useAuth();
+  const { user, token, isAuthenticated } = useAuth();
   const { toast } = useToast();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Login Required",
+        description: "Please sign in to proceed with checkout.",
+        variant: "destructive",
+      });
+      setLocation('/login');
+    }
+  }, [isAuthenticated, setLocation, toast]);
 
   const form = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
@@ -49,7 +61,7 @@ export default function Checkout() {
       city: "",
       state: "",
       zipCode: "",
-      country: "United States",
+      country: "Philippines",
     },
   });
 
