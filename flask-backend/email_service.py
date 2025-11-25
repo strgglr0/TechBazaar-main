@@ -18,7 +18,7 @@ def generate_reset_code(length=6):
 def send_password_reset_email(email, code, user_name=None):
     """Send password reset email with verification code"""
     try:
-        subject = "Password Reset Code - TechBazaar"
+        subject = "Password Reset Code - HMN Tech Store"
         
         html_body = f"""
         <!DOCTYPE html>
@@ -38,7 +38,7 @@ def send_password_reset_email(email, code, user_name=None):
         <body>
             <div class="container">
                 <div class="header">
-                    <h1>TechBazaar</h1>
+                    <h1>HMN Tech Store</h1>
                     <p>Password Reset Request</p>
                 </div>
                 <div class="content">
@@ -59,11 +59,12 @@ def send_password_reset_email(email, code, user_name=None):
                     
                     <p>For security reasons, never share this code with anyone.</p>
                     
-                    <p>Thank you,<br>
-                    The TechBazaar Team</p>
+                    <p style="margin-top: 30px; color: #374151;">Thank you,<br>
+                    <span class="tech-accent">The HMN Tech Store Team</span></p>
                 </div>
                 <div class="footer">
                     <p>This is an automated message, please do not reply to this email.</p>
+                    <p style="color: #9ca3af; margin-top: 8px;">© 2025 HMN Tech Store. All rights reserved.</p>
                 </div>
             </div>
         </body>
@@ -71,7 +72,7 @@ def send_password_reset_email(email, code, user_name=None):
         """
         
         text_body = f"""
-        TechBazaar - Password Reset Request
+        HMN Tech Store - Password Reset Request
         
         Hello {user_name or 'there'},
         
@@ -84,7 +85,7 @@ def send_password_reset_email(email, code, user_name=None):
         If you didn't request this password reset, please ignore this email.
         
         Thank you,
-        The TechBazaar Team
+        The HMN Tech Store Team
         """
         
         msg = Message(
@@ -92,7 +93,7 @@ def send_password_reset_email(email, code, user_name=None):
             recipients=[email],
             body=text_body,
             html=html_body,
-            sender=current_app.config.get('MAIL_DEFAULT_SENDER', 'noreply@techbazaar.com')
+            sender=current_app.config.get('MAIL_DEFAULT_SENDER', 'noreply@hmntech.com')
         )
         
         mail.send(msg)
@@ -135,33 +136,36 @@ def send_order_confirmation_email(email, order_data, user_name=None):
             {shipping_address.get('country', '')}
             """
         
-        subject = f"Order Confirmation #{order_id[:8]} - TechBazaar"
+        subject = f"Order Confirmation #{order_id[:8]} - HMN Tech Store"
         
         html_body = f"""
         <!DOCTYPE html>
         <html>
         <head>
             <style>
-                body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #1f2937; background-color: #f3f4f6; }}
                 .container {{ max-width: 700px; margin: 0 auto; padding: 20px; }}
-                .header {{ background-color: #5B4824; color: white; padding: 30px; text-align: center; border-radius: 5px 5px 0 0; }}
-                .content {{ background-color: #fff; padding: 30px; border: 1px solid #ddd; }}
-                .order-info {{ background-color: #f9f9f9; padding: 20px; margin: 20px 0; border-radius: 5px; }}
+                .header {{ background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 40px 30px; text-align: center; border-radius: 12px 12px 0 0; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.1); }}
+                .header h1 {{ margin: 0; font-size: 32px; font-weight: 700; }}
+                .content {{ background-color: #ffffff; padding: 40px 30px; border: 1px solid #e5e7eb; border-top: none; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }}
+                .order-info {{ background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); padding: 25px; margin: 25px 0; border-radius: 10px; border-left: 4px solid #3b82f6; }}
                 table {{ width: 100%; border-collapse: collapse; margin: 20px 0; }}
-                th {{ background-color: #5B4824; color: white; padding: 12px; text-align: left; }}
-                .total-row {{ font-weight: bold; background-color: #f0f0f0; }}
-                .footer {{ text-align: center; margin-top: 20px; padding: 20px; color: #666; font-size: 12px; border-top: 1px solid #ddd; }}
-                .status-badge {{ display: inline-block; padding: 5px 15px; background-color: #ffc107; color: #333; border-radius: 20px; font-weight: bold; }}
+                th {{ background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 14px; text-align: left; font-weight: 600; }}
+                td {{ padding: 12px; border-bottom: 1px solid #e5e7eb; }}
+                .total-row {{ background-color: #f3f4f6; font-weight: 600; }}
+                .footer {{ text-align: center; margin-top: 30px; padding: 25px; color: #6b7280; font-size: 13px; border-top: 2px solid #e5e7eb; }}
+                .status-badge {{ display: inline-block; padding: 6px 16px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border-radius: 20px; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }}
+                .tech-accent {{ color: #3b82f6; font-weight: 600; }}
             </style>
         </head>
         <body>
             <div class="container">
                 <div class="header">
                     <h1>✓ Order Confirmed!</h1>
-                    <p>Thank you for your purchase</p>
+                    <p style="margin: 8px 0 0; opacity: 0.95; font-size: 16px;">Thank you for your purchase</p>
                 </div>
                 <div class="content">
-                    <p>Dear {customer_name},</p>
+                    <p style="font-size: 16px; color: #374151;">Dear <span class="tech-accent">{customer_name}</span>,</p>
                     
                     <p>Thank you for your order! We're pleased to confirm that we've received your order and it's being processed.</p>
                     
@@ -200,14 +204,14 @@ def send_order_confirmation_email(email, order_data, user_name=None):
                     
                     <p>If you have any questions, please don't hesitate to contact us.</p>
                     
-                    <p>Thank you for shopping with us!</p>
+                    <p style="margin-top: 30px; color: #374151;">Thank you for shopping with us!</p>
                     
-                    <p>Best regards,<br>
-                    The TechBazaar Team</p>
+                    <p style="color: #374151;">Best regards,<br>
+                    <span class="tech-accent">The HMN Tech Store Team</span></p>
                 </div>
                 <div class="footer">
                     <p>This is an automated message, please do not reply to this email.</p>
-                    <p>&copy; 2025 TechBazaar. All rights reserved.</p>
+                    <p style="color: #9ca3af; margin-top: 8px;">© 2025 HMN Tech Store. All rights reserved.</p>
                 </div>
             </div>
         </body>
@@ -215,7 +219,7 @@ def send_order_confirmation_email(email, order_data, user_name=None):
         """
         
         text_body = f"""
-        TechBazaar - Order Confirmation
+        HMN Tech Store - Order Confirmation
         
         Dear {customer_name},
         
@@ -233,7 +237,7 @@ def send_order_confirmation_email(email, order_data, user_name=None):
         Thank you for shopping with us!
         
         Best regards,
-        The TechBazaar Team
+        The HMN Tech Store Team
         """
         
         msg = Message(
@@ -241,7 +245,7 @@ def send_order_confirmation_email(email, order_data, user_name=None):
             recipients=[email],
             body=text_body,
             html=html_body,
-            sender=current_app.config.get('MAIL_DEFAULT_SENDER', 'noreply@techbazaar.com')
+            sender=current_app.config.get('MAIL_DEFAULT_SENDER', 'noreply@hmntech.com')
         )
         
         mail.send(msg)

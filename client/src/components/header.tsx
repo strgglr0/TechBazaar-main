@@ -33,10 +33,13 @@ export default function Header() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center">
-              <Link href="/" data-testid="link-home">
-                <h1 className="text-2xl font-bold font-lora transition-colors" style={{ color: '#5B4824' }}>
-                  TechMarket
-                </h1>
+              <Link href="/" data-testid="link-home" className="flex items-center gap-3">
+                <div className="flex items-center justify-center h-10 w-10 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105" style={{ background: 'hsl(39.27, 43.31%, 24.9%)' }}>
+                  <span className="text-white font-bold text-xl font-geist tracking-tight">HMN</span>
+                </div>
+                <span className="text-xl font-bold font-geist transition-all duration-300" style={{ color: 'hsl(39.27, 43.31%, 24.9%)' }}>
+                  Tech Store
+                </span>
               </Link>
             </div>
 
