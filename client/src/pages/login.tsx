@@ -97,13 +97,11 @@ export default function Login() {
             </button>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center">
             <label className="flex items-center space-x-2">
               <Checkbox checked={form.remember} onCheckedChange={(v) => handleChange('remember', !!v)} />
               <span className="text-sm text-foreground">Remember me</span>
             </label>
-
-            <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">Forgot password?</Link>
           </div>
 
           <div className="flex items-center justify-between">

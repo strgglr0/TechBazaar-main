@@ -247,7 +247,7 @@ export default function Header() {
                         ryannoche116@gmail.com
                       </a>
                       <p className="text-xs text-muted-foreground mt-1">
-                        For password reset & support
+                        For account support
                       </p>
                     </div>
                   </div>

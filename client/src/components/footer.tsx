@@ -41,7 +41,7 @@ export default function Footer() {
                 ryannoche116@gmail.com
               </a>
               <p className="text-xs text-muted-foreground">
-                For password reset, account issues, and general support
+                For account issues and general support
               </p>
             </div>
           </div>
