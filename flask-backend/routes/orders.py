@@ -53,6 +53,33 @@ def update_order_status(order_id):
         return jsonify({'error': 'Failed to update order status', 'details': str(e)}), 500
 
 
+@orders_bp.route('/orders/<order_id>/confirm-receipt', methods=['POST'])
+@token_required
+def confirm_receipt(order_id):
+    """Confirm receipt of an order (user only)"""
+    user_id = get_current_user_id()
+    order = Order.query.get(order_id)
+    
+    if not order:
+        return jsonify({'error': 'Order not found'}), 404
+    
+    # Verify this order belongs to the current user
+    if order.user_id != user_id:
+        return jsonify({'error': 'Unauthorized - This order does not belong to you'}), 403
+    
+    # Only allow confirming receipt for delivered orders
+    if order.status != 'delivered':
+        return jsonify({'error': 'Can only confirm receipt for delivered orders'}), 400
+    
+    try:
+        order.status = 'received'
+        db.session.commit()
+        return jsonify(order.to_dict())
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to confirm receipt', 'details': str(e)}), 500
+
+
 @orders_bp.route('/orders/<order_id>', methods=['DELETE'])
 def delete_order(order_id):
     """Delete an order"""

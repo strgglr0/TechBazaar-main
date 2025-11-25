@@ -74,3 +74,59 @@ with app.app_context(). See the documentation for more information.
 127.0.0.1 - - [25/Nov/2025 10:15:55] "POST /api/browsing-history HTTP/1.1" 200 -
 127.0.0.1 - - [25/Nov/2025 10:15:55] "GET /api/recommendations?productId=1&limit=4 HTTP/1.1" 200 -
 127.0.0.1 - - [25/Nov/2025 10:16:11] "POST /api/browsing-history HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:16:56] "POST /api/browsing-history HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:17:01] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:17:01] "GET /api/me HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:17:01] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:17:01] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:17:01] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:17:01] "GET /api/brands HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:17:01] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:17:04] "GET /api/frequently-bought-together?productId=3 HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:17:04] "GET /api/recommendations?productId=3&limit=4 HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:17:04] "GET /api/products/3 HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:17:04] "POST /api/browsing-history HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:17:15] "POST /api/browsing-history HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:19:08] "POST /api/checkout HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2025 10:19:08] "DELETE /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:19:08] "GET /api/orders/b57557ee-ef6d-411a-9424-8bc478de6848 HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:19:11] "GET /api/orders/b57557ee-ef6d-411a-9424-8bc478de6848 HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:19:13] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:19:13] "GET /api/orders HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:19:13] "GET /api/admin/stats HTTP/1.1" 200 -
+ * Detected change in '/workspaces/TechBazaar-main/flask-backend/routes/orders.py', reloading
+[OrderQueue] Order processing queue started
+[OrderQueue] Order b57557ee-ef6d-411a-9424-8bc478de6848 added to processing queue
+[OrderQueue] Order b57557ee-ef6d-411a-9424-8bc478de6848 moved to delivery
+[OrderQueue] Order b57557ee-ef6d-411a-9424-8bc478de6848 completed (received)
+ * Restarting with stat
+[2025-11-25 10:21:53,876] ERROR in products: Failed to ensure seeded products
+Traceback (most recent call last):
+  File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 35, in register_products
+    ensure_seeded()
+  File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 20, in ensure_seeded
+    current_app.logger.exception('Failed to seed products')
+    ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/werkzeug/local.py", line 311, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/werkzeug/local.py", line 508, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+ * Debugger is active!
+ * Debugger PIN: 473-357-027
+127.0.0.1 - - [25/Nov/2025 10:22:38] "GET /api/user/orders HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:22:38] "GET /api/profile HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:23:18] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:23:18] "GET /api/me HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:23:18] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:23:18] "GET /api/user/orders HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:23:18] "GET /api/profile HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:23:58] "GET /api/brands HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:23:58] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:23:58] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:23:58] "GET /api/categories HTTP/1.1" 200 -

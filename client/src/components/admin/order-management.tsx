@@ -107,6 +107,8 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
         return <Truck className="h-4 w-4" />;
       case "delivered":
         return <Package className="h-4 w-4" />;
+      case "received":
+        return <CheckCircle className="h-4 w-4" />;
       case "cancelled":
         return <XCircle className="h-4 w-4" />;
       default:
@@ -121,6 +123,7 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
       case "confirmed":
       case "shipped":
       case "delivered":
+      case "received":
         return "default";
       case "cancelled":
         return "destructive";
@@ -222,6 +225,12 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
                         <div className="flex items-center space-x-2">
                           <Package className="h-4 w-4" />
                           <span>Delivered</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="received">
+                        <div className="flex items-center space-x-2">
+                          <CheckCircle className="h-4 w-4" />
+                          <span>Received</span>
                         </div>
                       </SelectItem>
                       <SelectItem value="cancelled">

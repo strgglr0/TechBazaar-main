@@ -141,6 +141,29 @@ export default function Profile() {
     },
   });
 
+  // Confirm receipt mutation
+  const confirmReceiptMutation = useMutation({
+    mutationFn: async (orderId: string) => {
+      const response = await apiRequest("POST", `/api/orders/${orderId}/confirm-receipt`, {});
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/user/orders'] });
+      toast({
+        title: "Receipt Confirmed",
+        description: "Thank you for confirming the receipt of your order!",
+      });
+      setIsOrderDetailsOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to confirm receipt",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Initialize form values when profile data is loaded
   useEffect(() => {
     if (profile) {
@@ -246,6 +269,7 @@ export default function Profile() {
       case "confirmed":
       case "shipped":
       case "delivered":
+      case "received":
         return "default";
       case "cancelled":
         return "destructive";
@@ -558,13 +582,26 @@ export default function Profile() {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleViewOrderDetails(order)}
-                            >
-                              View Details
-                            </Button>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleViewOrderDetails(order)}
+                              >
+                                View Details
+                              </Button>
+                              {order.status === 'delivered' && (
+                                <Button
+                                  variant="default"
+                                  size="sm"
+                                  onClick={() => confirmReceiptMutation.mutate(order.id)}
+                                  disabled={confirmReceiptMutation.isPending}
+                                >
+                                  <Package className="h-4 w-4 mr-1" />
+                                  Confirm Receipt
+                                </Button>
+                              )}
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -665,6 +702,20 @@ export default function Profile() {
                   </div>
                 </div>
               </div>
+
+              {/* Confirm Receipt Button */}
+              {selectedOrder.status === 'delivered' && (
+                <div className="flex justify-end pt-4 border-t border-border">
+                  <Button
+                    onClick={() => confirmReceiptMutation.mutate(selectedOrder.id)}
+                    disabled={confirmReceiptMutation.isPending}
+                    className="flex items-center gap-2"
+                  >
+                    <Package className="h-4 w-4" />
+                    {confirmReceiptMutation.isPending ? "Confirming..." : "Confirm Receipt"}
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
