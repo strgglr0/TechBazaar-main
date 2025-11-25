@@ -1,4 +1,4 @@
-[2025-11-25 10:14:49,590] ERROR in products: Failed to ensure seeded products
+[2025-11-25 10:37:22,472] ERROR in products: Failed to ensure seeded products
 Traceback (most recent call last):
   File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 35, in register_products
     ensure_seeded()
@@ -21,10 +21,10 @@ with app.app_context(). See the documentation for more information.
 WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:5001
- * Running on http://10.0.0.76:5001
+ * Running on http://10.0.14.202:5001
 Press CTRL+C to quit
  * Restarting with stat
-[2025-11-25 10:14:50,691] ERROR in products: Failed to ensure seeded products
+[2025-11-25 10:37:24,081] ERROR in products: Failed to ensure seeded products
 Traceback (most recent call last):
   File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 35, in register_products
     ensure_seeded()
@@ -42,65 +42,181 @@ This typically means that you attempted to use functionality that needed
 the current application. To solve this, set up an application context
 with app.app_context(). See the documentation for more information.
  * Debugger is active!
- * Debugger PIN: 473-357-027
-127.0.0.1 - - [25/Nov/2025 10:14:58] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:14:58] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:14:58] "GET /api/brands HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:14:58] "GET /api/products HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:14:58] "GET /api/categories HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:15:09] "POST /api/login HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:15:09] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:15:09] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:15:09] "POST /api/cart/transfer HTTP/1.1" 405 -
-127.0.0.1 - - [25/Nov/2025 10:15:09] "DELETE /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:15:09] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:15:13] "GET /api/products HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:15:13] "GET /api/orders HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:15:13] "GET /api/admin/stats HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:15:23] "PUT /api/products/3 HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:15:23] "GET /api/products HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:15:23] "GET /api/admin/stats HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:15:31] "GET /api/recommendations?productId=3&limit=4 HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:15:31] "GET /api/products/3 HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:15:31] "GET /api/frequently-bought-together?productId=3 HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:15:31] "POST /api/browsing-history HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:15:45] "GET /api/recommendations?productId=2&limit=4 HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:15:45] "GET /api/frequently-bought-together?productId=2 HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:15:45] "GET /api/products/2 HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:15:46] "POST /api/browsing-history HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:15:50] "POST /api/browsing-history HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:15:55] "GET /api/frequently-bought-together?productId=1 HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:15:55] "GET /api/products/1 HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:15:55] "POST /api/browsing-history HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:15:55] "GET /api/recommendations?productId=1&limit=4 HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:16:11] "POST /api/browsing-history HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:16:56] "POST /api/browsing-history HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:17:01] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:17:01] "GET /api/me HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:17:01] "GET /api/categories HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:17:01] "GET /api/products HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:17:01] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:17:01] "GET /api/brands HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:17:01] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:17:04] "GET /api/frequently-bought-together?productId=3 HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:17:04] "GET /api/recommendations?productId=3&limit=4 HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:17:04] "GET /api/products/3 HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:17:04] "POST /api/browsing-history HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:17:15] "POST /api/browsing-history HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:19:08] "POST /api/checkout HTTP/1.1" 201 -
-127.0.0.1 - - [25/Nov/2025 10:19:08] "DELETE /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:19:08] "GET /api/orders/b57557ee-ef6d-411a-9424-8bc478de6848 HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:19:11] "GET /api/orders/b57557ee-ef6d-411a-9424-8bc478de6848 HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:19:13] "GET /api/products HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:19:13] "GET /api/orders HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:19:13] "GET /api/admin/stats HTTP/1.1" 200 -
+ * Debugger PIN: 141-979-162
+127.0.0.1 - - [25/Nov/2025 10:37:34] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:37:34] "GET /api/brands HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:37:34] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:37:34] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:37:34] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:37:34] "GET /api/me HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:37:34] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:37:37] "GET /api/profile HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:37:37] "GET /api/user/orders HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1965, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 921, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such column: orders.payment_method
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/flask/app.py", line 2213, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/flask/app.py", line 2193, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/flask_cors/extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/flask_cors/extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/TechBazaar-main/flask-backend/utils.py", line 42, in decorated
+    return f(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^
+  File "/workspaces/TechBazaar-main/flask-backend/routes/profile.py", line 92, in get_user_orders
+    orders = Order.query.filter_by(user_id=user_id).order_by(Order.created_at.desc()).all()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2688, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2842, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2262, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2144, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1412, in execute
+    return meth(
+           ^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 515, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1635, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1844, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1984, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2339, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1965, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 921, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such column: orders.payment_method
+[SQL: SELECT orders.id AS orders_id, orders.user_id AS orders_user_id, orders.customer_name AS orders_customer_name, orders.customer_email AS orders_customer_email, orders.customer_phone AS orders_customer_phone, orders.shipping_address AS orders_shipping_address, orders.items AS orders_items, orders.total AS orders_total, orders.payment_method AS orders_payment_method, orders.status AS orders_status, orders.created_at AS orders_created_at 
+FROM orders 
+WHERE orders.user_id = ? ORDER BY orders.created_at DESC]
+[parameters: (3,)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+127.0.0.1 - - [25/Nov/2025 10:37:41] "POST /api/cart HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2025 10:38:28] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:38:28] "GET /api/admin/stats HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2025 10:38:28] "GET /api/orders HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1965, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 921, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such column: orders.payment_method
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/flask/app.py", line 2213, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/flask/app.py", line 2193, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/flask_cors/extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/flask/app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/flask/app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/flask_cors/extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/flask/app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/flask/app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspaces/TechBazaar-main/flask-backend/routes/orders.py", line 12, in list_orders
+    items = Order.query.all()
+            ^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2688, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2842, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2262, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2144, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1412, in execute
+    return meth(
+           ^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 515, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1635, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1844, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1984, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2339, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1965, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 921, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such column: orders.payment_method
+[SQL: SELECT orders.id AS orders_id, orders.user_id AS orders_user_id, orders.customer_name AS orders_customer_name, orders.customer_email AS orders_customer_email, orders.customer_phone AS orders_customer_phone, orders.shipping_address AS orders_shipping_address, orders.items AS orders_items, orders.total AS orders_total, orders.payment_method AS orders_payment_method, orders.status AS orders_status, orders.created_at AS orders_created_at 
+FROM orders]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
  * Detected change in '/workspaces/TechBazaar-main/flask-backend/routes/orders.py', reloading
 [OrderQueue] Order processing queue started
-[OrderQueue] Order b57557ee-ef6d-411a-9424-8bc478de6848 added to processing queue
-[OrderQueue] Order b57557ee-ef6d-411a-9424-8bc478de6848 moved to delivery
-[OrderQueue] Order b57557ee-ef6d-411a-9424-8bc478de6848 completed (received)
  * Restarting with stat
-[2025-11-25 10:21:53,876] ERROR in products: Failed to ensure seeded products
+[2025-11-25 10:39:48,686] ERROR in products: Failed to ensure seeded products
 Traceback (most recent call last):
   File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 35, in register_products
     ensure_seeded()
@@ -118,15 +234,4 @@ This typically means that you attempted to use functionality that needed
 the current application. To solve this, set up an application context
 with app.app_context(). See the documentation for more information.
  * Debugger is active!
- * Debugger PIN: 473-357-027
-127.0.0.1 - - [25/Nov/2025 10:22:38] "GET /api/user/orders HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:22:38] "GET /api/profile HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:23:18] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:23:18] "GET /api/me HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:23:18] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:23:18] "GET /api/user/orders HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:23:18] "GET /api/profile HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:23:58] "GET /api/brands HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:23:58] "GET /api/products HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:23:58] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
-127.0.0.1 - - [25/Nov/2025 10:23:58] "GET /api/categories HTTP/1.1" 200 -
+ * Debugger PIN: 141-979-162

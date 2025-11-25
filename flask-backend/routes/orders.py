@@ -113,6 +113,8 @@ def checkout():
     try:
         # accept either `total` or `totalAmount` from the client
         total_value = data.get('total') if data.get('total') is not None else data.get('totalAmount')
+        payment_method = data.get('paymentMethod', 'cod')  # Default to COD
+        
         order = Order(
             user_id=user_id,
             customer_name=data.get('customerName'),
@@ -121,6 +123,7 @@ def checkout():
             shipping_address=data.get('shippingAddress'),
             items=items,
             total=float(total_value or 0),
+            payment_method=payment_method,
             status='processing'  # Initial status
         )
         db.session.add(order)
@@ -137,6 +140,12 @@ def checkout():
         
         # Add order to processing queue
         order_queue.add_order(order.id)
+        
+        # Log online payment orders for manual processing
+        if payment_method == 'online':
+            print(f"[ORDER] Online payment order created: {order.id}")
+            print(f"[ORDER] Customer: {order.customer_name} ({order.customer_email})")
+            print(f"[ORDER] Total: ₱{order.total:,.2f}")
         
         return jsonify(order.to_dict()), 201
     except Exception as e:

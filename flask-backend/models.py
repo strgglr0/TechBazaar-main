@@ -96,6 +96,7 @@ class Order(db.Model):
 
     items = db.Column(db.JSON, nullable=False)
     total = db.Column(db.Float, default=0.0)
+    payment_method = db.Column(db.String(32), nullable=True, default='cod')  # 'cod' or 'online'
     status = db.Column(db.String(32), nullable=False, default='processing')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -109,6 +110,7 @@ class Order(db.Model):
             'shippingAddress': self.shipping_address,
             'items': self.items,
             'total': self.total,
+            'paymentMethod': self.payment_method,
             'status': self.status,  # Now uses actual DB status managed by queue
             'createdAt': self.created_at.isoformat() if self.created_at else None,
         }

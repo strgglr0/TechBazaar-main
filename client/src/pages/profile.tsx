@@ -645,6 +645,12 @@ export default function Profile() {
                     <p><span className="text-muted-foreground">Name:</span> {selectedOrder.customerName}</p>
                     <p><span className="text-muted-foreground">Email:</span> {selectedOrder.customerEmail}</p>
                     <p><span className="text-muted-foreground">Phone:</span> {selectedOrder.customerPhone || "N/A"}</p>
+                    <p>
+                      <span className="text-muted-foreground">Payment:</span>{" "}
+                      <Badge variant="outline" className="ml-1">
+                        {(selectedOrder as any).paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery'}
+                      </Badge>
+                    </p>
                   </div>
                 </div>
               </div>

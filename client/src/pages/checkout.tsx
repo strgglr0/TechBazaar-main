@@ -3,12 +3,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { ArrowLeft, CreditCard, Truck, CheckCircle } from "lucide-react";
+import { ArrowLeft, CreditCard, Truck, CheckCircle, Banknote, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
@@ -26,6 +28,7 @@ const checkoutSchema = z.object({
   state: z.string().min(1, "State is required"),
   zipCode: z.string().min(0, "ZIP code is required"),
   country: z.string().min(1, "Country is required"),
+  paymentMethod: z.enum(["cod", "online"]).default("cod"),
 });
 
 type CheckoutFormData = z.infer<typeof checkoutSchema>;
@@ -62,6 +65,7 @@ export default function Checkout() {
       state: "",
       zipCode: "",
       country: "Philippines",
+      paymentMethod: "cod" as const,
     },
   });
 
@@ -102,6 +106,7 @@ export default function Checkout() {
           quantity: item.quantity,
         })),
         totalAmount: totalAmount.toFixed(2),
+        paymentMethod: data.paymentMethod,
       };
 
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -127,9 +132,15 @@ export default function Checkout() {
       setOrderStatus('processing');
       // do not mark complete yet; poll will update status
       clearCart();
+      
+      const paymentMethod = order.paymentMethod || 'cod';
+      const paymentMessage = paymentMethod === 'online' 
+        ? "Check your email for payment instructions from ryannoche116@gmail.com"
+        : "Pay when you receive your order";
+      
       toast({
         title: "Order placed successfully!",
-        description: `Your order #${order.id.slice(-8)} is now being processed.`,
+        description: `Your order #${order.id.slice(-8)} is now being processed. ${paymentMessage}`,
       });
     },
     onError: () => {
@@ -466,6 +477,69 @@ export default function Checkout() {
                       )}
                     />
                   </div>
+
+                  <Separator />
+
+                  {/* Payment Method */}
+                  <FormField
+                    control={form.control}
+                    name="paymentMethod"
+                    render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel className="font-geist text-base">Payment Method</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                          >
+                            <div>
+                              <RadioGroupItem
+                                value="cod"
+                                id="cod"
+                                className="peer sr-only"
+                              />
+                              <Label
+                                htmlFor="cod"
+                                className="flex flex-col items-center justify-between rounded-lg border-2 border-muted bg-card p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                              >
+                                <Banknote className="mb-3 h-8 w-8" />
+                                <div className="text-center">
+                                  <div className="font-semibold mb-1">Cash on Delivery</div>
+                                  <div className="text-xs text-muted-foreground">Pay when you receive your order</div>
+                                </div>
+                              </Label>
+                            </div>
+                            <div>
+                              <RadioGroupItem
+                                value="online"
+                                id="online"
+                                className="peer sr-only"
+                              />
+                              <Label
+                                htmlFor="online"
+                                className="flex flex-col items-center justify-between rounded-lg border-2 border-muted bg-card p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
+                              >
+                                <Smartphone className="mb-3 h-8 w-8" />
+                                <div className="text-center">
+                                  <div className="font-semibold mb-1">Online Payment</div>
+                                  <div className="text-xs text-muted-foreground">GCash, PayMaya, Bank Transfer</div>
+                                </div>
+                              </Label>
+                            </div>
+                          </RadioGroup>
+                        </FormControl>
+                        {field.value === "online" && (
+                          <FormDescription className="text-sm bg-blue-50 border border-blue-200 rounded-lg p-3 mt-2">
+                            <strong>📧 We will send payment instructions to your email</strong>
+                            <br />
+                            You will receive an email from <strong>ryannoche116@gmail.com</strong> with payment details for GCash, PayMaya, or Bank Transfer.
+                          </FormDescription>
+                        )}
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
                   <Button
                     type="submit"
