@@ -68,7 +68,7 @@ export default function SignUp() {
     <div className="max-w-3xl mx-auto px-4 py-12">
       <div className="bg-card border border-border rounded-lg p-8">
         <h1 className="text-2xl font-lora font-bold mb-2">Create your account</h1>
-        <p className="text-sm text-muted-foreground mb-6">Join TechMarket to get the best deals and manage your orders.</p>
+        <p className="text-sm text-muted-foreground mb-6">Join HMN Tech Store to get the best deals and manage your orders.</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -82,12 +82,12 @@ export default function SignUp() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-foreground block mb-1">Email *</label>
+            <label className="text-sm font-medium text-foreground block mb-1">Email Address *</label>
             <Input 
               type="email" 
               value={form.email} 
               onChange={(e) => handleChange('email', e.target.value)} 
-              placeholder="you@company.com" 
+              placeholder="your.email@example.com" 
               required 
             />
           </div>

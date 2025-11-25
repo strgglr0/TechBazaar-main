@@ -68,12 +68,12 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-foreground block mb-1">Email *</label>
+            <label className="text-sm font-medium text-foreground block mb-1">Email Address *</label>
             <Input 
               type="email" 
               value={form.email} 
               onChange={(e) => handleChange('email', e.target.value)} 
-              placeholder="you@company.com" 
+              placeholder="your.email@example.com" 
               required 
             />
           </div>
