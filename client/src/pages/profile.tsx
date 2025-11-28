@@ -459,14 +459,14 @@ export default function Profile() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="state">State/Province</Label>
+                      <Label htmlFor="state">Province</Label>
                       <Input
                         id="state"
                         type="text"
                         value={addressForm.state}
                         onChange={(e) => setAddressForm({ ...addressForm, state: e.target.value })}
                         disabled={!isEditingAddress}
-                        placeholder="Enter your state/province"
+                        placeholder="Enter your province"
                       />
                     </div>
                   </div>

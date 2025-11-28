@@ -25,7 +25,7 @@ const checkoutSchema = z.object({
   customerPhone: z.string().min(10, "Phone number is required"),
   address: z.string().min(1, "Address is required"),
   city: z.string().min(1, "City is required"),
-  state: z.string().min(1, "State is required"),
+  state: z.string().min(1, "Province is required"),
   zipCode: z.string().min(0, "ZIP code is required"),
   country: z.string().min(1, "Country is required"),
   paymentMethod: z.enum(["cod", "online"]).default("cod"),
@@ -438,7 +438,7 @@ export default function Checkout() {
                       name="state"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="font-geist">State</FormLabel>
+                          <FormLabel className="font-geist">Province</FormLabel>
                           <FormControl>
                             <Input {...field} data-testid="input-state" />
                           </FormControl>

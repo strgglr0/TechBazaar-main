@@ -13,7 +13,7 @@ A complete profile management system where users can:
 
 2. **Manage Shipping Address**
    - Street address
-   - City, State, ZIP code, Country
+   - City, Province, ZIP code, Country
    - Saved to user profile for quick checkout
    - Edit/Save/Cancel functionality
 

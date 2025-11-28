@@ -32,7 +32,7 @@ Navigate to: `http://localhost:3000/profile`
 #### Shipping Address Card
 - **Street Address**: Your delivery address
 - **City**: City name
-- **State/Province**: State or province
+- **Province**: Province
 - **ZIP Code**: Postal code
 - **Country**: Default is Philippines
 

@@ -8,15 +8,9 @@ def admin_required(f):
     from flask import request, jsonify
 
     @wraps(f)
+    @token_required
     def decorated(*args, **kwargs):
-        # token_required sets request.user_id
-        token_resp = token_required(lambda *a, **k: None)
-        try:
-            # call token_required to validate token
-            resp = token_required(lambda *a, **k: None)(*args, **kwargs)
-        except Exception:
-            # token missing or invalid
-            return jsonify({'error': 'unauthorized'}), 401
+        # token_required decorator has already set request.user_id
         user = User.query.get(request.user_id)
         if not user or not getattr(user, 'is_admin', False):
             return jsonify({'error': 'forbidden'}), 403
