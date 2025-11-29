@@ -25,7 +25,7 @@ const checkoutSchema = z.object({
   customerPhone: z.string().min(10, "Phone number is required"),
   address: z.string().min(1, "Address is required"),
   city: z.string().min(1, "City is required"),
-  state: z.string().min(1, "State is required"),
+  state: z.string().min(1, "Province is required"),
   zipCode: z.string().min(0, "ZIP code is required"),
   country: z.string().min(1, "Country is required"),
   paymentMethod: z.enum(["cod", "online"]).default("cod"),
@@ -104,6 +104,7 @@ export default function Checkout() {
           productName: item.product?.name || "Unknown Product",
           price: item.product?.price || "0.00",
           quantity: item.quantity,
+          category: item.product?.category || "Other",
         })),
         totalAmount: totalAmount.toFixed(2),
         paymentMethod: data.paymentMethod,
@@ -112,7 +113,11 @@ export default function Checkout() {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
       // include session header for guest carts
-      headers['x-session-id'] = 'default-session';
+      const sessionId = localStorage.getItem('guest-session-id') || `guest-${Date.now()}`;
+      if (!token) {
+        localStorage.setItem('guest-session-id', sessionId);
+      }
+      headers['x-session-id'] = sessionId;
 
       const response = await fetch('/api/checkout', {
         method: 'POST',
@@ -128,10 +133,10 @@ export default function Checkout() {
       return response.json();
     },
     onSuccess: (order) => {
+      // Set order ID first to prevent cart empty redirect
       setOrderId(order.id);
-      setOrderStatus('processing');
-      // do not mark complete yet; poll will update status
-      clearCart();
+      // Set status based on payment method from backend response
+      setOrderStatus(order.status || 'processing');
       
       const paymentMethod = order.paymentMethod || 'cod';
       const paymentMessage = paymentMethod === 'online' 
@@ -142,6 +147,9 @@ export default function Checkout() {
         title: "Order placed successfully!",
         description: `Your order #${order.id.slice(-8)} is now being processed. ${paymentMessage}`,
       });
+      
+      // Clear cart after setting order ID to prevent redirect
+      clearCart();
     },
     onError: () => {
       toast({
@@ -243,6 +251,8 @@ export default function Checkout() {
   if (orderId && !orderComplete) {
     const getStatusIcon = () => {
       switch (orderStatus) {
+        case 'pending':
+          return <CreditCard className="h-16 w-16 text-orange-500 animate-pulse" />;
         case 'processing':
           return <div className="h-16 w-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />;
         case 'delivered':
@@ -254,6 +264,8 @@ export default function Checkout() {
 
     const getStatusMessage = () => {
       switch (orderStatus) {
+        case 'pending':
+          return 'Awaiting payment confirmation';
         case 'processing':
           return 'Your order is being processed';
         case 'delivered':
@@ -279,8 +291,15 @@ export default function Checkout() {
               </div>
               <div className="flex justify-center items-center gap-2 mb-4">
                 <div className={`px-4 py-2 rounded-full font-geist text-sm ${
+                  orderStatus === 'pending' ? 'bg-orange-100 text-orange-800' :
+                  'bg-gray-100 text-gray-800'
+                }`}>
+                  Pending Payment
+                </div>
+                <div className="h-1 w-8 bg-border"></div>
+                <div className={`px-4 py-2 rounded-full font-geist text-sm ${
                   orderStatus === 'processing' ? 'bg-yellow-100 text-yellow-800' :
-                  orderStatus === 'delivered' ? 'bg-blue-100 text-blue-800' :
+                  orderStatus === 'delivered' || orderStatus === 'received' ? 'bg-yellow-100 text-yellow-800' :
                   'bg-gray-100 text-gray-800'
                 }`}>
                   Processing
@@ -438,7 +457,7 @@ export default function Checkout() {
                       name="state"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="font-geist">State</FormLabel>
+                          <FormLabel className="font-geist">Province</FormLabel>
                           <FormControl>
                             <Input {...field} data-testid="input-state" />
                           </FormControl>

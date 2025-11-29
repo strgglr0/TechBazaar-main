@@ -174,17 +174,18 @@ export default function AnalyticsDashboard({ isLoading }: AnalyticsDashboardProp
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={analytics.categoryData}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis dataKey="category" className="text-xs" />
-                <YAxis className="text-xs" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis dataKey="category" tick={{ fill: '#6b7280', fontSize: 12 }} />
+                <YAxis tick={{ fill: '#6b7280', fontSize: 12 }} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
+                    backgroundColor: "#ffffff",
+                    border: "1px solid #e5e7eb",
                     borderRadius: "8px",
                   }}
+                  cursor={{ fill: 'rgba(0, 0, 0, 0.05)' }}
                 />
-                <Bar dataKey="sales" fill="hsl(var(--primary))" name="Sales" />
+                <Bar dataKey="sales" fill="#3b82f6" name="Sales" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>

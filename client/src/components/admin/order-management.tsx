@@ -101,7 +101,7 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
     switch (status) {
       case "pending":
         return <Clock className="h-4 w-4" />;
-      case "confirmed":
+      case "processing":
         return <CheckCircle className="h-4 w-4" />;
       case "shipped":
         return <Truck className="h-4 w-4" />;
@@ -120,7 +120,7 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
     switch (status) {
       case "pending":
         return "secondary";
-      case "confirmed":
+      case "processing":
       case "shipped":
       case "delivered":
       case "received":
@@ -209,10 +209,10 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
                           <span>Pending</span>
                         </div>
                       </SelectItem>
-                      <SelectItem value="confirmed">
+                      <SelectItem value="processing">
                         <div className="flex items-center space-x-2">
                           <CheckCircle className="h-4 w-4" />
-                          <span>Confirmed</span>
+                          <span>Processing</span>
                         </div>
                       </SelectItem>
                       <SelectItem value="shipped">
@@ -284,12 +284,12 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
                   <div className="space-y-1 text-sm">
                     <p><span className="text-muted-foreground">Order ID:</span> #{selectedOrder.id}</p>
                     <p><span className="text-muted-foreground">Date:</span> {selectedOrder.createdAt ? format(new Date(selectedOrder.createdAt), "PPP") : "N/A"}</p>
-                    <p>
+                    <div>
                       <span className="text-muted-foreground">Status:</span>{" "}
                       <Badge variant={getStatusVariant(selectedOrder.status)} className="ml-2">
                         {selectedOrder.status}
                       </Badge>
-                    </p>
+                    </div>
                   </div>
                 </div>
 

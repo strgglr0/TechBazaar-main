@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Edit, Trash2, Package } from "lucide-react";
+import { Edit, Trash2, Package, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -93,6 +93,7 @@ export default function ProductTable({ products, isLoading }: ProductTableProps)
               <TableHead className="font-geist">Category</TableHead>
               <TableHead className="font-geist">Price</TableHead>
               <TableHead className="font-geist">Stock</TableHead>
+              <TableHead className="font-geist">Rating</TableHead>
               <TableHead className="font-geist">Status</TableHead>
               <TableHead className="font-geist">Actions</TableHead>
             </TableRow>
@@ -135,6 +136,13 @@ export default function ProductTable({ products, isLoading }: ProductTableProps)
                   </TableCell>
                   <TableCell className="font-geist" data-testid={`text-stock-${product.id}`}>
                     {product.stock}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1" data-testid={`text-rating-${product.id}`}>
+                      <Star className={`h-4 w-4 ${parseFloat(product.rating || '0') > 0 ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} />
+                      <span className="text-sm font-medium">{parseFloat(product.rating || '0').toFixed(1)}</span>
+                      <span className="text-xs text-muted-foreground">({product.reviewCount || 0})</span>
+                    </div>
                   </TableCell>
                   <TableCell>
                     <Badge variant={stockStatus.variant} data-testid={`badge-status-${product.id}`}>

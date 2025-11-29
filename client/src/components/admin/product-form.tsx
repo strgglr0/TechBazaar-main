@@ -304,53 +304,9 @@ export default function ProductForm({ product, open, onOpenChange }: ProductForm
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="rating"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-geist">Rating (0-5)</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number"
-                        step="0.1"
-                        min="0"
-                        max="5"
-                        value={field.value || ""}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          field.onChange(value);
-                        }}
-                        placeholder="0.0"
-                        data-testid="input-product-rating" 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="reviewCount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-geist">Review Count</FormLabel>
-                    <FormControl>
-                      <Input 
-                        value={formatNumberWithCommas(field.value || 0)}
-                        onChange={(e) => {
-                          const sanitized = sanitizeNumberInput(e.target.value, false);
-                          field.onChange(parseInt(sanitized) || 0);
-                        }}
-                        placeholder="0"
-                        data-testid="input-product-reviews" 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* Hidden fields to preserve rating data */}
+              <input type="hidden" {...form.register('rating')} />
+              <input type="hidden" {...form.register('reviewCount')} />
             </div>
 
             <FormField

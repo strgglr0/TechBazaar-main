@@ -86,16 +86,17 @@ class OrderProcessingQueue:
     def _process_orders(self):
         """
         Background worker that processes orders through the queues.
-        Processing -> (5s) -> Delivered -> (5s) -> Received
+        Processing -> (24h) -> Delivered -> (manual confirmation) -> Received
+        Note: For testing, change times to smaller values (e.g., 10 seconds)
         """
         while self.running:
             try:
-                # Process from processing queue to delivery queue (after 5 seconds)
+                # Process from processing queue to delivery queue (after 24 hours = 86400 seconds)
                 if not self.processing_queue.empty():
                     item = self.processing_queue.get(timeout=1)
                     elapsed = (datetime.utcnow() - item['queued_at']).total_seconds()
                     
-                    if elapsed >= 5:
+                    if elapsed >= 86400:  # 24 hours
                         # Move to delivery queue
                         item['status'] = 'delivered'
                         item['delivered_at'] = datetime.utcnow()
@@ -113,12 +114,15 @@ class OrderProcessingQueue:
                         # Put back in queue if not ready
                         self.processing_queue.put(item)
                 
-                # Process from delivery queue to completed (after 5 more seconds)
+                # Process from delivery queue to completed (after customer confirms receipt)
+                # Note: Customer must manually confirm receipt, so we use a very long timeout
                 if not self.delivery_queue.empty():
                     item = self.delivery_queue.get(timeout=1)
                     elapsed = (datetime.utcnow() - item['delivered_at']).total_seconds()
                     
-                    if elapsed >= 5:
+                    # Don't auto-complete - customer must confirm manually
+                    # Keep a very high number to prevent auto-completion
+                    if elapsed >= 999999999:
                         # Mark as received/completed
                         item['status'] = 'received'
                         item['received_at'] = datetime.utcnow()
