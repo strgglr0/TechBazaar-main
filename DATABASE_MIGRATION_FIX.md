@@ -1,4 +1,4 @@
-# Database Migration & 500 Error Fix
+origin# Database Migration & 500 Error Fix
 
 ## Problem
 The `/api/products` endpoint was returning 500 errors with the following error:
