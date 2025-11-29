@@ -33,14 +33,15 @@ export default function Home() {
       const params = new URLSearchParams();
       if (filters.category) params.append('category', filters.category);
       if (filters.brand) params.append('brand', filters.brand);
-      if (filters.minPrice) params.append('minPrice', filters.minPrice.toString());
-      if (filters.maxPrice) params.append('maxPrice', filters.maxPrice.toString());
+      if (filters.minPrice !== undefined) params.append('minPrice', filters.minPrice.toString());
+      if (filters.maxPrice !== undefined) params.append('maxPrice', filters.maxPrice.toString());
       if (filters.rating) params.append('rating', filters.rating.toString());
       if (filters.searchQuery) params.append('search', filters.searchQuery);
 
       const url = `/api/products?${params.toString()}`;
       console.log('[DEBUG] Fetching products with filters:', filters);
       console.log('[DEBUG] API URL:', url);
+      console.log('[DEBUG] Price params - min:', filters.minPrice, 'max:', filters.maxPrice);
       
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch products');

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TechBazaar - Database Check</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 5px; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>TechBazaar Database Tools</h1>
+    
+    <div>
+        <h2>Current Products</h2>
+        <button onclick="checkProducts()">Check Products</button>
+        <pre id="products-result">Click "Check Products" to see current database</pre>
+    </div>
+
+    <div>
+        <h2>Reseed Database</h2>
+        <button onclick="reseedDatabase()">Reseed with 7 Products</button>
+        <pre id="reseed-result">Click "Reseed" to populate database with sample products</pre>
+    </div>
+
+    <div>
+        <h2>Search Test</h2>
+        <input type="text" id="search-term" placeholder="Enter search term (e.g., samsung)" style="padding: 8px; width: 300px;">
+        <button onclick="searchProducts()">Search</button>
+        <pre id="search-result">Enter a search term and click "Search"</pre>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5001/api';
+
+        async function checkProducts() {
+            try {
+                const response = await fetch(`${API_BASE}/products`);
+                const data = await response.json();
+                document.getElementById('products-result').innerHTML = 
+                    `<span class="success">✓ Found ${data.length} products</span>\n\n` +
+                    JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('products-result').innerHTML = 
+                    `<span class="error">✗ Error: ${error.message}</span>`;
+            }
+        }
+
+        async function reseedDatabase() {
+            try {
+                const response = await fetch(`${API_BASE}/reseed-products`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                document.getElementById('reseed-result').innerHTML = 
+                    `<span class="success">✓ ${data.message}</span>\n\n` +
+                    `Reseeded ${data.count} products`;
+                    
+                // Auto-refresh products list
+                setTimeout(checkProducts, 500);
+            } catch (error) {
+                document.getElementById('reseed-result').innerHTML = 
+                    `<span class="error">✗ Error: ${error.message}</span>`;
+            }
+        }
+
+        async function searchProducts() {
+            const term = document.getElementById('search-term').value;
+            try {
+                const response = await fetch(`${API_BASE}/products?search=${encodeURIComponent(term)}`);
+                const data = await response.json();
+                document.getElementById('search-result').innerHTML = 
+                    `<span class="success">✓ Found ${data.length} products matching "${term}"</span>\n\n` +
+                    JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('search-result').innerHTML = 
+                    `<span class="error">✗ Error: ${error.message}</span>`;
+            }
+        }
+
+        // Auto-check on load
+        window.onload = checkProducts;
+    </script>
+</body>
+</html>

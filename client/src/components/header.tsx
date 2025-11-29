@@ -13,15 +13,20 @@ const LOGO_URL = "https://i.imgur.com/fQDzbRH.png";
 
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const { totalItems } = useCart();
   const { user, isAuthenticated, logout } = useAuth();
   const [logoError, setLogoError] = useState(false);
 
+  const isSearchPage = location.startsWith('/search');
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      setLocation(`/?search=${encodeURIComponent(searchQuery.trim())}`);
+    const trimmed = searchQuery.trim();
+    if (trimmed) {
+      console.debug('[HEADER] Navigating to search:', trimmed);
+      setLocation(`/search?q=${encodeURIComponent(trimmed)}`);
+      setSearchQuery("");
     }
   };
 
@@ -63,20 +68,22 @@ export default function Header() {
               </Link>
             </div>
 
-            {/* Search Bar - Desktop */}
-            <div className="hidden md:flex flex-1 max-w-lg mx-8">
-              <form onSubmit={handleSearch} className="relative w-full">
-                <Input
-                  type="text"
-                  placeholder="Search for phones, laptops, desktops..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 bg-input border-border rounded-lg font-geist"
-                  data-testid="input-search"
-                />
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              </form>
-            </div>
+            {/* Search Bar - Desktop (hidden on search page) */}
+            {!isSearchPage && (
+              <div className="hidden md:flex flex-1 max-w-lg mx-8">
+                <form onSubmit={handleSearch} className="relative w-full">
+                  <Input
+                    type="text"
+                    placeholder="Search for phones, laptops, desktops..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 bg-input border-border rounded-lg font-geist"
+                    data-testid="input-search"
+                  />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                </form>
+              </div>
+            )}
 
             {/* Navigation - Desktop */}
             <nav className="hidden md:flex items-center space-x-6">
@@ -157,18 +164,20 @@ export default function Header() {
                 </SheetTrigger>
                 <SheetContent side="right" className="w-[300px]">
                   <div className="flex flex-col space-y-4 mt-6">
-                    {/* Mobile Search */}
-                    <form onSubmit={handleSearch} className="relative">
-                      <Input
-                        type="text"
-                        placeholder="Search products..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10"
-                        data-testid="input-search-mobile"
-                      />
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    </form>
+                    {/* Mobile Search (hidden on search page) */}
+                    {!isSearchPage && (
+                      <form onSubmit={handleSearch} className="relative">
+                        <Input
+                          type="text"
+                          placeholder="Search products..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="pl-10"
+                          data-testid="input-search-mobile"
+                        />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      </form>
+                    )}
 
                     <div className="flex flex-col space-y-2">
                       <Link href="/" data-testid="link-products-mobile">

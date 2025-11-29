@@ -68,8 +68,8 @@ export default function ProductFiltersComponent({ filters, onFiltersChange }: Pr
   };
 
   const handleCustomPriceApply = () => {
-    const min = customMinPrice ? parseFloat(customMinPrice) : undefined;
-    const max = customMaxPrice ? parseFloat(customMaxPrice) : undefined;
+    const min = customMinPrice !== "" ? parseFloat(customMinPrice) : undefined;
+    const max = customMaxPrice !== "" ? parseFloat(customMaxPrice) : undefined;
     
     console.log('[DEBUG] Applying custom price range:', { min, max, customMinPrice, customMaxPrice });
     
@@ -189,7 +189,7 @@ export default function ProductFiltersComponent({ filters, onFiltersChange }: Pr
                   <Button
                     size="sm"
                     onClick={handleCustomPriceApply}
-                    disabled={!customMinPrice && !customMaxPrice}
+                    disabled={customMinPrice === "" && customMaxPrice === ""}
                     className="flex-1 h-8 text-xs"
                   >
                     Apply

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TechBazaar Database Reset & Test</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1 { color: #333; margin-top: 0; }
+        h2 { color: #555; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px 5px 10px 0;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        button.secondary { background: #6c757d; }
+        button.secondary:hover { background: #545b62; }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        pre {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .step {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #007bff;
+            border-radius: 4px;
+        }
+        .step h3 { margin-top: 0; color: #007bff; }
+        ul { line-height: 1.8; }
+        .highlight { background: yellow; padding: 2px 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 TechBazaar - Database Reset & Search Test</h1>
+        <p><strong>Purpose:</strong> This tool will help diagnose and fix your search issues step-by-step.</p>
+        
+        <div class="step">
+            <h3>Step 1: Check Current Database</h3>
+            <p>First, let's see what products are currently in your database.</p>
+            <button onclick="checkDatabase()">📊 Check Database</button>
+        </div>
+
+        <div class="step">
+            <h3>Step 2: Reseed Database</h3>
+            <p>If you don't see Samsung products, click this button to add them.</p>
+            <ul>
+                <li>✅ Deletes all existing products</li>
+                <li>✅ Adds 7 new products including Samsung Galaxy A23</li>
+                <li>✅ Enables search functionality</li>
+            </ul>
+            <button onclick="reseedDatabase()">🚀 Reseed Database</button>
+        </div>
+
+        <div class="step">
+            <h3>Step 3: Test Search</h3>
+            <p>After reseeding, test if search works correctly.</p>
+            <button onclick="testSearch('samsung')">🔍 Search "samsung"</button>
+            <button onclick="testSearch('iphone')" class="secondary">🔍 Search "iphone"</button>
+            <button onclick="testSearch('laptop')" class="secondary">🔍 Search "laptop"</button>
+        </div>
+
+        <div class="step">
+            <h3>Step 4: Test Price Filter</h3>
+            <p>Verify price filtering works with 0 values.</p>
+            <button onclick="testPrice(0, 0)">💰 Test 0-0</button>
+            <button onclick="testPrice(0, 500)" class="secondary">💰 Test 0-500</button>
+            <button onclick="testPrice(1000, 2000)" class="secondary">💰 Test 1000-2000</button>
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5001/api';
+
+        function showResult(className, html) {
+            const result = document.getElementById('result');
+            result.style.display = 'block';
+            result.className = className;
+            result.innerHTML = html;
+            result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        async function checkDatabase() {
+            showResult('info', '<p>⏳ Checking database...</p>');
+
+            try {
+                const response = await fetch(`${API_BASE}/products-debug`);
+                const data = await response.json();
+
+                let html = `
+                    <h3>📊 Database Status</h3>
+                    <p><strong>Total Products:</strong> ${data.total_count}</p>
+                `;
+
+                if (data.total_count === 0) {
+                    html += `
+                        <p class="warning" style="padding: 10px; background: #fff3cd; border-radius: 4px;">
+                            ⚠️ <strong>No products found!</strong> Click "Reseed Database" to add sample products.
+                        </p>
+                    `;
+                } else {
+                    html += '<h4>Products in Database:</h4><pre>' + 
+                            JSON.stringify(data.products, null, 2) + '</pre>';
+                    
+                    const hasSamsung = data.products.some(p => p.brand === 'Samsung');
+                    const hasIPhone = data.products.some(p => p.name.includes('iPhone'));
+                    
+                    if (!hasSamsung || !hasIPhone) {
+                        html += `
+                            <p class="warning" style="padding: 10px; background: #fff3cd; border-radius: 4px; margin-top: 10px;">
+                                ⚠️ <strong>Missing products!</strong> Click "Reseed Database" to add Samsung and iPhone products.
+                            </p>
+                        `;
+                    }
+                }
+
+                showResult(data.total_count > 0 ? 'success' : 'warning', html);
+            } catch (error) {
+                showResult('error', `
+                    <h3>❌ Error</h3>
+                    <p>${error.message}</p>
+                    <p><strong>Make sure Flask server is running on port 5001!</strong></p>
+                    <p>Start it with: <code>npm run dev:all</code></p>
+                `);
+            }
+        }
+
+        async function reseedDatabase() {
+            showResult('info', '<p>⏳ Reseeding database... This will take a moment.</p>');
+
+            try {
+                const response = await fetch(`${API_BASE}/reseed-products`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showResult('success', `
+                        <h3>✅ Database Reseeded Successfully!</h3>
+                        <p><strong>Deleted:</strong> ${data.deleted} old products</p>
+                        <p><strong>Created:</strong> ${data.created} new products</p>
+                        
+                        <h4>New Products Added:</h4>
+                        <pre>${JSON.stringify(data.products, null, 2)}</pre>
+                        
+                        <p style="margin-top: 15px; padding: 10px; background: #d4edda; border-radius: 4px;">
+                            ✅ <strong>Ready to test!</strong> Now try the search and price filter tests below.
+                        </p>
+                    `);
+                } else {
+                    throw new Error(data.error || 'Unknown error');
+                }
+            } catch (error) {
+                showResult('error', `
+                    <h3>❌ Reseed Failed</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p>Check the Flask terminal for error details.</p>
+                `);
+            }
+        }
+
+        async function testSearch(searchTerm) {
+            showResult('info', `<p>🔍 Searching for "${searchTerm}"...</p>`);
+
+            try {
+                const url = `${API_BASE}/products?search=${encodeURIComponent(searchTerm)}`;
+                console.log('[TEST] Fetching:', url);
+                
+                const response = await fetch(url);
+                const data = await response.json();
+
+                console.log('[TEST] Results:', data);
+
+                let html = `
+                    <h3>🔍 Search Results for "${searchTerm}"</h3>
+                    <p><strong>Products Found:</strong> ${data.length}</p>
+                `;
+
+                if (data.length === 0) {
+                    html += `
+                        <p class="error" style="padding: 10px; background: #f8d7da; border-radius: 4px;">
+                            ❌ <strong>No products found!</strong> This means:
+                            <ul>
+                                <li>Database might be empty - check Step 1</li>
+                                <li>Or products don't match "${searchTerm}" - check product names</li>
+                            </ul>
+                        </p>
+                    `;
+                } else {
+                    html += '<h4>Products:</h4><pre>' + 
+                            JSON.stringify(data.map(p => ({
+                                name: p.name,
+                                brand: p.brand,
+                                price: p.price,
+                                category: p.category
+                            })), null, 2) + '</pre>';
+                }
+
+                showResult(data.length > 0 ? 'success' : 'warning', html);
+            } catch (error) {
+                showResult('error', `
+                    <h3>❌ Search Failed</h3>
+                    <p>${error.message}</p>
+                `);
+            }
+        }
+
+        async function testPrice(min, max) {
+            showResult('info', `<p>💰 Testing price range ${min}-${max}...</p>`);
+
+            try {
+                const url = `${API_BASE}/products?minPrice=${min}&maxPrice=${max}`;
+                console.log('[TEST] Fetching:', url);
+                
+                const response = await fetch(url);
+                const data = await response.json();
+
+                console.log('[TEST] Results:', data);
+
+                let html = `
+                    <h3>💰 Price Filter Results (${min}-${max})</h3>
+                    <p><strong>Products Found:</strong> ${data.length}</p>
+                `;
+
+                if (min === 0 && max === 0) {
+                    if (data.length === 0) {
+                        html += `
+                            <p class="success" style="padding: 10px; background: #d4edda; border-radius: 4px;">
+                                ✅ <strong>PASSED!</strong> Correctly shows 0 products for 0-0 range.
+                            </p>
+                        `;
+                    } else {
+                        html += `
+                            <p class="error" style="padding: 10px; background: #f8d7da; border-radius: 4px;">
+                                ❌ <strong>FAILED!</strong> Should show 0 products but found ${data.length}.
+                            </p>
+                        `;
+                    }
+                } else {
+                    if (data.length > 0) {
+                        html += '<h4>Products in Range:</h4><pre>' + 
+                                JSON.stringify(data.map(p => ({
+                                    name: p.name,
+                                    price: p.price
+                                })), null, 2) + '</pre>';
+                    } else {
+                        html += '<p>No products in this price range.</p>';
+                    }
+                }
+
+                showResult(
+                    (min === 0 && max === 0 && data.length === 0) ? 'success' : 
+                    (min === 0 && max === 0 && data.length > 0) ? 'error' : 'info',
+                    html
+                );
+            } catch (error) {
+                showResult('error', `
+                    <h3>❌ Price Filter Failed</h3>
+                    <p>${error.message}</p>
+                `);
+            }
+        }
+
+        // Auto-check database on load
+        window.addEventListener('load', () => {
+            setTimeout(checkDatabase, 500);
+        });
+    </script>
+</body>
+</html>

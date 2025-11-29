@@ -2,16 +2,31 @@ from flask import Blueprint, jsonify, request, current_app
 from models import Product
 from extensions import db
 from sqlalchemy import cast, Float
+import json
 
 products_bp = Blueprint('products', __name__)
 
 
 def seed_products():
-    if Product.query.count() == 0:
-        p1 = Product(id='1', name='iPhone 15 Pro', description='Latest iPhone with advanced camera system', price='999.00', category='phones', brand='Apple', stock=25)
-        p2 = Product(id='2', name='ASUS ROG Strix G15', description='Gaming laptop with RTX', price='1299.00', category='laptops', brand='ASUS', stock=8)
-        db.session.add_all([p1, p2])
+    current_count = Product.query.count()
+    if current_count == 0:
+        sample_products = [
+            Product(id='1', name='iPhone 15 Pro', description='Latest iPhone with advanced camera system and A17 Pro chip', price='999.00', category='phones', brand='Apple', sku='IPH15P-128', stock=25, rating='4.5', reviewCount=128, isActive=True),
+            Product(id='2', name='ASUS ROG Strix G15', description='Gaming laptop with RTX 4070 and Ryzen 7 processor', price='1299.00', category='laptops', brand='ASUS', sku='ASU-ROG-G15', stock=8, rating='4.5', reviewCount=64, isActive=True),
+            Product(id='3', name='Dell XPS Desktop', description='Powerful desktop for creative professionals and gaming', price='1599.00', category='desktops', brand='Dell', sku='DELL-XPS-DT', stock=12, rating='4.7', reviewCount=89, isActive=True),
+            Product(id='4', name='Sony WH-1000XM5', description='Industry-leading noise canceling headphones', price='399.00', category='accessories', brand='Sony', sku='SONY-WH1000XM5', stock=45, rating='4.9', reviewCount=256, isActive=True),
+            Product(id='5', name='Samsung Galaxy S24 Ultra', description='Flagship Android phone with S Pen and advanced cameras', price='1199.00', category='phones', brand='Samsung', sku='SAM-S24U-256', stock=18, rating='4.6', reviewCount=142, isActive=True),
+            Product(id='6', name='Samsung Galaxy A23', description='Budget-friendly Samsung phone with great battery life', price='299.00', category='phones', brand='Samsung', sku='SAM-A23-64', stock=35, rating='4.2', reviewCount=87, isActive=True),
+            Product(id='7', name='MacBook Air M3', description='Ultra-thin laptop with M3 chip and all-day battery', price='1099.00', category='laptops', brand='Apple', sku='MBA-M3-256', stock=32, rating='4.8', reviewCount=201, isActive=True),
+        ]
+        db.session.add_all(sample_products)
         db.session.commit()
+        print(f"✓ Seeded {len(sample_products)} products successfully!")
+        for p in sample_products:
+            print(f"  - {p.name} (${p.price})")
+    else:
+        print(f"ℹ️  Database already has {current_count} products. Skipping seed.")
+
 
 
 def ensure_seeded():
@@ -40,60 +55,69 @@ def register_products(app):
 
 @products_bp.route('/products', methods=['GET'])
 def list_products():
-    # Start with base query
     query = Product.query
     
-    # Apply category filter (case-insensitive)
+    total_count = Product.query.count()
+    print(f"[API /products] Total products in DB: {total_count}")
+    
     category = request.args.get('category')
     if category:
         query = query.filter(Product.category.ilike(category))
+        print(f"[API /products] Filter category: {category}")
     
-    # Apply brand filter (case-insensitive)
     brand = request.args.get('brand')
     if brand:
         query = query.filter(Product.brand.ilike(brand))
+        print(f"[API /products] Filter brand: {brand}")
     
-    # Apply price range filter
     min_price = request.args.get('minPrice')
-    if min_price:
+    if min_price is not None:
         try:
             min_val = float(min_price)
             query = query.filter(cast(Product.price, Float) >= min_val)
-            print(f"[DEBUG] Filtering by minPrice: {min_val}")
+            print(f"[API /products] Filter minPrice >= {min_val}")
         except ValueError:
-            print(f"[DEBUG] Invalid minPrice value: {min_price}")
             pass
     
     max_price = request.args.get('maxPrice')
-    if max_price:
+    if max_price is not None:
         try:
             max_val = float(max_price)
             query = query.filter(cast(Product.price, Float) <= max_val)
-            print(f"[DEBUG] Filtering by maxPrice: {max_val}")
+            print(f"[API /products] Filter maxPrice <= {max_val}")
         except ValueError:
-            print(f"[DEBUG] Invalid maxPrice value: {max_price}")
             pass
     
-    # Apply rating filter
     rating = request.args.get('rating')
     if rating:
         try:
-            query = query.filter(db.cast(Product.rating, db.Float) >= float(rating))
+            query = query.filter(cast(Product.rating, Float) >= float(rating))
         except ValueError:
             pass
     
-    # Apply search filter
     search = request.args.get('search')
     if search:
-        search_pattern = f'%{search}%'
+        search_term = search.strip()
+        search_pattern = f'%{search_term}%'
+        print(f"[API /products] SEARCH: '{search_term}' pattern: '{search_pattern}'")
+        
         query = query.filter(
             db.or_(
                 Product.name.ilike(search_pattern),
-                Product.description.ilike(search_pattern)
+                Product.description.ilike(search_pattern),
+                Product.brand.ilike(search_pattern),
+                Product.category.ilike(search_pattern)
             )
         )
     
     items = query.all()
+    print(f"[API /products] Returning {len(items)} products")
+    
+    if search and items:
+        print(f"[API /products] Sample results:")
+        for p in items[:3]:
+            print(f"  - {p.name} (${p.price}) - {p.brand}")
+    
     return jsonify([p.to_dict() for p in items])
 
 
@@ -211,3 +235,50 @@ def delete_product(id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': 'Failed to delete product', 'details': str(e)}), 500
+
+
+@products_bp.route('/products-debug', methods=['GET'])
+def debug_products():
+    """Debug endpoint to see all products in database"""
+    all_products = Product.query.all()
+    return jsonify({
+        'total_count': len(all_products),
+        'products': [{
+            'id': p.id,
+            'name': p.name,
+            'price': p.price,
+            'brand': p.brand,
+            'category': p.category
+        } for p in all_products]
+    })
+
+
+@products_bp.route('/reseed-products', methods=['POST'])
+def reseed_products():
+    """Force reseed the database with sample products (deletes existing)"""
+    try:
+        # Delete all existing products
+        deleted_count = Product.query.delete()
+        db.session.commit()
+        print(f"[RESEED] Deleted {deleted_count} existing products")
+        
+        # Seed new products
+        seed_products()
+        
+        # Count and return results
+        new_count = Product.query.count()
+        products = Product.query.all()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Database reseeded successfully',
+            'deleted': deleted_count,
+            'created': new_count,
+            'products': [{'name': p.name, 'price': p.price} for p in products]
+        })
+    except Exception as e:
+        db.session.rollback()
+        print(f"[RESEED ERROR] {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': 'Failed to reseed database', 'details': str(e)}), 500

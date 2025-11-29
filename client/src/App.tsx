@@ -14,6 +14,7 @@ import SignUp from "@/pages/signup";
 import RegisterPlatform from "@/pages/register-platform";
 import Login from "@/pages/login";
 import Profile from "@/pages/profile";
+import SearchPage from "@/pages/search-new";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 
@@ -21,6 +22,7 @@ function Router() {
   return (
       <Switch>
         <Route path="/" component={Home} />
+        <Route path="/search" component={SearchPage} />
         <Route path="/signup" component={SignUp} />
         <Route path="/login" component={Login} />
         <Route path="/register-platform" component={RegisterPlatform} />
