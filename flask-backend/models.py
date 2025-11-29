@@ -114,3 +114,27 @@ class Order(db.Model):
             'status': self.status,  # Now uses actual DB status managed by queue
             'createdAt': self.created_at.isoformat() if self.created_at else None,
         }
+
+
+class Rating(db.Model):
+    __tablename__ = 'ratings'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    product_id = db.Column(db.String(64), db.ForeignKey('products.id'), nullable=False)
+    order_id = db.Column(db.String(64), db.ForeignKey('orders.id'), nullable=True)
+    rating = db.Column(db.Integer, nullable=False)
+    review = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'userId': self.user_id,
+            'productId': self.product_id,
+            'orderId': self.order_id,
+            'rating': self.rating,
+            'review': self.review,
+            'createdAt': self.created_at.isoformat() if self.created_at else None,
+            'updatedAt': self.updated_at.isoformat() if self.updated_at else None,
+        }

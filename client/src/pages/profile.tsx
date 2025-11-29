@@ -41,6 +41,9 @@ export default function Profile() {
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isOrderDetailsOpen, setIsOrderDetailsOpen] = useState(false);
+  const [orderRatings, setOrderRatings] = useState<Record<string, any>[]>([]);
+  const [editingRating, setEditingRating] = useState<{ productId?: string; value?: number; review?: string } | null>(null);
+  const [ratingSubmitting, setRatingSubmitting] = useState(false);
 
   // Form states
   const [profileForm, setProfileForm] = useState({
@@ -258,6 +261,16 @@ export default function Profile() {
 
   const handleViewOrderDetails = (order: Order) => {
     setSelectedOrder(order);
+    // fetch any ratings the current user has for this order
+    (async () => {
+      try {
+        const res = await apiRequest('GET', `/api/orders/${order.id}/ratings`);
+        const json = await res.json();
+        setOrderRatings(json || []);
+      } catch (e) {
+        setOrderRatings([]);
+      }
+    })();
     setIsOrderDetailsOpen(true);
   };
 
@@ -692,6 +705,58 @@ export default function Profile() {
                           <TableCell>{item.quantity}</TableCell>
                           <TableCell>₱{parseFloat(item.price).toLocaleString()}</TableCell>
                           <TableCell>₱{(parseFloat(item.price) * item.quantity).toLocaleString()}</TableCell>
+                          <TableCell>
+                            {/* Show user's rating for this order item if present */}
+                            {(() => {
+                              const r = orderRatings.find((rr) => rr.productId === item.productId);
+                              if (editingRating && editingRating.productId === item.productId) {
+                                return (
+                                  <div className="flex items-center gap-2">
+                                    <select
+                                      value={editingRating.value || 5}
+                                      onChange={(e) => setEditingRating({ ...editingRating, value: parseInt(e.target.value) })}
+                                      className="border rounded px-2 py-1"
+                                      data-testid={`select-rating-${item.productId}`}
+                                    >
+                                      {[1,2,3,4,5].map((n) => (
+                                        <option key={n} value={n}>{n} ⭐</option>
+                                      ))}
+                                    </select>
+                                    <Button size="sm" onClick={async () => {
+                                      if (!editingRating) return;
+                                      setRatingSubmitting(true);
+                                      try {
+                                        await apiRequest('POST', `/api/orders/${selectedOrder.id}/rating`, { productId: item.productId, rating: editingRating.value, review: editingRating.review });
+                                        // refresh ratings
+                                        const res = await apiRequest('GET', `/api/orders/${selectedOrder.id}/ratings`);
+                                        const json = await res.json();
+                                        setOrderRatings(json || []);
+                                        setEditingRating(null);
+                                      } catch (err) {
+                                        // ignore - toast could be added
+                                      } finally {
+                                        setRatingSubmitting(false);
+                                      }
+                                    }} disabled={ratingSubmitting}>Save</Button>
+                                    <Button size="sm" variant="outline" onClick={() => setEditingRating(null)}>Cancel</Button>
+                                  </div>
+                                );
+                              }
+
+                              return (
+                                <div className="flex items-center gap-3">
+                                  {r ? (
+                                    <>
+                                      <span className="text-sm font-semibold">{r.rating} ⭐</span>
+                                      <Button size="sm" variant="outline" onClick={() => setEditingRating({ productId: item.productId, value: r.rating, review: r.review })}>Edit</Button>
+                                    </>
+                                  ) : (
+                                    <Button size="sm" onClick={() => setEditingRating({ productId: item.productId, value: 5 })}>Rate</Button>
+                                  )}
+                                </div>
+                              );
+                            })()}
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

@@ -96,6 +96,119 @@ def delete_order(order_id):
         return jsonify({'error': 'Failed to delete order', 'details': str(e)}), 500
 
 
+
+@orders_bp.route('/orders/<order_id>/ratings', methods=['GET'])
+@token_required
+def get_order_ratings(order_id):
+    """Return ratings made by the current user for items in this order"""
+    user_id = get_current_user_id()
+    order = Order.query.get(order_id)
+    if not order:
+        return jsonify({'error': 'Order not found'}), 404
+
+    if order.user_id != user_id:
+        return jsonify({'error': 'Unauthorized - This order does not belong to you'}), 403
+
+    # Find ratings for this order by this user
+    from models import Rating
+    ratings = Rating.query.filter_by(order_id=order_id, user_id=user_id).all()
+    return jsonify([r.to_dict() for r in ratings])
+
+
+@orders_bp.route('/orders/<order_id>/rating', methods=['POST'])
+@token_required
+def rate_order_item(order_id):
+    """Create or update a rating for an item in an order. Body: { productId, rating (1-5), review? }"""
+    user_id = get_current_user_id()
+    order = Order.query.get(order_id)
+    if not order:
+        return jsonify({'error': 'Order not found'}), 404
+
+    if order.user_id != user_id:
+        return jsonify({'error': 'Unauthorized - This order does not belong to you'}), 403
+
+    # Only allow rating after delivery/receipt
+    if order.status not in ('delivered', 'received'):
+        return jsonify({'error': 'Can only rate items after order is delivered/received'}), 400
+
+    data = request.get_json() or {}
+    product_id = data.get('productId')
+    rating_value = data.get('rating')
+    review_text = data.get('review')
+
+    if not product_id or rating_value is None:
+        return jsonify({'error': 'productId and rating are required'}), 400
+
+    try:
+        rating_value = int(rating_value)
+        if rating_value < 1 or rating_value > 5:
+            return jsonify({'error': 'rating must be 1-5'}), 400
+    except ValueError:
+        return jsonify({'error': 'rating must be an integer'}), 400
+
+    # Ensure the product is part of the order
+    item_match = None
+    for it in order.items:
+        if str(it.get('productId')) == str(product_id):
+            item_match = it
+            break
+
+    if not item_match:
+        return jsonify({'error': 'Product not found in order'}), 400
+
+    from models import Rating, Product
+
+    existing = Rating.query.filter_by(order_id=order_id, user_id=user_id, product_id=product_id).first()
+
+    try:
+        product = Product.query.get(product_id)
+        if not product:
+            return jsonify({'error': 'Product not found'}), 404
+
+        # Create or update rating
+        if existing:
+            old_value = existing.rating
+            existing.rating = rating_value
+            existing.review = review_text
+            db.session.commit()
+
+            # adjust product aggregate (average)
+            try:
+                count = product.reviewCount or 0
+                avg = float(product.rating or '0') if product.rating else 0.0
+                # replace old with new in average
+                if count > 0:
+                    new_avg = ((avg * count) - int(old_value) + int(rating_value)) / count
+                else:
+                    new_avg = float(rating_value)
+                product.rating = f"{new_avg:.2f}"
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+
+            return jsonify(existing.to_dict())
+        else:
+            new_rating = Rating(user_id=user_id, product_id=product_id, order_id=order_id, rating=rating_value, review=review_text)
+            db.session.add(new_rating)
+
+            # update product aggregates
+            try:
+                count = product.reviewCount or 0
+                avg = float(product.rating or '0') if product.rating else 0.0
+                new_count = count + 1
+                new_avg = ((avg * count) + float(rating_value)) / new_count
+                product.reviewCount = new_count
+                product.rating = f"{new_avg:.2f}"
+            except Exception:
+                db.session.rollback()
+
+            db.session.commit()
+            return jsonify(new_rating.to_dict()), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to save rating', 'details': str(e)}), 500
+
+
 @orders_bp.route('/checkout', methods=['POST'])
 def checkout():
     """Create an order. If an Authorization token is present, the user is associated with the order.

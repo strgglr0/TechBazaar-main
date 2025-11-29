@@ -108,6 +108,42 @@ def delete_cart_item(item_id):
     return jsonify({'ok': True})
 
 
+@cart_bp.route('/cart/transfer', methods=['POST'])
+def transfer_cart():
+    """Transfer guest cart items to authenticated user cart."""
+    user_id = get_current_user_id()
+    if not user_id:
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    data = request.get_json() or {}
+    guest_session_id = data.get('guestSessionId') or request.headers.get('x-session-id')
+    
+    if not guest_session_id:
+        return jsonify({'message': 'No guest cart to transfer'}), 200
+    
+    # Get guest cart items
+    guest_items = CartItem.query.filter_by(session_id=guest_session_id).all()
+    
+    if not guest_items:
+        return jsonify({'message': 'Guest cart is empty'}), 200
+    
+    # Transfer items to user cart
+    for guest_item in guest_items:
+        # Check if user already has this product
+        existing = CartItem.query.filter_by(user_id=user_id, product_id=guest_item.product_id).first()
+        if existing:
+            # Merge quantities
+            existing.quantity += guest_item.quantity
+            db.session.delete(guest_item)
+        else:
+            # Transfer item to user
+            guest_item.user_id = user_id
+            guest_item.session_id = None
+    
+    db.session.commit()
+    return jsonify({'message': 'Cart transferred successfully'})
+
+
 @cart_bp.route('/cart', methods=['DELETE'])
 def clear_cart():
     key = _key_for_request()
