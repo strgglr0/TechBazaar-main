@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request, current_app
 from models import Product
 from extensions import db
+from sqlalchemy import cast, Float
 
 products_bp = Blueprint('products', __name__)
 
@@ -56,15 +57,21 @@ def list_products():
     min_price = request.args.get('minPrice')
     if min_price:
         try:
-            query = query.filter(db.cast(Product.price, db.Float) >= float(min_price))
+            min_val = float(min_price)
+            query = query.filter(cast(Product.price, Float) >= min_val)
+            print(f"[DEBUG] Filtering by minPrice: {min_val}")
         except ValueError:
+            print(f"[DEBUG] Invalid minPrice value: {min_price}")
             pass
     
     max_price = request.args.get('maxPrice')
     if max_price:
         try:
-            query = query.filter(db.cast(Product.price, db.Float) <= float(max_price))
+            max_val = float(max_price)
+            query = query.filter(cast(Product.price, Float) <= max_val)
+            print(f"[DEBUG] Filtering by maxPrice: {max_val}")
         except ValueError:
+            print(f"[DEBUG] Invalid maxPrice value: {max_price}")
             pass
     
     # Apply rating filter

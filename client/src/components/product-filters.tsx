@@ -68,13 +68,15 @@ export default function ProductFiltersComponent({ filters, onFiltersChange }: Pr
   };
 
   const handleCustomPriceApply = () => {
-    const min = parseFloat(customMinPrice) || 0;
-    const max = parseFloat(customMaxPrice) || undefined;
+    const min = customMinPrice ? parseFloat(customMinPrice) : undefined;
+    const max = customMaxPrice ? parseFloat(customMaxPrice) : undefined;
+    
+    console.log('[DEBUG] Applying custom price range:', { min, max, customMinPrice, customMaxPrice });
     
     setUseCustomPrice(true);
     onFiltersChange({
       ...filters,
-      minPrice: min > 0 ? min : undefined,
+      minPrice: min,
       maxPrice: max,
     });
   };

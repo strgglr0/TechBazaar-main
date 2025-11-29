@@ -1,4 +1,4 @@
-[2025-11-29 11:20:59,051] ERROR in products: Failed to ensure seeded products
+[2025-11-29 12:24:13,981] ERROR in products: Failed to ensure seeded products
 Traceback (most recent call last):
   File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 35, in register_products
     ensure_seeded()
@@ -21,10 +21,10 @@ with app.app_context(). See the documentation for more information.
 WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:5001
- * Running on http://10.0.1.216:5001
+ * Running on http://10.0.2.252:5001
 Press CTRL+C to quit
  * Restarting with stat
-[2025-11-29 11:20:59,690] ERROR in products: Failed to ensure seeded products
+[2025-11-29 12:24:15,013] ERROR in products: Failed to ensure seeded products
 Traceback (most recent call last):
   File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 35, in register_products
     ensure_seeded()
@@ -42,24 +42,22 @@ This typically means that you attempted to use functionality that needed
 the current application. To solve this, set up an application context
 with app.app_context(). See the documentation for more information.
  * Debugger is active!
- * Debugger PIN: 145-657-209
-127.0.0.1 - - [29/Nov/2025 11:22:00] "GET /api/me HTTP/1.1" 200 -
-127.0.0.1 - - [29/Nov/2025 11:22:00] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [29/Nov/2025 11:22:00] "GET /api/categories HTTP/1.1" 200 -
-127.0.0.1 - - [29/Nov/2025 11:22:00] "GET /api/brands HTTP/1.1" 200 -
-127.0.0.1 - - [29/Nov/2025 11:22:00] "GET /api/products HTTP/1.1" 200 -
-127.0.0.1 - - [29/Nov/2025 11:22:00] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
-127.0.0.1 - - [29/Nov/2025 11:22:00] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [29/Nov/2025 11:22:08] "GET /api/profile HTTP/1.1" 200 -
-127.0.0.1 - - [29/Nov/2025 11:22:08] "GET /api/user/orders HTTP/1.1" 200 -
- * Detected change in '/workspaces/TechBazaar-main/flask-backend/quick_reset.py', reloading
+ * Debugger PIN: 103-865-615
+127.0.0.1 - - [29/Nov/2025 12:24:28] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [29/Nov/2025 12:24:28] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
+127.0.0.1 - - [29/Nov/2025 12:24:28] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [29/Nov/2025 12:24:28] "GET /api/brands HTTP/1.1" 200 -
+127.0.0.1 - - [29/Nov/2025 12:24:28] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [29/Nov/2025 12:24:28] "GET /api/me HTTP/1.1" 200 -
+127.0.0.1 - - [29/Nov/2025 12:24:28] "GET /api/cart HTTP/1.1" 200 -
+ * Detected change in '/workspaces/TechBazaar-main/flask-backend/routes/products.py', reloading
 [OrderQueue] Order processing queue started
  * Restarting with stat
-[2025-11-29 11:29:29,444] ERROR in products: Failed to ensure seeded products
+[2025-11-29 12:27:01,532] ERROR in products: Failed to ensure seeded products
 Traceback (most recent call last):
-  File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 35, in register_products
+  File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 36, in register_products
     ensure_seeded()
-  File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 20, in ensure_seeded
+  File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 21, in ensure_seeded
     current_app.logger.exception('Failed to seed products')
     ^^^^^^^^^^^^^^^^^^
   File "/usr/local/python/3.12.1/lib/python3.12/site-packages/werkzeug/local.py", line 311, in __get__
@@ -73,4 +71,26 @@ This typically means that you attempted to use functionality that needed
 the current application. To solve this, set up an application context
 with app.app_context(). See the documentation for more information.
  * Debugger is active!
- * Debugger PIN: 145-657-209
+ * Debugger PIN: 103-865-615
+ * Detected change in '/workspaces/TechBazaar-main/flask-backend/routes/products.py', reloading
+[OrderQueue] Order processing queue started
+ * Restarting with stat
+[2025-11-29 12:27:05,287] ERROR in products: Failed to ensure seeded products
+Traceback (most recent call last):
+  File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 36, in register_products
+    ensure_seeded()
+  File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 21, in ensure_seeded
+    current_app.logger.exception('Failed to seed products')
+    ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/werkzeug/local.py", line 311, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/werkzeug/local.py", line 508, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+ * Debugger is active!
+ * Debugger PIN: 103-865-615
