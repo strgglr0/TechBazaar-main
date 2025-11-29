@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import type { Category, ProductFilters } from "@/lib/types";
 
@@ -16,6 +18,10 @@ interface ProductFiltersProps {
 }
 
 export default function ProductFiltersComponent({ filters, onFiltersChange }: ProductFiltersProps) {
+  const [customMinPrice, setCustomMinPrice] = useState<string>("");
+  const [customMaxPrice, setCustomMaxPrice] = useState<string>("");
+  const [useCustomPrice, setUseCustomPrice] = useState(false);
+
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ['/api/categories'],
   });
@@ -25,9 +31,10 @@ export default function ProductFiltersComponent({ filters, onFiltersChange }: Pr
   });
 
   const priceRanges = [
-    { label: "Under ₱500", min: 0, max: 500 },
-    { label: "₱500 - ₱1000", min: 500, max: 1000 },
-    { label: "₱1000+", min: 1000, max: Infinity },
+    { label: "Under ₱10,000", min: 0, max: 10000 },
+    { label: "₱10,000 - ₱30,000", min: 10000, max: 30000 },
+    { label: "₱30,000 - ₱60,000", min: 30000, max: 60000 },
+    { label: "₱60,000+", min: 60000, max: Infinity },
   ];
 
   const ratingOptions = [
@@ -50,10 +57,36 @@ export default function ProductFiltersComponent({ filters, onFiltersChange }: Pr
   };
 
   const handlePriceRangeChange = (range: { min: number; max: number }, checked: boolean) => {
+    setUseCustomPrice(false);
+    setCustomMinPrice("");
+    setCustomMaxPrice("");
     onFiltersChange({
       ...filters,
       minPrice: checked ? range.min : undefined,
       maxPrice: checked && range.max !== Infinity ? range.max : undefined,
+    });
+  };
+
+  const handleCustomPriceApply = () => {
+    const min = parseFloat(customMinPrice) || 0;
+    const max = parseFloat(customMaxPrice) || undefined;
+    
+    setUseCustomPrice(true);
+    onFiltersChange({
+      ...filters,
+      minPrice: min > 0 ? min : undefined,
+      maxPrice: max,
+    });
+  };
+
+  const handleClearCustomPrice = () => {
+    setCustomMinPrice("");
+    setCustomMaxPrice("");
+    setUseCustomPrice(false);
+    onFiltersChange({
+      ...filters,
+      minPrice: undefined,
+      maxPrice: undefined,
     });
   };
 
@@ -66,8 +99,23 @@ export default function ProductFiltersComponent({ filters, onFiltersChange }: Pr
 
   return (
     <Card className="bg-card border-border sticky top-24">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="font-bold font-lora text-foreground">Filters</CardTitle>
+        {(filters.category || filters.brand || filters.minPrice || filters.maxPrice || filters.rating) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setCustomMinPrice("");
+              setCustomMaxPrice("");
+              setUseCustomPrice(false);
+              onFiltersChange({});
+            }}
+            className="text-xs"
+          >
+            Clear All
+          </Button>
+        )}
       </CardHeader>
       
       <CardContent className="space-y-6">
@@ -94,20 +142,69 @@ export default function ProductFiltersComponent({ filters, onFiltersChange }: Pr
         {/* Price Range */}
         <div>
           <h5 className="font-semibold font-geist text-foreground mb-3">Price Range</h5>
-          <div className="space-y-2">
-            {priceRanges.map((range, index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`price-${index}`}
-                  checked={filters.minPrice === range.min && (range.max === Infinity ? !filters.maxPrice : filters.maxPrice === range.max)}
-                  onCheckedChange={(checked) => handlePriceRangeChange(range, checked as boolean)}
-                  data-testid={`checkbox-price-${index}`}
-                />
-                <Label htmlFor={`price-${index}`} className="text-sm font-geist">
-                  {range.label}
-                </Label>
+          <div className="space-y-3">
+            {/* Preset Price Ranges */}
+            <div className="space-y-2">
+              {priceRanges.map((range, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`price-${index}`}
+                    checked={!useCustomPrice && filters.minPrice === range.min && (range.max === Infinity ? !filters.maxPrice : filters.maxPrice === range.max)}
+                    onCheckedChange={(checked) => handlePriceRangeChange(range, checked as boolean)}
+                    data-testid={`checkbox-price-${index}`}
+                  />
+                  <Label htmlFor={`price-${index}`} className="text-sm font-geist cursor-pointer">
+                    {range.label}
+                  </Label>
+                </div>
+              ))}
+            </div>
+
+            {/* Custom Price Range */}
+            <div className="pt-2 border-t">
+              <Label className="text-sm font-semibold mb-2 block">Custom Range</Label>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    placeholder="Min"
+                    value={customMinPrice}
+                    onChange={(e) => setCustomMinPrice(e.target.value)}
+                    className="h-8 text-sm"
+                    min="0"
+                  />
+                  <span className="text-muted-foreground">-</span>
+                  <Input
+                    type="number"
+                    placeholder="Max"
+                    value={customMaxPrice}
+                    onChange={(e) => setCustomMaxPrice(e.target.value)}
+                    className="h-8 text-sm"
+                    min="0"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    onClick={handleCustomPriceApply}
+                    disabled={!customMinPrice && !customMaxPrice}
+                    className="flex-1 h-8 text-xs"
+                  >
+                    Apply
+                  </Button>
+                  {(useCustomPrice || customMinPrice || customMaxPrice) && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleClearCustomPrice}
+                      className="h-8 text-xs"
+                    >
+                      Clear
+                    </Button>
+                  )}
+                </div>
               </div>
-            ))}
+            </div>
           </div>
         </div>
 

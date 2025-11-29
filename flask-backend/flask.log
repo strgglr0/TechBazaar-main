@@ -1,4 +1,4 @@
-[2025-11-29 04:47:49,760] ERROR in products: Failed to ensure seeded products
+[2025-11-29 11:20:59,051] ERROR in products: Failed to ensure seeded products
 Traceback (most recent call last):
   File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 35, in register_products
     ensure_seeded()
@@ -21,10 +21,10 @@ with app.app_context(). See the documentation for more information.
 WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:5001
- * Running on http://10.0.12.100:5001
+ * Running on http://10.0.1.216:5001
 Press CTRL+C to quit
  * Restarting with stat
-[2025-11-29 04:47:50,950] ERROR in products: Failed to ensure seeded products
+[2025-11-29 11:20:59,690] ERROR in products: Failed to ensure seeded products
 Traceback (most recent call last):
   File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 35, in register_products
     ensure_seeded()
@@ -42,22 +42,20 @@ This typically means that you attempted to use functionality that needed
 the current application. To solve this, set up an application context
 with app.app_context(). See the documentation for more information.
  * Debugger is active!
- * Debugger PIN: 296-973-763
-127.0.0.1 - - [29/Nov/2025 04:48:02] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
-127.0.0.1 - - [29/Nov/2025 04:48:02] "GET /api/brands HTTP/1.1" 200 -
-127.0.0.1 - - [29/Nov/2025 04:48:02] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [29/Nov/2025 04:48:02] "GET /api/categories HTTP/1.1" 200 -
-127.0.0.1 - - [29/Nov/2025 04:48:02] "GET /api/me HTTP/1.1" 200 -
-127.0.0.1 - - [29/Nov/2025 04:48:02] "GET /api/products HTTP/1.1" 200 -
-127.0.0.1 - - [29/Nov/2025 04:48:02] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [29/Nov/2025 04:48:09] "GET /api/orders HTTP/1.1" 200 -
-127.0.0.1 - - [29/Nov/2025 04:48:09] "GET /api/products HTTP/1.1" 200 -
-127.0.0.1 - - [29/Nov/2025 04:48:09] "GET /api/admin/stats HTTP/1.1" 200 -
-127.0.0.1 - - [29/Nov/2025 04:48:10] "GET /api/admin/analytics HTTP/1.1" 200 -
- * Detected change in '/workspaces/TechBazaar-main/flask-backend/reset_sales.py', reloading
+ * Debugger PIN: 145-657-209
+127.0.0.1 - - [29/Nov/2025 11:22:00] "GET /api/me HTTP/1.1" 200 -
+127.0.0.1 - - [29/Nov/2025 11:22:00] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [29/Nov/2025 11:22:00] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [29/Nov/2025 11:22:00] "GET /api/brands HTTP/1.1" 200 -
+127.0.0.1 - - [29/Nov/2025 11:22:00] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [29/Nov/2025 11:22:00] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
+127.0.0.1 - - [29/Nov/2025 11:22:00] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [29/Nov/2025 11:22:08] "GET /api/profile HTTP/1.1" 200 -
+127.0.0.1 - - [29/Nov/2025 11:22:08] "GET /api/user/orders HTTP/1.1" 200 -
+ * Detected change in '/workspaces/TechBazaar-main/flask-backend/quick_reset.py', reloading
 [OrderQueue] Order processing queue started
  * Restarting with stat
-[2025-11-29 04:49:46,739] ERROR in products: Failed to ensure seeded products
+[2025-11-29 11:29:29,444] ERROR in products: Failed to ensure seeded products
 Traceback (most recent call last):
   File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 35, in register_products
     ensure_seeded()
@@ -75,11 +73,4 @@ This typically means that you attempted to use functionality that needed
 the current application. To solve this, set up an application context
 with app.app_context(). See the documentation for more information.
  * Debugger is active!
- * Debugger PIN: 296-973-763
-127.0.0.1 - - [29/Nov/2025 04:53:51] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [29/Nov/2025 04:53:51] "GET /api/orders HTTP/1.1" 200 -
-127.0.0.1 - - [29/Nov/2025 04:53:51] "GET /api/me HTTP/1.1" 200 -
-127.0.0.1 - - [29/Nov/2025 04:53:51] "GET /api/products HTTP/1.1" 200 -
-127.0.0.1 - - [29/Nov/2025 04:53:51] "GET /api/admin/stats HTTP/1.1" 200 -
-127.0.0.1 - - [29/Nov/2025 04:53:51] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [29/Nov/2025 04:53:52] "GET /api/admin/analytics HTTP/1.1" 200 -
+ * Debugger PIN: 145-657-209
