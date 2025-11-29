@@ -80,3 +80,52 @@ with app.app_context(). See the documentation for more information.
 127.0.0.1 - - [29/Nov/2025 14:00:45] "GET /api/products HTTP/1.1" 200 -
 127.0.0.1 - - [29/Nov/2025 14:00:45] "GET /api/me HTTP/1.1" 200 -
 127.0.0.1 - - [29/Nov/2025 14:00:45] "GET /api/cart HTTP/1.1" 200 -
+ * Detected change in '/workspaces/TechBazaar-main/flask-backend/reset_and_seed.py', reloading
+[OrderQueue] Order processing queue started
+[API /products] Total products in DB: 2
+[API /products] Returning 2 products
+[API /products] Total products in DB: 2
+[API /products] SEARCH: 'samsung' pattern: '%samsung%'
+[API /products] Returning 1 products
+[API /products] Sample results:
+  - Samsung A23 ($13000) - Samsung
+[API /products] Total products in DB: 2
+[API /products] SEARCH: 'ip' pattern: '%ip%'
+[API /products] Returning 1 products
+[API /products] Sample results:
+  - Iphone 17 ($57990) - Iphone
+[API /products] Total products in DB: 2
+[API /products] Returning 2 products
+[API /products] Total products in DB: 2
+[API /products] Returning 2 products
+[API /products] Total products in DB: 2
+[API /products] Returning 2 products
+[API /products] Total products in DB: 2
+[API /products] Returning 2 products
+ * Restarting with stat
+[2025-11-29 14:37:17,347] ERROR in products: Failed to ensure seeded products
+Traceback (most recent call last):
+  File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 51, in register_products
+    ensure_seeded()
+  File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 36, in ensure_seeded
+    current_app.logger.exception('Failed to seed products')
+    ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/werkzeug/local.py", line 311, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/werkzeug/local.py", line 508, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+ * Debugger is active!
+ * Debugger PIN: 698-415-880
+127.0.0.1 - - [29/Nov/2025 14:37:18] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [29/Nov/2025 14:37:18] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [29/Nov/2025 14:37:18] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
+127.0.0.1 - - [29/Nov/2025 14:37:18] "GET /api/brands HTTP/1.1" 200 -
+127.0.0.1 - - [29/Nov/2025 14:37:18] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [29/Nov/2025 14:37:18] "GET /api/me HTTP/1.1" 200 -
+127.0.0.1 - - [29/Nov/2025 14:37:18] "GET /api/cart HTTP/1.1" 200 -
