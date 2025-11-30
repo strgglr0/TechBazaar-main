@@ -50,3 +50,9 @@ with app.app_context(). See the documentation for more information.
 127.0.0.1 - - [30/Nov/2025 14:28:26] "GET /api/products HTTP/1.1" 200 -
 127.0.0.1 - - [30/Nov/2025 14:28:26] "GET /api/categories HTTP/1.1" 200 -
 127.0.0.1 - - [30/Nov/2025 14:28:26] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [30/Nov/2025 14:29:38] "GET /api/products?minPrice=0&maxPrice=10000 HTTP/1.1" 200 -
+127.0.0.1 - - [30/Nov/2025 14:29:44] "GET /api/products?search=inifinix HTTP/1.1" 200 -
+127.0.0.1 - - [30/Nov/2025 14:29:55] "GET /api/products?search=samsung HTTP/1.1" 200 -
+127.0.0.1 - - [30/Nov/2025 14:30:10] "GET /api/products?search=xiaomi HTTP/1.1" 200 -
+127.0.0.1 - - [30/Nov/2025 14:30:16] "GET /api/products?search=google HTTP/1.1" 200 -
+127.0.0.1 - - [30/Nov/2025 14:30:25] "GET /api/products?search=Infinix HTTP/1.1" 200 -
