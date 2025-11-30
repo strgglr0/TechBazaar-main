@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 [2025-11-30 11:19:07,516] ERROR in products: Failed to ensure seeded products
+=======
+[2025-11-30 13:00:24,986] ERROR in products: Failed to ensure seeded products
+>>>>>>> d6861f6907c276fb05fb9d879f2eb9135446fff7
 Traceback (most recent call last):
   File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 51, in register_products
     ensure_seeded()
@@ -21,10 +25,17 @@ with app.app_context(). See the documentation for more information.
 WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:5001
+<<<<<<< HEAD
  * Running on http://10.0.0.97:5001
 Press CTRL+C to quit
  * Restarting with stat
 [2025-11-30 11:19:08,487] ERROR in products: Failed to ensure seeded products
+=======
+ * Running on http://10.0.11.83:5001
+Press CTRL+C to quit
+ * Restarting with stat
+[2025-11-30 13:00:25,880] ERROR in products: Failed to ensure seeded products
+>>>>>>> d6861f6907c276fb05fb9d879f2eb9135446fff7
 Traceback (most recent call last):
   File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 51, in register_products
     ensure_seeded()
@@ -42,6 +53,7 @@ This typically means that you attempted to use functionality that needed
 the current application. To solve this, set up an application context
 with app.app_context(). See the documentation for more information.
  * Debugger is active!
+<<<<<<< HEAD
  * Debugger PIN: 134-399-411
 127.0.0.1 - - [30/Nov/2025 11:20:14] "GET /api/brands HTTP/1.1" 200 -
 127.0.0.1 - - [30/Nov/2025 11:20:14] "GET /api/cart HTTP/1.1" 200 -
@@ -76,3 +88,20 @@ the current application. To solve this, set up an application context
 with app.app_context(). See the documentation for more information.
  * Debugger is active!
  * Debugger PIN: 134-399-411
+=======
+ * Debugger PIN: 471-427-122
+127.0.0.1 - - [30/Nov/2025 13:00:44] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
+127.0.0.1 - - [30/Nov/2025 13:00:44] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [30/Nov/2025 13:00:44] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [30/Nov/2025 13:00:44] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [30/Nov/2025 13:00:44] "GET /api/brands HTTP/1.1" 200 -
+127.0.0.1 - - [30/Nov/2025 13:00:44] "GET /api/me HTTP/1.1" 200 -
+127.0.0.1 - - [30/Nov/2025 13:00:44] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [30/Nov/2025 13:00:46] "GET /api/profile HTTP/1.1" 200 -
+127.0.0.1 - - [30/Nov/2025 13:00:46] "GET /api/user/orders HTTP/1.1" 200 -
+127.0.0.1 - - [30/Nov/2025 13:00:51] "GET /api/products/1 HTTP/1.1" 200 -
+127.0.0.1 - - [30/Nov/2025 13:00:51] "GET /api/recommendations?productId=1&limit=4 HTTP/1.1" 200 -
+127.0.0.1 - - [30/Nov/2025 13:00:51] "GET /api/frequently-bought-together?productId=1 HTTP/1.1" 200 -
+127.0.0.1 - - [30/Nov/2025 13:00:52] "POST /api/browsing-history HTTP/1.1" 200 -
+127.0.0.1 - - [30/Nov/2025 13:00:52] "POST /api/cart HTTP/1.1" 201 -
+>>>>>>> d6861f6907c276fb05fb9d879f2eb9135446fff7
