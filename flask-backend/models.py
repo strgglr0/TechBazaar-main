@@ -97,7 +97,7 @@ class Order(db.Model):
     items = db.Column(db.JSON, nullable=False)
     total = db.Column(db.Float, default=0.0)
     payment_method = db.Column(db.String(32), nullable=True, default='cod')  # 'cod' or 'online'
-    status = db.Column(db.String(32), nullable=False)  # No default - must be set explicitly
+    status = db.Column(db.String(32), nullable=False, default='processing')
     refunded_at = db.Column(db.DateTime, nullable=True)
     refund_amount = db.Column(db.Float, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

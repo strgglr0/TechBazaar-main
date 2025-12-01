@@ -244,9 +244,9 @@ export default function CartPage() {
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="font-geist text-muted-foreground">Tax (8%)</span>
+                <span className="font-geist text-muted-foreground">Tax (0.75%)</span>
                 <span className="font-geist text-foreground">
-                  ₱{formatPrice(totalAmount * 0.08)}
+                  ₱{formatPrice(totalAmount * 0.0075)}
                 </span>
               </div>
 
@@ -255,7 +255,7 @@ export default function CartPage() {
               <div className="flex justify-between">
                 <span className="text-lg font-bold font-lora text-foreground">Total</span>
                 <span className="text-2xl font-bold font-lora text-primary">
-                  ₱{formatPrice(totalAmount + (totalAmount > 100 ? 0 : 9.99) + (totalAmount * 0.08))}
+                  ₱{formatPrice(totalAmount + (totalAmount > 100 ? 0 : 9.99) + (totalAmount * 0.0075))}
                 </span>
               </div>
 

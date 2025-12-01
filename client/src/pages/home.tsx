@@ -151,7 +151,7 @@ export default function Home() {
         <main className="lg:col-span-3">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-2xl font-bold font-lora text-foreground">
-              {filters.searchQuery ? `Search results for "${filters.searchQuery}"` : 'Featured Products'}
+              {filters.searchQuery ? `Search results for "${filters.searchQuery}"` : 'Products'}
               {!isLoading && <span className="text-muted-foreground ml-2">({products.length})</span>}
             </h3>
             <Select value={sortBy} onValueChange={setSortBy}>

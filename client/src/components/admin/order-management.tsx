@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { Package, CheckCircle, Clock, Truck, XCircle, Trash2, Receipt, RefreshCw, Printer } from "lucide-react";
+import { Package, CheckCircle, Clock, Truck, XCircle, Trash2, Receipt, RefreshCw, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -32,7 +32,6 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const [deleteOrderId, setDeleteOrderId] = useState<string | null>(null);
   const [refundOrderId, setRefundOrderId] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<string>('all');
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -139,14 +138,76 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
     }
   };
 
-  const handlePrintReceipt = () => {
-    window.print();
+  const handleCopyReceipt = async () => {
+    if (!selectedOrder) return;
+    
+    const receiptText = `
+===========================================
+            TECHBAZAAR
+         Order Receipt
+===========================================
+
+ORDER INFORMATION
+-----------------------------------------
+Order ID: #${selectedOrder.id}
+Order Date: ${selectedOrder.createdAt ? format(new Date(selectedOrder.createdAt), "PPP") : "N/A"}
+Status: ${selectedOrder.status.toUpperCase()}
+Payment Method: ${(selectedOrder as any).paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery'}
+
+CUSTOMER DETAILS
+-----------------------------------------
+Name: ${selectedOrder.customerName}
+Email: ${selectedOrder.customerEmail}
+Phone: ${selectedOrder.customerPhone || "N/A"}
+
+SHIPPING ADDRESS
+-----------------------------------------
+${typeof selectedOrder.shippingAddress === 'string' 
+  ? selectedOrder.shippingAddress
+  : `${(selectedOrder.shippingAddress as any).address}
+${(selectedOrder.shippingAddress as any).city}, ${(selectedOrder.shippingAddress as any).state} ${(selectedOrder.shippingAddress as any).zipCode}
+${(selectedOrder.shippingAddress as any).country}`
+}
+
+ORDER ITEMS
+-----------------------------------------
+${Array.isArray(selectedOrder.items) ? selectedOrder.items.map((item: any, index: number) => 
+  `${index + 1}. ${item.productName || item.name || "Product"}
+   Qty: ${item.quantity} x ₱${parseFloat(item.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+   Subtotal: ₱${(parseFloat(item.price) * item.quantity).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+).join('\n\n') : ''}
+
+TOTAL
+-----------------------------------------
+Subtotal: ₱${parseFloat((selectedOrder as any).total || (selectedOrder as any).totalAmount || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+TOTAL: ₱${parseFloat((selectedOrder as any).total || (selectedOrder as any).totalAmount || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+${(selectedOrder as any).refundedAt ? `\nREFUNDED: ₱${parseFloat((selectedOrder as any).refundAmount || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\nRefunded on ${format(new Date((selectedOrder as any).refundedAt), "PPP")}` : ''}
+
+===========================================
+    Thank you for your purchase!
+For inquiries: support@techbazaar.com
+===========================================
+    `;
+
+    try {
+      await navigator.clipboard.writeText(receiptText);
+      toast({
+        title: "Copied to Clipboard",
+        description: "Receipt has been copied to your clipboard.",
+      });
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to copy receipt to clipboard.",
+        variant: "destructive",
+      });
+    }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "pending_payment":
-        return <Clock className="h-4 w-4 text-yellow-600" />;
+      case "pending":
+        return <Clock className="h-4 w-4" />;
       case "processing":
         return <CheckCircle className="h-4 w-4" />;
       case "shipped":
@@ -155,8 +216,6 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
         return <Package className="h-4 w-4" />;
       case "received":
         return <CheckCircle className="h-4 w-4" />;
-      case "refund_requested":
-        return <RefreshCw className="h-4 w-4 text-orange-600" />;
       case "refunded":
         return <RefreshCw className="h-4 w-4" />;
       case "cancelled":
@@ -168,41 +227,21 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
 
   const getStatusVariant = (status: string): "default" | "secondary" | "destructive" => {
     switch (status) {
-      case "pending_payment":
+      case "pending":
         return "secondary";
       case "processing":
       case "shipped":
       case "delivered":
       case "received":
         return "default";
-      case "refund_requested":
-        return "secondary";
       case "refunded":
-        return "default";
+        return "secondary";
       case "cancelled":
         return "destructive";
       default:
         return "secondary";
     }
   };
-
-  const getStatusLabel = (status: string): string => {
-    switch (status) {
-      case "pending_payment": return "Pending Payment Confirmation";
-      case "processing": return "Processing";
-      case "shipped": return "Shipped";
-      case "delivered": return "Delivered";
-      case "received": return "Received";
-      case "refund_requested": return "Refund Requested";
-      case "refunded": return "Refunded";
-      case "cancelled": return "Cancelled";
-      default: return status;
-    }
-  };
-
-  const filteredOrders = statusFilter === 'all' 
-    ? orders 
-    : orders.filter(order => order.status === statusFilter);
 
   if (isLoading) {
     return (
@@ -224,28 +263,8 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
     <>
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-bold font-lora text-foreground">Order Management</h3>
-        <div className="flex items-center gap-4">
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Orders ({orders.length})</SelectItem>
-              <SelectItem value="pending_payment">Pending Payment Confirmation</SelectItem>
-              <SelectItem value="processing">Processing</SelectItem>
-              <SelectItem value="shipped">Shipped</SelectItem>
-              <SelectItem value="delivered">Delivered</SelectItem>
-              <SelectItem value="received">Received</SelectItem>
-              <SelectItem value="refund_requested">
-                <span className="text-orange-600 font-semibold">⚠️ Refund Requested</span>
-              </SelectItem>
-              <SelectItem value="refunded">Refunded</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
-            </SelectContent>
-          </Select>
-          <div className="text-sm text-muted-foreground">
-            Showing: {filteredOrders.length} orders
-          </div>
+        <div className="text-sm text-muted-foreground">
+          Total Orders: {orders.length}
         </div>
       </div>
 
@@ -262,7 +281,7 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredOrders.map((order) => (
+            {orders.map((order) => (
               <TableRow key={order.id} data-testid={`row-order-${order.id}`}>
                 <TableCell className="font-mono text-sm" data-testid={`text-order-id-${order.id}`}>
                   #{order.id.substring(0, 8)}
@@ -295,10 +314,10 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
                       </div>
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="pending_payment">
+                      <SelectItem value="pending">
                         <div className="flex items-center space-x-2">
-                          <Clock className="h-4 w-4 text-yellow-600" />
-                          <span>Pending Payment Confirmation</span>
+                          <Clock className="h-4 w-4" />
+                          <span>Pending</span>
                         </div>
                       </SelectItem>
                       <SelectItem value="processing">
@@ -323,12 +342,6 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
                         <div className="flex items-center space-x-2">
                           <CheckCircle className="h-4 w-4" />
                           <span>Received</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="refund_requested">
-                        <div className="flex items-center space-x-2">
-                          <RefreshCw className="h-4 w-4 text-orange-600" />
-                          <span className="text-orange-600 font-semibold">Refund Requested</span>
                         </div>
                       </SelectItem>
                       <SelectItem value="refunded">
@@ -364,17 +377,6 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
                     >
                       <Receipt className="h-4 w-4" />
                     </Button>
-                    {(order.status === 'received' || order.status === 'refund_requested') && !(order as any).refundedAt && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleRefundOrder(order.id)}
-                        className="text-orange-600 border-orange-600 hover:bg-orange-50"
-                        data-testid={`button-refund-${order.id}`}
-                      >
-                        <RefreshCw className="h-4 w-4" />
-                      </Button>
-                    )}
                     <Button
                       variant="destructive"
                       size="sm"
@@ -492,28 +494,28 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
 
       {/* Receipt Dialog */}
       <Dialog open={isReceiptOpen} onOpenChange={setIsReceiptOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto print:shadow-none">
-          <DialogHeader className="print:hidden">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
             <DialogTitle className="font-lora flex items-center justify-between">
               <span>Order Receipt</span>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handlePrintReceipt}
+                onClick={handleCopyReceipt}
                 className="ml-auto"
               >
-                <Printer className="h-4 w-4 mr-2" />
-                Print
+                <Copy className="h-4 w-4 mr-2" />
+                Copy to Clipboard
               </Button>
             </DialogTitle>
           </DialogHeader>
 
           {selectedOrder && (
-            <div className="space-y-6 print:text-black">
+            <div className="space-y-6">
               {/* Receipt Header */}
               <div className="text-center border-b pb-4">
                 <h1 className="text-3xl font-bold font-lora mb-2">TechBazaar</h1>
-                <p className="text-sm text-muted-foreground print:text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   Order Receipt
                 </p>
               </div>
@@ -524,22 +526,22 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
                   <h3 className="font-semibold font-geist mb-3 text-lg">Order Information</h3>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground print:text-gray-600">Order ID:</span>
+                      <span className="text-muted-foreground">Order ID:</span>
                       <span className="font-mono font-semibold">#{selectedOrder.id.substring(0, 12)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground print:text-gray-600">Order Date:</span>
+                      <span className="text-muted-foreground">Order Date:</span>
                       <span>{selectedOrder.createdAt ? format(new Date(selectedOrder.createdAt), "PPP") : "N/A"}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground print:text-gray-600">Status:</span>
-                      <Badge variant={getStatusVariant(selectedOrder.status)} className="print:border print:border-gray-400">
+                      <span className="text-muted-foreground">Status:</span>
+                      <Badge variant={getStatusVariant(selectedOrder.status)}>
                         {selectedOrder.status.toUpperCase()}
                       </Badge>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground print:text-gray-600">Payment Method:</span>
-                      <Badge variant="outline" className="print:border print:border-gray-400">
+                      <span className="text-muted-foreground">Payment Method:</span>
+                      <Badge variant="outline">
                         {(selectedOrder as any).paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery'}
                       </Badge>
                     </div>
@@ -550,15 +552,15 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
                   <h3 className="font-semibold font-geist mb-3 text-lg">Customer Details</h3>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground print:text-gray-600">Name:</span>
+                      <span className="text-muted-foreground">Name:</span>
                       <span className="font-semibold">{selectedOrder.customerName}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground print:text-gray-600">Email:</span>
+                      <span className="text-muted-foreground">Email:</span>
                       <span>{selectedOrder.customerEmail}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground print:text-gray-600">Phone:</span>
+                      <span className="text-muted-foreground">Phone:</span>
                       <span>{selectedOrder.customerPhone || "N/A"}</span>
                     </div>
                   </div>
@@ -568,7 +570,7 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
               {/* Shipping Address */}
               <div>
                 <h3 className="font-semibold font-geist mb-3 text-lg">Shipping Address</h3>
-                <div className="text-sm bg-muted print:bg-gray-100 p-4 rounded-lg">
+                <div className="text-sm bg-muted p-4 rounded-lg">
                   {typeof selectedOrder.shippingAddress === 'string' 
                     ? selectedOrder.shippingAddress
                     : (
@@ -585,11 +587,11 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
               {/* Order Items */}
               <div>
                 <h3 className="font-semibold font-geist mb-3 text-lg">Order Items</h3>
-                <div className="border border-border print:border-gray-300 rounded-lg overflow-hidden">
+                <div className="border border-border rounded-lg overflow-hidden">
                   <Table>
                     <TableHeader>
-                      <TableRow className="print:border-b print:border-gray-300">
-                        <TableHead className="print:text-black">Product</TableHead>
+                      <TableRow>
+                        <TableHead>Product</TableHead>
                         <TableHead className="print:text-black text-center">Quantity</TableHead>
                         <TableHead className="print:text-black text-right">Unit Price</TableHead>
                         <TableHead className="print:text-black text-right">Subtotal</TableHead>
@@ -597,7 +599,7 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
                     </TableHeader>
                     <TableBody>
                       {Array.isArray(selectedOrder.items) && selectedOrder.items.map((item: any, index: number) => (
-                        <TableRow key={index} className="print:border-b print:border-gray-200">
+                        <TableRow key={index}>
                           <TableCell className="font-medium">{item.productName || item.name || "Product"}</TableCell>
                           <TableCell className="text-center">{item.quantity}</TableCell>
                           <TableCell className="text-right">₱{parseFloat(item.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
@@ -625,11 +627,11 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
                     {/* Refund Info */}
                     {(selectedOrder as any).refundedAt && (
                       <div className="border-t pt-3 mt-3">
-                        <div className="flex justify-between text-lg text-orange-600 print:text-orange-700">
+                        <div className="flex justify-between text-lg text-orange-600">
                           <span className="font-semibold">Refunded:</span>
                           <span className="font-bold">₱{parseFloat((selectedOrder as any).refundAmount || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                         </div>
-                        <p className="text-xs text-muted-foreground print:text-gray-600 text-right mt-1">
+                        <p className="text-xs text-muted-foreground text-right mt-1">
                           Refunded on {format(new Date((selectedOrder as any).refundedAt), "PPP")}
                         </p>
                       </div>
@@ -655,7 +657,7 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
               )}
 
               {/* Footer */}
-              <div className="text-center text-xs text-muted-foreground print:text-gray-600 border-t pt-4 mt-6">
+              <div className="text-center text-xs text-muted-foreground border-t pt-4 mt-6">
                 <p>Thank you for your purchase!</p>
                 <p className="mt-1">For any inquiries, please contact support@techbazaar.com</p>
               </div>

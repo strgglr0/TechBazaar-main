@@ -11,17 +11,19 @@ def add_refund_fields():
     app = create_app()
     with app.app_context():
         try:
-            # Check if columns already exist (SQLite compatible)
-            inspector = db.inspect(db.engine)
-            existing_columns = [col['name'] for col in inspector.get_columns('orders')]
-            
-            print(f"Current columns in orders table: {existing_columns}")
+            # Check if columns already exist
+            result = db.session.execute(text("""
+                SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_name='orders' AND column_name IN ('refunded_at', 'refund_amount')
+            """))
+            existing_columns = [row[0] for row in result]
             
             if 'refunded_at' not in existing_columns:
                 print("Adding refunded_at column...")
                 db.session.execute(text("""
                     ALTER TABLE orders 
-                    ADD COLUMN refunded_at DATETIME
+                    ADD COLUMN refunded_at TIMESTAMP NULL
                 """))
                 db.session.commit()
                 print("✓ Added refunded_at column")
@@ -32,25 +34,18 @@ def add_refund_fields():
                 print("Adding refund_amount column...")
                 db.session.execute(text("""
                     ALTER TABLE orders 
-                    ADD COLUMN refund_amount FLOAT
+                    ADD COLUMN refund_amount FLOAT NULL
                 """))
                 db.session.commit()
                 print("✓ Added refund_amount column")
             else:
                 print("✓ refund_amount column already exists")
             
-            # Verify the columns were added
-            inspector = db.inspect(db.engine)
-            final_columns = [col['name'] for col in inspector.get_columns('orders')]
-            print(f"\nFinal columns in orders table: {final_columns}")
-            
             print("\n✅ Migration completed successfully!")
             
         except Exception as e:
             db.session.rollback()
             print(f"❌ Error during migration: {e}")
-            import traceback
-            traceback.print_exc()
             raise
 
 if __name__ == '__main__':

@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { format } from "date-fns";
-import { User, Package, MapPin, Phone, Mail, Edit2, Save, X, XCircle, CheckCircle } from "lucide-react";
+import { User, Package, MapPin, Phone, Mail, Edit2, Save, X, XCircle, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -52,8 +52,8 @@ export default function Profile() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isOrderDetailsOpen, setIsOrderDetailsOpen] = useState(false);
   const [cancelOrderId, setCancelOrderId] = useState<string | null>(null);
-  const [refundOrderId, setRefundOrderId] = useState<string | null>(null);
-  const [confirmRefundId, setConfirmRefundId] = useState<string | null>(null);
+  const [ratingState, setRatingState] = useState<{[productId: string]: number}>({});
+  const [ratedProducts, setRatedProducts] = useState<{[key: string]: boolean}>({});
 
   // Form states
   const [profileForm, setProfileForm] = useState({
@@ -201,72 +201,27 @@ export default function Profile() {
     },
   });
 
-  // Request refund mutation
-  const requestRefundMutation = useMutation({
-    mutationFn: async (orderId: string) => {
-      const response = await fetch(`/api/orders/${orderId}/request-refund`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        credentials: 'include',
-        body: JSON.stringify({}),
-      });
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({ error: 'Failed to request refund' }));
-        throw new Error(error.error || 'Failed to request refund');
-      }
+  // Rate product mutation
+  const rateProductMutation = useMutation({
+    mutationFn: async ({ orderId, productId, rating }: { orderId: string; productId: string; rating: number }) => {
+      const response = await apiRequest("POST", `/api/orders/${orderId}/rate`, { productId, rating });
       return response.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/user/orders'] });
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/products'] });
+      setRatedProducts(prev => ({
+        ...prev,
+        [`${variables.orderId}-${variables.productId}`]: true
+      }));
       toast({
-        title: "Refund Processed Successfully",
-        description: "Your refund has been processed automatically. You can now confirm receipt of the refund.",
+        title: "Rating Submitted",
+        description: `Thank you for rating ${data.product?.name || 'the product'}!`,
       });
-      setRefundOrderId(null);
-      setIsOrderDetailsOpen(false);
     },
     onError: (error: any) => {
       toast({
         title: "Error",
-        description: error.message || "Failed to request refund. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Confirm refund received mutation
-  const confirmRefundMutation = useMutation({
-    mutationFn: async (orderId: string) => {
-      const response = await fetch(`/api/orders/${orderId}/confirm-refund`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        credentials: 'include',
-        body: JSON.stringify({}),
-      });
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({ error: 'Failed to confirm refund' }));
-        throw new Error(error.error || 'Failed to confirm refund');
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/user/orders'] });
-      toast({
-        title: "Refund Confirmed",
-        description: "Thank you for confirming that you received the refund.",
-      });
-      setConfirmRefundId(null);
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to confirm refund. Please try again.",
+        description: error.message || "Failed to submit rating",
         variant: "destructive",
       });
     },
@@ -373,14 +328,6 @@ export default function Profile() {
     setCancelOrderId(orderId);
   };
 
-  const handleRequestRefund = (orderId: string) => {
-    setRefundOrderId(orderId);
-  };
-
-  const handleConfirmRefund = (orderId: string) => {
-    setConfirmRefundId(orderId);
-  };
-
   const confirmCancelOrder = () => {
     if (cancelOrderId) {
       cancelOrderMutation.mutate(cancelOrderId);
@@ -397,27 +344,10 @@ export default function Profile() {
       case "delivered":
       case "received":
         return "default";
-      case "refund_requested":
-        return "secondary";
-      case "refunded":
-        return "default";
       case "cancelled":
         return "destructive";
       default:
         return "secondary";
-    }
-  };
-
-  const getStatusLabel = (status: string): string => {
-    switch (status) {
-      case "pending_payment":
-        return "Pending Payment Confirmation";
-      case "refund_requested":
-        return "Refund Requested";
-      case "refunded":
-        return "Refunded";
-      default:
-        return status.charAt(0).toUpperCase() + status.slice(1);
     }
   };
 
@@ -721,7 +651,7 @@ export default function Profile() {
                           </TableCell>
                           <TableCell>
                             <Badge variant={getStatusVariant(order.status)}>
-                              {getStatusLabel(order.status)}
+                              {order.status}
                             </Badge>
                           </TableCell>
                           <TableCell>
@@ -734,41 +664,30 @@ export default function Profile() {
                                 View Details
                               </Button>
                               {order.status === 'delivered' && (
-                                <Button
-                                  variant="default"
-                                  size="sm"
-                                  onClick={() => confirmReceiptMutation.mutate(order.id)}
-                                  disabled={confirmReceiptMutation.isPending}
-                                >
-                                  <Package className="h-4 w-4 mr-1" />
-                                  Confirm Receipt
-                                </Button>
+                                <>
+                                  <Button
+                                    variant="default"
+                                    size="sm"
+                                    onClick={() => confirmReceiptMutation.mutate(order.id)}
+                                    disabled={confirmReceiptMutation.isPending}
+                                  >
+                                    <Package className="h-4 w-4 mr-1" />
+                                    Confirm Receipt
+                                  </Button>
+                                  <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={() => handleViewOrderDetails(order)}
+                                  >
+                                    <Star className="h-4 w-4 mr-1" />
+                                    Rate Products
+                                  </Button>
+                                </>
                               )}
-                              {order.status === 'received' && !order.refundedAt && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleRequestRefund(order.id)}
-                                  disabled={requestRefundMutation.isPending}
-                                  className="text-orange-600 border-orange-600 hover:bg-orange-50"
-                                >
-                                  <XCircle className="h-4 w-4 mr-1" />
-                                  Request Refund
-                                </Button>
+                              {order.status === 'received' && (
+                                <span className="text-sm text-muted-foreground">Completed</span>
                               )}
-                              {order.status === 'refunded' && (
-                                <Button
-                                  variant="default"
-                                  size="sm"
-                                  onClick={() => handleConfirmRefund(order.id)}
-                                  disabled={confirmRefundMutation.isPending}
-                                  className="bg-green-600 hover:bg-green-700 text-white"
-                                >
-                                  <CheckCircle className="h-4 w-4 mr-1" />
-                                  Confirm Refund Received
-                                </Button>
-                              )}
-                              {(order.status === 'pending_payment' || order.status === 'processing') && (
+                              {(order.status === 'pending' || order.status === 'processing') && (
                                 <Button
                                   variant="destructive"
                                   size="sm"
@@ -808,12 +727,12 @@ export default function Profile() {
                   <div className="space-y-1 text-sm">
                     <p><span className="text-muted-foreground">Order ID:</span> #{selectedOrder.id}</p>
                     <p><span className="text-muted-foreground">Date:</span> {selectedOrder.createdAt ? format(new Date(selectedOrder.createdAt), "PPP") : "N/A"}</p>
-                    <div className="flex items-center gap-2 text-sm">
-                      <span className="text-muted-foreground">Status:</span>
-                      <Badge variant={getStatusVariant(selectedOrder.status)}>
-                        {getStatusLabel(selectedOrder.status)}
+                    <p>
+                      <span className="text-muted-foreground">Status:</span>{" "}
+                      <Badge variant={getStatusVariant(selectedOrder.status)} className="ml-2">
+                        {selectedOrder.status}
                       </Badge>
-                    </div>
+                    </p>
                   </div>
                 </div>
 
@@ -861,17 +780,73 @@ export default function Profile() {
                         <TableHead>Quantity</TableHead>
                         <TableHead>Price</TableHead>
                         <TableHead>Subtotal</TableHead>
+                        {selectedOrder.status === 'delivered' && <TableHead>Rate</TableHead>}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {Array.isArray(selectedOrder.items) && selectedOrder.items.map((item: any, index: number) => (
-                        <TableRow key={index}>
-                          <TableCell>{item.productName || item.name || "Product"}</TableCell>
-                          <TableCell>{item.quantity}</TableCell>
-                          <TableCell>₱{parseFloat(item.price).toLocaleString()}</TableCell>
-                          <TableCell>₱{(parseFloat(item.price) * item.quantity).toLocaleString()}</TableCell>
-                        </TableRow>
-                      ))}
+                      {Array.isArray(selectedOrder.items) && selectedOrder.items.map((item: any, index: number) => {
+                        const productId = item.productId || item.id;
+                        const ratingKey = `${selectedOrder.id}-${productId}`;
+                        const isRated = ratedProducts[ratingKey];
+                        const currentRating = ratingState[productId] || 0;
+                        
+                        return (
+                          <TableRow key={index}>
+                            <TableCell>{item.productName || item.name || "Product"}</TableCell>
+                            <TableCell>{item.quantity}</TableCell>
+                            <TableCell>₱{parseFloat(item.price).toLocaleString()}</TableCell>
+                            <TableCell>₱{(parseFloat(item.price) * item.quantity).toLocaleString()}</TableCell>
+                            {selectedOrder.status === 'delivered' && (
+                              <TableCell>
+                                {isRated ? (
+                                  <div className="flex items-center gap-1 text-green-600">
+                                    <Star className="h-4 w-4 fill-current" />
+                                    <span className="text-sm">Rated</span>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-1">
+                                      {[1, 2, 3, 4, 5].map((star) => (
+                                        <button
+                                          key={star}
+                                          type="button"
+                                          onClick={() => setRatingState(prev => ({
+                                            ...prev,
+                                            [productId]: star
+                                          }))}
+                                          className="focus:outline-none"
+                                        >
+                                          <Star
+                                            className={`h-5 w-5 transition-colors ${
+                                              star <= currentRating
+                                                ? 'fill-yellow-400 text-yellow-400'
+                                                : 'text-gray-300 hover:text-yellow-400'
+                                            }`}
+                                          />
+                                        </button>
+                                      ))}
+                                    </div>
+                                    {currentRating > 0 && (
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => rateProductMutation.mutate({
+                                          orderId: selectedOrder.id,
+                                          productId,
+                                          rating: currentRating
+                                        })}
+                                        disabled={rateProductMutation.isPending}
+                                      >
+                                        Submit
+                                      </Button>
+                                    )}
+                                  </div>
+                                )}
+                              </TableCell>
+                            )}
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 </div>
@@ -901,37 +876,7 @@ export default function Profile() {
                 </div>
               )}
               
-              {selectedOrder.status === 'received' && !selectedOrder.refundedAt && (
-                <div className="flex justify-end pt-4 border-t border-border">
-                  <Button
-                    variant="outline"
-                    onClick={() => handleRequestRefund(selectedOrder.id)}
-                    disabled={requestRefundMutation.isPending}
-                    className="flex items-center gap-2 text-orange-600 border-orange-600 hover:bg-orange-50"
-                  >
-                    <XCircle className="h-4 w-4" />
-                    {requestRefundMutation.isPending ? "Requesting..." : "Request Refund"}
-                  </Button>
-                </div>
-              )}
-
-              {selectedOrder.status === 'refund_requested' && (
-                <div className="flex justify-end pt-4 border-t border-border">
-                  <div className="bg-orange-100 text-orange-800 text-sm px-4 py-2 rounded-md inline-flex items-center gap-2 font-medium">
-                    ⏳ Refund request pending admin review
-                  </div>
-                </div>
-              )}
-
-              {selectedOrder.refundedAt && (
-                <div className="flex justify-end pt-4 border-t border-border">
-                  <div className="bg-green-100 text-green-800 text-sm px-4 py-2 rounded-md inline-flex items-center gap-2 font-medium">
-                    ✓ Refunded on {format(new Date(selectedOrder.refundedAt), 'MMM d, yyyy')}
-                  </div>
-                </div>
-              )}
-              
-              {(selectedOrder.status === 'pending_payment' || selectedOrder.status === 'processing') && (
+              {(selectedOrder.status === 'pending' || selectedOrder.status === 'processing') && (
                 <div className="flex justify-end pt-4 border-t border-border">
                   <Button
                     variant="destructive"
@@ -966,59 +911,6 @@ export default function Profile() {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Cancel Order
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Request Refund Confirmation Dialog */}
-      <AlertDialog open={!!refundOrderId} onOpenChange={(open) => !open && setRefundOrderId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Request Refund?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to request a refund for this order? 
-              The full order amount will be refunded automatically.
-              Once processed, you'll be able to confirm receipt of the refund.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={() => {
-                if (refundOrderId) {
-                  requestRefundMutation.mutate(refundOrderId);
-                }
-              }}
-              className="bg-orange-600 text-white hover:bg-orange-700"
-            >
-              Request Refund
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Confirm Refund Received Dialog */}
-      <AlertDialog open={!!confirmRefundId} onOpenChange={(open) => !open && setConfirmRefundId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirm Refund Received?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Please confirm that you have received the refund for this order. 
-              This will mark the order as completed and close the refund process.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Not Yet</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={() => {
-                if (confirmRefundId) {
-                  confirmRefundMutation.mutate(confirmRefundId);
-                }
-              }}
-              className="bg-green-600 text-white hover:bg-green-700"
-            >
-              Confirm Received
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -88,7 +88,7 @@ export default function Checkout() {
 
   // Calculate totals
   const shippingCost = totalAmount > 100 ? 0 : 9.99;
-  const tax = totalAmount * 0.08; // 8% tax
+  const tax = totalAmount * 0.0075; // 0.75% tax
   const finalTotal = totalAmount + shippingCost + tax;
 
   const createOrderMutation = useMutation({
@@ -638,7 +638,7 @@ export default function Checkout() {
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="font-geist text-muted-foreground">Tax</span>
+                  <span className="font-geist text-muted-foreground">Tax (0.75%)</span>
                   <span className="font-geist text-foreground" data-testid="text-tax">
                     ₱{formatPrice(tax)}
                   </span>
