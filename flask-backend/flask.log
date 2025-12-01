@@ -29,3 +29,41 @@ Press CTRL+C to quit
 127.0.0.1 - - [01/Dec/2025 06:08:40] "GET /api/admin/stats HTTP/1.1" 200 -
 127.0.0.1 - - [01/Dec/2025 06:08:40] "GET /api/orders HTTP/1.1" 200 -
 127.0.0.1 - - [01/Dec/2025 06:08:40] "GET /api/products HTTP/1.1" 200 -
+ * Detected change in '/workspaces/TechBazaar-main/flask-backend/add_refund_fields.py', reloading
+[OrderQueue] Order processing queue started
+Database ready: 11 products, 6 users
+ℹ️  Database already has 11 products. Skipping seed.
+[API /products] Total products in DB: 11
+[API /products] Returning 11 products
+
+============================================================
+[CHECKOUT] Endpoint called
+============================================================
+[CHECKOUT] Request data keys: ['customerName', 'customerEmail', 'customerPhone', 'shippingAddress', 'items', 'total', 'totalAmount', 'paymentMethod']
+[CHECKOUT] Items count: 2
+[CHECKOUT] Payment method: cod
+[CHECKOUT] User ID: 3
+[CHECKOUT] Processing 2 items
+  Item 1: Google Pixel 8 Pro x2 @ $20800.00
+  Item 2: Xiaomi 13 Pro x1 @ $16999.00
+[CHECKOUT] Creating order:
+  - Customer: Admin <admin@techbazaar.com>
+  - Phone: 23123123123
+  - Total: $63286.92
+  - Payment: cod
+  - User ID: 3
+[CHECKOUT] ✓ Order created with ID: d4c49d33-6006-4af0-8546-b208375a0005
+[CHECKOUT] Cleared 2 items from user cart
+[CHECKOUT] ✓ Order committed to database
+[OrderQueue] Order d4c49d33-6006-4af0-8546-b208375a0005 added to processing queue
+[CHECKOUT] ✓ Order added to processing queue
+[CHECKOUT] ✓ Returning order: d4c49d33-6006-4af0-8546-b208375a0005
+============================================================
+
+[API] Fetching orders for user_id: 3
+[API] Found 1 orders for user 3
+[API /products] Total products in DB: 11
+[API /products] Returning 11 products
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 889-318-566
