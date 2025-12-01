@@ -102,3 +102,10 @@ Database ready: 11 products, 6 users
  * Debugger is active!
  * Debugger PIN: 487-795-119
 127.0.0.1 - - [01/Dec/2025 11:15:50] "POST /api/orders/b87b771c-42d0-4cd3-9a2f-9526dfa80675/rate HTTP/1.1" 200 -
+ * Detected change in '/workspaces/TechBazaar-main/flask-backend/routes/orders.py', reloading
+[OrderQueue] Order processing queue started
+Database ready: 11 products, 6 users
+ℹ️  Database already has 11 products. Skipping seed.
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 487-795-119
