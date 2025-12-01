@@ -204,3 +204,34 @@ Database ready: 11 products, 6 users
 127.0.0.1 - - [01/Dec/2025 07:12:57] "GET /api/products HTTP/1.1" 200 -
 127.0.0.1 - - [01/Dec/2025 07:12:57] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
 127.0.0.1 - - [01/Dec/2025 07:12:57] "GET /api/brands HTTP/1.1" 200 -
+ * Detected change in '/workspaces/TechBazaar-main/flask-backend/routes/orders.py', reloading
+[OrderQueue] Order processing queue started
+Database ready: 11 products, 6 users
+ℹ️  Database already has 11 products. Skipping seed.
+[API] Fetching orders for user_id: 3
+[API] Found 1 orders for user 3
+[API /products] Total products in DB: 11
+[API /products] Returning 11 products
+[API /products] Total products in DB: 11
+[API /products] Returning 11 products
+[API /products] Total products in DB: 11
+[API /products] SEARCH: 'samsung' pattern: '%samsung%'
+[API /products] Returning 2 products
+[API /products] Sample results:
+  - Samsung A23 ($13000) - Samsung
+  - Samsung Galaxy Z Flip 5 ($31999.00) - Samsung
+[API] Fetching orders for user_id: 3
+[API] Found 1 orders for user 3
+[API] Fetching orders for user_id: 3
+[API] Found 1 orders for user 3
+[API /products] Total products in DB: 11
+[API /products] Returning 11 products
+[API] Fetching orders for user_id: 3
+[API] Found 1 orders for user 3
+[API] Fetching orders for user_id: 3
+[API] Found 1 orders for user 3
+[API /products] Total products in DB: 11
+[API /products] Returning 11 products
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 889-318-566
