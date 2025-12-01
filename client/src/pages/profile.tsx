@@ -899,7 +899,7 @@ export default function Profile() {
                 </div>
               )}
               
-              {selectedOrder.status === 'received' && !selectedOrder.refundedAt && selectedOrder.status !== 'refund_requested' && (
+              {selectedOrder.status === 'received' && !selectedOrder.refundedAt && (
                 <div className="flex justify-end pt-4 border-t border-border">
                   <Button
                     variant="outline"

@@ -28,7 +28,9 @@ export const orders = pgTable("orders", {
   shippingAddress: jsonb("shipping_address").notNull(),
   items: jsonb("items").notNull(), // Array of cart items
   totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
-  status: text("status").notNull().default('pending'), // pending, confirmed, shipped, delivered
+  status: text("status").notNull().default('pending'), // pending, confirmed, shipped, delivered, received, refund_requested, refunded, completed, cancelled
+  refundedAt: timestamp("refunded_at"),
+  refundAmount: decimal("refund_amount", { precision: 10, scale: 2 }),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
