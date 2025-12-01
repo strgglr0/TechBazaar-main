@@ -1122,3 +1122,42 @@ Database ready: 11 products, 6 users
 127.0.0.1 - - [01/Dec/2025 08:59:19] "GET /api/me HTTP/1.1" 200 -
 127.0.0.1 - - [01/Dec/2025 08:59:19] "GET /api/products HTTP/1.1" 200 -
 127.0.0.1 - - [01/Dec/2025 08:59:19] "GET /api/cart HTTP/1.1" 200 -
+ * Detected change in '/workspaces/TechBazaar-main/flask-backend/update_schema.py', reloading
+[OrderQueue] Order processing queue started
+Database ready: 11 products, 6 users
+ℹ️  Database already has 11 products. Skipping seed.
+[API /products] Total products in DB: 11
+[API /products] Returning 11 products
+
+============================================================
+[CHECKOUT] Endpoint called
+============================================================
+[CHECKOUT] Request data keys: ['customerName', 'customerEmail', 'customerPhone', 'shippingAddress', 'items', 'total', 'totalAmount', 'paymentMethod']
+[CHECKOUT] Items count: 1
+[CHECKOUT] Payment method: online
+[CHECKOUT] User ID: 3
+[CHECKOUT] Processing 1 items
+  Item 1: Iphone 17 x1 @ $57990
+[CHECKOUT] Creating order:
+  - Customer: Admin <admin@techbazaar.com>
+  - Phone: 12312312312
+  - Total: $62629.20
+  - Payment: online
+  - User ID: 3
+[CHECKOUT] Initial status determined: pending_payment (payment_method=online)
+[CHECKOUT] ✓ Order created with ID: b87b771c-42d0-4cd3-9a2f-9526dfa80675
+[CHECKOUT] ✓ Order status after creation: pending_payment
+[CHECKOUT] Cleared 1 items from user cart
+[CHECKOUT] ✓ Order committed to database
+[CHECKOUT] Order b87b771c-42d0-4cd3-9a2f-9526dfa80675 created with pending_payment status - waiting for payment method confirmation
+[PAYMENT] Order b87b771c-42d0-4cd3-9a2f-9526dfa80675: Payment method = Online Payment
+[CHECKOUT] ✓ Returning order: b87b771c-42d0-4cd3-9a2f-9526dfa80675
+[CHECKOUT] ✓ Response status: pending_payment
+[CHECKOUT] ✓ Response payment method: online
+============================================================
+
+[API /products] Total products in DB: 11
+[API /products] Returning 11 products
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 889-318-566
