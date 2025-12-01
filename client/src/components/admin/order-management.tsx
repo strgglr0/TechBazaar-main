@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { Package, CheckCircle, Clock, Truck, XCircle, Trash2, Receipt, RefreshCw, Copy } from "lucide-react";
+import { Package, CheckCircle, Clock, Truck, XCircle, Trash2, Receipt, RefreshCw, Copy, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -32,6 +33,8 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const [deleteOrderId, setDeleteOrderId] = useState<string | null>(null);
   const [refundOrderId, setRefundOrderId] = useState<string | null>(null);
+  const [refundReason, setRefundReason] = useState('');
+  const [rating, setRating] = useState<number>(0);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -81,8 +84,11 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
   });
 
   const refundOrderMutation = useMutation({
-    mutationFn: async (orderId: string) => {
-      const response = await apiRequest("POST", `/api/orders/${orderId}/refund`, {});
+    mutationFn: async ({ orderId, refundReason, rating }: { orderId: string; refundReason: string; rating: number }) => {
+      const response = await apiRequest("POST", `/api/orders/${orderId}/refund`, {
+        refundReason,
+        rating: rating > 0 ? rating : null
+      });
       return response.json();
     },
     onSuccess: () => {
@@ -124,6 +130,8 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
 
   const handleRefundOrder = (orderId: string) => {
     setRefundOrderId(orderId);
+    setRefundReason('');
+    setRating(0);
   };
 
   const confirmDelete = () => {
@@ -134,7 +142,7 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
 
   const confirmRefund = () => {
     if (refundOrderId) {
-      refundOrderMutation.mutate(refundOrderId);
+      refundOrderMutation.mutate({ orderId: refundOrderId, refundReason, rating });
     }
   };
 
@@ -668,14 +676,63 @@ For inquiries: support@techbazaar.com
 
       {/* Refund Confirmation Dialog */}
       <AlertDialog open={!!refundOrderId} onOpenChange={(open) => !open && setRefundOrderId(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle>Process Refund?</AlertDialogTitle>
+            <AlertDialogTitle>Process Refund</AlertDialogTitle>
             <AlertDialogDescription>
               This will process a full refund for this order. The order status will be changed to "refunded" 
               and the refund amount will be recorded. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
+          
+          <div className="space-y-4 py-4">
+            {/* Rating Section */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Rating (Optional)</label>
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setRating(star)}
+                    className="focus:outline-none hover:scale-110 transition-transform"
+                  >
+                    <Star
+                      className={`h-6 w-6 ${
+                        star <= rating
+                          ? 'fill-yellow-400 text-yellow-400'
+                          : 'text-gray-300'
+                      }`}
+                    />
+                  </button>
+                ))}
+                {rating > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setRating(0)}
+                    className="ml-2 text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Refund Reason Section */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground" htmlFor="refund-reason">
+                Refund Reason (Optional)
+              </label>
+              <Textarea
+                id="refund-reason"
+                placeholder="Enter the reason for refund..."
+                value={refundReason}
+                onChange={(e) => setRefundReason(e.target.value)}
+                className="min-h-[100px] resize-none"
+              />
+            </div>
+          </div>
+          
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction 

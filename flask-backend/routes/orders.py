@@ -178,6 +178,8 @@ def refund_order(order_id):
     
     data = request.get_json() or {}
     refund_amount = data.get('refundAmount')
+    refund_reason = data.get('refundReason', '')
+    rating = data.get('rating')
     
     # Default to full refund if no amount specified
     if refund_amount is None:
@@ -189,9 +191,17 @@ def refund_order(order_id):
     if refund_amount <= 0 or refund_amount > order.total:
         return jsonify({'error': 'Invalid refund amount'}), 400
     
+    # Validate rating if provided
+    if rating is not None:
+        rating = int(rating)
+        if rating < 1 or rating > 5:
+            return jsonify({'error': 'Rating must be between 1 and 5'}), 400
+    
     try:
         order.refunded_at = datetime.utcnow()
         order.refund_amount = refund_amount
+        order.refund_reason = refund_reason
+        order.rating = rating
         order.status = 'refunded'
         db.session.commit()
         
@@ -263,10 +273,10 @@ def cancel_order(order_id):
         return jsonify({'error': 'Failed to cancel order', 'details': str(e)}), 500
 
 
-@orders_bp.route('/orders/<order_id>/rate', methods=['POST'])
+@orders_bp.route('/orders/<order_id>/request-refund', methods=['POST'])
 @token_required
-def rate_order_product(order_id):
-    """Rate a product from a delivered order"""
+def request_refund(order_id):
+    """Request a refund for a received order (customer only)"""
     user_id = get_current_user_id()
     order = Order.query.get(order_id)
     
@@ -277,66 +287,95 @@ def rate_order_product(order_id):
     if order.user_id != user_id:
         return jsonify({'error': 'Unauthorized - This order does not belong to you'}), 403
     
-    # Only allow rating for delivered orders
-    if order.status != 'delivered':
-        return jsonify({'error': 'Can only rate products from delivered orders'}), 400
+    # Only allow requesting refund for received orders
+    if order.status != 'received':
+        return jsonify({'error': 'Can only request refund for received orders'}), 400
+    
+    # Check if already requested or refunded
+    if order.status == 'refund_requested':
+        return jsonify({'error': 'Refund has already been requested for this order'}), 400
+    
+    if order.refunded_at:
+        return jsonify({'error': 'Order has already been refunded'}), 400
+    
+    data = request.get_json() or {}
+    refund_reason = data.get('reason', '').strip()
+    
+    if not refund_reason:
+        return jsonify({'error': 'Please provide a reason for the refund request'}), 400
+    
+    try:
+        order.status = 'refund_requested'
+        order.refund_reason = refund_reason
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Refund request submitted successfully. Our team will review your request.',
+            'order': order.to_dict()
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to submit refund request', 'details': str(e)}), 500
+
+@orders_bp.route('/orders/<order_id>/rate', methods=['POST'])
+@token_required
+def rate_product(order_id):
+    """Rate a product from a received order (customer only)"""
+    user_id = get_current_user_id()
+    order = Order.query.get(order_id)
+    
+    if not order:
+        return jsonify({'error': 'Order not found'}), 404
+    
+    # Verify this order belongs to the current user
+    if order.user_id != user_id:
+        return jsonify({'error': 'Unauthorized - This order does not belong to you'}), 403
+    
+    # Only allow rating for received orders
+    if order.status != 'received':
+        return jsonify({'error': 'Can only rate products from received orders'}), 400
     
     data = request.get_json() or {}
     product_id = data.get('productId')
     rating = data.get('rating')
     
-    if not product_id:
-        return jsonify({'error': 'Product ID is required'}), 400
+    if not product_id or not rating:
+        return jsonify({'error': 'Product ID and rating are required'}), 400
     
-    if rating is None:
-        return jsonify({'error': 'Rating is required'}), 400
+    rating = int(rating)
+    if rating < 1 or rating > 5:
+        return jsonify({'error': 'Rating must be between 1 and 5'}), 400
     
-    try:
-        rating = float(rating)
-        if rating < 1 or rating > 5:
-            return jsonify({'error': 'Rating must be between 1 and 5'}), 400
-    except (ValueError, TypeError):
-        return jsonify({'error': 'Invalid rating value'}), 400
-    
-    # Verify the product is in this order
-    order_items = order.items or []
-    product_in_order = any(
-        item.get('productId') == product_id or item.get('id') == product_id 
-        for item in order_items
-    )
-    
-    if not product_in_order:
-        return jsonify({'error': 'Product not found in this order'}), 400
-    
-    # Find the product and update its rating
+    # Find the product
     product = Product.query.get(product_id)
     if not product:
         return jsonify({'error': 'Product not found'}), 404
     
+    # Verify product is in the order
+    product_in_order = False
+    for item in order.items:
+        if item.get('productId') == product_id or item.get('id') == product_id:
+            product_in_order = True
+            break
+    
+    if not product_in_order:
+        return jsonify({'error': 'Product not found in this order'}), 400
+    
     try:
-        # Calculate new average rating
+        # Update product rating using weighted average
         current_rating = float(product.rating or 0)
         current_count = product.reviewCount or 0
-        
-        # Calculate new average: (old_avg * old_count + new_rating) / (old_count + 1)
         new_count = current_count + 1
         new_rating = ((current_rating * current_count) + rating) / new_count
         
-        product.rating = str(round(new_rating, 2))
+        product.rating = str(round(new_rating, 1))
         product.reviewCount = new_count
-        
         db.session.commit()
         
         return jsonify({
             'message': 'Rating submitted successfully',
-            'product': {
-                'id': product.id,
-                'name': product.name,
-                'rating': product.rating,
-                'reviewCount': product.reviewCount
-            }
+            'product': product.to_dict()
         })
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': 'Failed to submit rating', 'details': str(e)}), 500
-

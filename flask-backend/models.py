@@ -100,6 +100,8 @@ class Order(db.Model):
     status = db.Column(db.String(32), nullable=False, default='processing')
     refunded_at = db.Column(db.DateTime, nullable=True)
     refund_amount = db.Column(db.Float, nullable=True)
+    refund_reason = db.Column(db.Text, nullable=True)
+    rating = db.Column(db.Integer, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
@@ -116,5 +118,7 @@ class Order(db.Model):
             'status': self.status,  # Now uses actual DB status managed by queue
             'refundedAt': self.refunded_at.isoformat() if self.refunded_at else None,
             'refundAmount': self.refund_amount,
+            'refundReason': self.refund_reason,
+            'rating': self.rating,
             'createdAt': self.created_at.isoformat() if self.created_at else None,
         }

@@ -3,10 +3,11 @@ import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { format } from "date-fns";
-import { User, Package, MapPin, Phone, Mail, Edit2, Save, X, XCircle, Star } from "lucide-react";
+import { User, Package, MapPin, Phone, Mail, Edit2, Save, X, XCircle, Star, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -52,8 +53,10 @@ export default function Profile() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isOrderDetailsOpen, setIsOrderDetailsOpen] = useState(false);
   const [cancelOrderId, setCancelOrderId] = useState<string | null>(null);
-  const [ratingState, setRatingState] = useState<{[productId: string]: number}>({});
-  const [ratedProducts, setRatedProducts] = useState<{[key: string]: boolean}>({});
+  const [ratingState, setRatingState] = useState<{ [key: string]: { [productId: string]: number } }>({});
+  const [ratedProducts, setRatedProducts] = useState<{ [key: string]: Set<string> }>({});
+  const [refundOrderId, setRefundOrderId] = useState<string | null>(null);
+  const [refundReason, setRefundReason] = useState("");
 
   // Form states
   const [profileForm, setProfileForm] = useState({
@@ -207,21 +210,48 @@ export default function Profile() {
       const response = await apiRequest("POST", `/api/orders/${orderId}/rate`, { productId, rating });
       return response.json();
     },
-    onSuccess: (data, variables) => {
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/user/orders'] });
       queryClient.invalidateQueries({ queryKey: ['/api/products'] });
-      setRatedProducts(prev => ({
-        ...prev,
-        [`${variables.orderId}-${variables.productId}`]: true
-      }));
+      setRatedProducts(prev => {
+        const orderRated = prev[variables.orderId] || new Set();
+        orderRated.add(variables.productId);
+        return { ...prev, [variables.orderId]: orderRated };
+      });
       toast({
         title: "Rating Submitted",
-        description: `Thank you for rating ${data.product?.name || 'the product'}!`,
+        description: "Thank you for rating this product!",
       });
     },
     onError: (error: any) => {
       toast({
         title: "Error",
         description: error.message || "Failed to submit rating",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Request refund mutation
+  const requestRefundMutation = useMutation({
+    mutationFn: async ({ orderId, reason }: { orderId: string; reason: string }) => {
+      const response = await apiRequest("POST", `/api/orders/${orderId}/request-refund`, { reason });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/user/orders'] });
+      toast({
+        title: "Refund Requested",
+        description: "Your refund request has been submitted. Our team will review it shortly.",
+      });
+      setRefundOrderId(null);
+      setRefundReason("");
+      setIsOrderDetailsOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to submit refund request",
         variant: "destructive",
       });
     },
@@ -334,7 +364,7 @@ export default function Profile() {
     }
   };
 
-  const getStatusVariant = (status: string): "default" | "secondary" | "destructive" => {
+  const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
     switch (status) {
       case "pending":
       case "processing":
@@ -346,6 +376,10 @@ export default function Profile() {
         return "default";
       case "cancelled":
         return "destructive";
+      case "refund_requested":
+        return "outline";
+      case "refunded":
+        return "secondary";
       default:
         return "secondary";
     }
@@ -664,28 +698,38 @@ export default function Profile() {
                                 View Details
                               </Button>
                               {order.status === 'delivered' && (
-                                <>
-                                  <Button
-                                    variant="default"
-                                    size="sm"
-                                    onClick={() => confirmReceiptMutation.mutate(order.id)}
-                                    disabled={confirmReceiptMutation.isPending}
-                                  >
-                                    <Package className="h-4 w-4 mr-1" />
-                                    Confirm Receipt
-                                  </Button>
-                                  <Button
-                                    variant="secondary"
-                                    size="sm"
-                                    onClick={() => handleViewOrderDetails(order)}
-                                  >
-                                    <Star className="h-4 w-4 mr-1" />
-                                    Rate Products
-                                  </Button>
-                                </>
+                                <Button
+                                  variant="default"
+                                  size="sm"
+                                  onClick={() => confirmReceiptMutation.mutate(order.id)}
+                                  disabled={confirmReceiptMutation.isPending}
+                                >
+                                  <Package className="h-4 w-4 mr-1" />
+                                  Confirm Receipt
+                                </Button>
                               )}
                               {order.status === 'received' && (
-                                <span className="text-sm text-muted-foreground">Completed</span>
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  onClick={() => handleViewOrderDetails(order)}
+                                >
+                                  <Star className="h-4 w-4 mr-1" />
+                                  Rate Products
+                                </Button>
+                              )}
+                              {order.status === 'received' && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    setRefundOrderId(order.id);
+                                    setRefundReason("");
+                                  }}
+                                >
+                                  <RotateCcw className="h-4 w-4 mr-1" />
+                                  Request Refund
+                                </Button>
                               )}
                               {(order.status === 'pending' || order.status === 'processing') && (
                                 <Button
@@ -780,15 +824,17 @@ export default function Profile() {
                         <TableHead>Quantity</TableHead>
                         <TableHead>Price</TableHead>
                         <TableHead>Subtotal</TableHead>
-                        {selectedOrder.status === 'delivered' && <TableHead>Rate</TableHead>}
+                        {selectedOrder.status === 'received' && (
+                          <TableHead>Rating</TableHead>
+                        )}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {Array.isArray(selectedOrder.items) && selectedOrder.items.map((item: any, index: number) => {
                         const productId = item.productId || item.id;
-                        const ratingKey = `${selectedOrder.id}-${productId}`;
-                        const isRated = ratedProducts[ratingKey];
-                        const currentRating = ratingState[productId] || 0;
+                        const orderRatings = ratingState[selectedOrder.id] || {};
+                        const currentRating = orderRatings[productId] || 0;
+                        const isRated = ratedProducts[selectedOrder.id]?.has(productId);
                         
                         return (
                           <TableRow key={index}>
@@ -796,45 +842,54 @@ export default function Profile() {
                             <TableCell>{item.quantity}</TableCell>
                             <TableCell>₱{parseFloat(item.price).toLocaleString()}</TableCell>
                             <TableCell>₱{(parseFloat(item.price) * item.quantity).toLocaleString()}</TableCell>
-                            {selectedOrder.status === 'delivered' && (
+                            {selectedOrder.status === 'received' && (
                               <TableCell>
                                 {isRated ? (
-                                  <div className="flex items-center gap-1 text-green-600">
-                                    <Star className="h-4 w-4 fill-current" />
-                                    <span className="text-sm">Rated</span>
+                                  <div className="flex items-center gap-1 text-yellow-500">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                      <Star
+                                        key={star}
+                                        className={`h-4 w-4 ${star <= currentRating ? 'fill-current' : 'fill-none'}`}
+                                      />
+                                    ))}
+                                    <span className="ml-1 text-xs text-muted-foreground">Rated!</span>
                                   </div>
                                 ) : (
-                                  <div className="flex items-center gap-2">
-                                    <div className="flex items-center gap-1">
-                                      {[1, 2, 3, 4, 5].map((star) => (
-                                        <button
-                                          key={star}
-                                          type="button"
-                                          onClick={() => setRatingState(prev => ({
+                                  <div className="flex items-center gap-1">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                      <button
+                                        key={star}
+                                        type="button"
+                                        className={`h-5 w-5 ${
+                                          star <= currentRating
+                                            ? 'text-yellow-500'
+                                            : 'text-gray-300 hover:text-yellow-400'
+                                        }`}
+                                        onClick={() => {
+                                          setRatingState(prev => ({
                                             ...prev,
-                                            [productId]: star
-                                          }))}
-                                          className="focus:outline-none"
-                                        >
-                                          <Star
-                                            className={`h-5 w-5 transition-colors ${
-                                              star <= currentRating
-                                                ? 'fill-yellow-400 text-yellow-400'
-                                                : 'text-gray-300 hover:text-yellow-400'
-                                            }`}
-                                          />
-                                        </button>
-                                      ))}
-                                    </div>
+                                            [selectedOrder.id]: {
+                                              ...prev[selectedOrder.id],
+                                              [productId]: star
+                                            }
+                                          }));
+                                        }}
+                                      >
+                                        <Star className={`h-4 w-4 ${star <= currentRating ? 'fill-current' : ''}`} />
+                                      </button>
+                                    ))}
                                     {currentRating > 0 && (
                                       <Button
                                         size="sm"
-                                        variant="outline"
-                                        onClick={() => rateProductMutation.mutate({
-                                          orderId: selectedOrder.id,
-                                          productId,
-                                          rating: currentRating
-                                        })}
+                                        variant="ghost"
+                                        className="ml-2 h-6 px-2 text-xs"
+                                        onClick={() => {
+                                          rateProductMutation.mutate({
+                                            orderId: selectedOrder.id,
+                                            productId: productId,
+                                            rating: currentRating
+                                          });
+                                        }}
                                         disabled={rateProductMutation.isPending}
                                       >
                                         Submit
@@ -872,6 +927,22 @@ export default function Profile() {
                   >
                     <Package className="h-4 w-4" />
                     {confirmReceiptMutation.isPending ? "Confirming..." : "Confirm Receipt"}
+                  </Button>
+                </div>
+              )}
+
+              {selectedOrder.status === 'received' && (
+                <div className="flex justify-end gap-2 pt-4 border-t border-border">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setRefundOrderId(selectedOrder.id);
+                      setRefundReason("");
+                    }}
+                    className="flex items-center gap-2"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                    Request Refund
                   </Button>
                 </div>
               )}
@@ -915,6 +986,63 @@ export default function Profile() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Request Refund Dialog */}
+      <Dialog open={!!refundOrderId} onOpenChange={(open) => {
+        if (!open) {
+          setRefundOrderId(null);
+          setRefundReason("");
+        }
+      }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-lora flex items-center gap-2">
+              <RotateCcw className="h-5 w-5" />
+              Request Refund
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Please provide a reason for your refund request. Our team will review it and get back to you.
+            </p>
+            <div className="space-y-2">
+              <Label htmlFor="refund-reason">Reason for Refund *</Label>
+              <Textarea
+                id="refund-reason"
+                placeholder="Please describe why you'd like a refund (e.g., item damaged, wrong product, not as described...)"
+                value={refundReason}
+                onChange={(e) => setRefundReason(e.target.value)}
+                rows={4}
+                className="resize-none"
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setRefundOrderId(null);
+                  setRefundReason("");
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  if (refundOrderId && refundReason.trim()) {
+                    requestRefundMutation.mutate({
+                      orderId: refundOrderId,
+                      reason: refundReason.trim()
+                    });
+                  }
+                }}
+                disabled={!refundReason.trim() || requestRefundMutation.isPending}
+              >
+                {requestRefundMutation.isPending ? "Submitting..." : "Submit Request"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
