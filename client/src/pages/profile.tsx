@@ -410,6 +410,8 @@ export default function Profile() {
 
   const getStatusLabel = (status: string): string => {
     switch (status) {
+      case "pending_payment":
+        return "Pending Payment Confirmation";
       case "refund_requested":
         return "Refund Requested";
       case "refunded":
@@ -766,7 +768,7 @@ export default function Profile() {
                                   Confirm Refund Received
                                 </Button>
                               )}
-                              {(order.status === 'pending' || order.status === 'processing') && (
+                              {(order.status === 'pending_payment' || order.status === 'processing') && (
                                 <Button
                                   variant="destructive"
                                   size="sm"
@@ -929,7 +931,7 @@ export default function Profile() {
                 </div>
               )}
               
-              {(selectedOrder.status === 'pending' || selectedOrder.status === 'processing') && (
+              {(selectedOrder.status === 'pending_payment' || selectedOrder.status === 'processing') && (
                 <div className="flex justify-end pt-4 border-t border-border">
                   <Button
                     variant="destructive"

@@ -263,7 +263,7 @@ export default function Checkout() {
   if (orderId && !orderComplete) {
     const getStatusIcon = () => {
       switch (orderStatus) {
-        case 'pending':
+        case 'pending_payment':
           return <CreditCard className="h-16 w-16 text-orange-500 animate-pulse" />;
         case 'processing':
           return <div className="h-16 w-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />;
@@ -276,8 +276,8 @@ export default function Checkout() {
 
     const getStatusMessage = () => {
       switch (orderStatus) {
-        case 'pending':
-          return 'Awaiting payment confirmation';
+        case 'pending_payment':
+          return 'Pending payment confirmation';
         case 'processing':
           return 'Your order is being processed';
         case 'delivered':
@@ -303,10 +303,10 @@ export default function Checkout() {
               </div>
               <div className="flex justify-center items-center gap-2 mb-4">
                 <div className={`px-4 py-2 rounded-full font-geist text-sm ${
-                  orderStatus === 'pending' ? 'bg-orange-100 text-orange-800' :
+                  orderStatus === 'pending_payment' ? 'bg-orange-100 text-orange-800' :
                   'bg-gray-100 text-gray-800'
                 }`}>
-                  Pending Payment
+                  Pending Payment Confirmation
                 </div>
                 <div className="h-1 w-8 bg-border"></div>
                 <div className={`px-4 py-2 rounded-full font-geist text-sm ${

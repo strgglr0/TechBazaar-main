@@ -145,8 +145,8 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "pending":
-        return <Clock className="h-4 w-4" />;
+      case "pending_payment":
+        return <Clock className="h-4 w-4 text-yellow-600" />;
       case "processing":
         return <CheckCircle className="h-4 w-4" />;
       case "shipped":
@@ -168,7 +168,7 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
 
   const getStatusVariant = (status: string): "default" | "secondary" | "destructive" => {
     switch (status) {
-      case "pending":
+      case "pending_payment":
         return "secondary";
       case "processing":
       case "shipped":
@@ -188,7 +188,7 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
 
   const getStatusLabel = (status: string): string => {
     switch (status) {
-      case "pending": return "Pending";
+      case "pending_payment": return "Pending Payment Confirmation";
       case "processing": return "Processing";
       case "shipped": return "Shipped";
       case "delivered": return "Delivered";
@@ -231,7 +231,7 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Orders ({orders.length})</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="pending_payment">Pending Payment Confirmation</SelectItem>
               <SelectItem value="processing">Processing</SelectItem>
               <SelectItem value="shipped">Shipped</SelectItem>
               <SelectItem value="delivered">Delivered</SelectItem>
@@ -295,10 +295,10 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
                       </div>
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="pending">
+                      <SelectItem value="pending_payment">
                         <div className="flex items-center space-x-2">
-                          <Clock className="h-4 w-4" />
-                          <span>Pending</span>
+                          <Clock className="h-4 w-4 text-yellow-600" />
+                          <span>Pending Payment Confirmation</span>
                         </div>
                       </SelectItem>
                       <SelectItem value="processing">

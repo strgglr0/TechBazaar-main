@@ -41,6 +41,8 @@ def get_order(order_id):
 @orders_bp.route('/orders/<order_id>/status', methods=['PUT'])
 def update_order_status(order_id):
     """Update order status"""
+    from order_queue import order_queue
+    
     order = Order.query.get(order_id)
     if not order:
         return jsonify({'error': 'Order not found'}), 404
@@ -52,6 +54,7 @@ def update_order_status(order_id):
         return jsonify({'error': 'Status is required'}), 400
     
     try:
+        old_status = order.status
         order.status = new_status
         
         # Automatically set refunded_at when status changes to refunded
@@ -60,6 +63,14 @@ def update_order_status(order_id):
             # Set default refund amount if not already set
             if order.refund_amount is None:
                 order.refund_amount = order.total
+        
+        # When online payment order is confirmed (pending_payment → processing), add to queue
+        if old_status == 'pending_payment' and new_status == 'processing':
+            try:
+                order_queue.add_order(order_id)
+                print(f"[ORDER] Payment confirmed for order {order_id}, added to processing queue")
+            except Exception as queue_err:
+                print(f"[WARNING] Failed to add order to queue: {queue_err}")
         
         db.session.commit()
         return jsonify(order.to_dict())
@@ -203,7 +214,12 @@ def checkout():
         print(f"  - Payment: {payment_method}")
         print(f"  - User ID: {user_id or 'Guest'}")
         
-        # Create order
+        # Create order with pending_payment status for both payment methods
+        # Both COD and online payment start with pending_payment (awaiting payment method confirmation)
+        initial_status = 'pending_payment'
+        
+        print(f"[CHECKOUT] Initial status determined: {initial_status} (payment_method={payment_method})")
+        
         order = Order(
             user_id=user_id,
             customer_name=data.get('customerName'),
@@ -213,7 +229,7 @@ def checkout():
             items=items,
             total=total_value,
             payment_method=payment_method,
-            status='processing'
+            status=initial_status
         )
         
         db.session.add(order)
@@ -221,6 +237,7 @@ def checkout():
         
         order_id = order.id
         print(f"[CHECKOUT] ✓ Order created with ID: {order_id}")
+        print(f"[CHECKOUT] ✓ Order status after creation: {order.status}")
 
         # Clear cart
         try:
@@ -240,25 +257,19 @@ def checkout():
         db.session.commit()
         print(f"[CHECKOUT] ✓ Order committed to database")
         
-        # Add order to processing queue
-        try:
-            order_queue.add_order(order_id)
-            print(f"[CHECKOUT] ✓ Order added to processing queue")
-        except Exception as queue_err:
-            print(f"[WARNING] Failed to add order to queue: {queue_err}")
-            traceback.print_exc()
-            # Don't fail the order creation if queue fails
+        # Do not add any orders to queue immediately - wait for payment method confirmation
+        # Both COD and online payment orders start in pending_payment status
+        print(f"[CHECKOUT] Order {order_id} created with pending_payment status - waiting for payment method confirmation")
         
-        # Log online payment orders
-        if payment_method == 'online':
-            print(f"\n[PAYMENT] Online payment order created: {order_id}")
-            print(f"[PAYMENT] Customer: {order.customer_name} ({order.customer_email})")
-            print(f"[PAYMENT] Total: ${order.total:,.2f}")
-            print(f"[PAYMENT] Email instructions will be sent to customer\n")
+        # Log payment method info
+        payment_info = "Cash on Delivery" if payment_method == 'cod' else "Online Payment"
+        print(f"[PAYMENT] Order {order_id}: Payment method = {payment_info}")
         
         # Return order response
         response_data = order.to_dict()
         print(f"[CHECKOUT] ✓ Returning order: {order_id}")
+        print(f"[CHECKOUT] ✓ Response status: {response_data.get('status')}")
+        print(f"[CHECKOUT] ✓ Response payment method: {response_data.get('paymentMethod')}")
         print("="*60 + "\n")
         return jsonify(response_data), 201
         
@@ -412,9 +423,9 @@ def cancel_order(order_id):
     if order.user_id != user_id:
         return jsonify({'error': 'Unauthorized - This order does not belong to you'}), 403
     
-    # Only allow canceling pending or processing orders
-    if order.status not in ['pending', 'processing']:
-        return jsonify({'error': f'Cannot cancel order with status: {order.status}. Only pending or processing orders can be cancelled.'}), 400
+    # Only allow canceling pending_payment or processing orders
+    if order.status not in ['pending_payment', 'processing']:
+        return jsonify({'error': f'Cannot cancel order with status: {order.status}. Only pending payment or processing orders can be cancelled.'}), 400
     
     try:
         order.status = 'cancelled'
