@@ -84,11 +84,10 @@ export function useCart() {
                 headers: {
                   'Content-Type': 'application/json',
                   'Authorization': `Bearer ${newToken}`,
-                  'x-session-id': userSessionId
+                  'x-session-id': guestSessionId
                 },
                 body: JSON.stringify({
-                  fromSessionId: guestSessionId,
-                  toSessionId: userSessionId
+                  guestSessionId: guestSessionId
                 })
               });
               

@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { format } from "date-fns";
-import { User, Package, MapPin, Phone, Mail, Edit2, Save, X } from "lucide-react";
+import { User, Package, MapPin, Phone, Mail, Edit2, Save, X, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { sanitizePhoneInput, hasMeaningfulChange } from "@/lib/formatters";
@@ -41,9 +51,7 @@ export default function Profile() {
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isOrderDetailsOpen, setIsOrderDetailsOpen] = useState(false);
-  const [orderRatings, setOrderRatings] = useState<Record<string, any>[]>([]);
-  const [editingRating, setEditingRating] = useState<{ productId?: string; value?: number; review?: string } | null>(null);
-  const [ratingSubmitting, setRatingSubmitting] = useState(false);
+  const [cancelOrderId, setCancelOrderId] = useState<string | null>(null);
 
   // Form states
   const [profileForm, setProfileForm] = useState({
@@ -147,18 +155,7 @@ export default function Profile() {
   // Confirm receipt mutation
   const confirmReceiptMutation = useMutation({
     mutationFn: async (orderId: string) => {
-      const response = await fetch(`/api/orders/${orderId}/confirm-receipt`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        credentials: 'include',
-      });
-      if (!response.ok) {
-        const error = await response.text();
-        throw new Error(error || 'Failed to confirm receipt');
-      }
+      const response = await apiRequest("POST", `/api/orders/${orderId}/confirm-receipt`, {});
       return response.json();
     },
     onSuccess: () => {
@@ -173,6 +170,30 @@ export default function Profile() {
       toast({
         title: "Error",
         description: error.message || "Failed to confirm receipt",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Cancel order mutation
+  const cancelOrderMutation = useMutation({
+    mutationFn: async (orderId: string) => {
+      const response = await apiRequest("POST", `/api/orders/${orderId}/cancel`, {});
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/user/orders'] });
+      toast({
+        title: "Order Cancelled",
+        description: "Your order has been cancelled successfully.",
+      });
+      setCancelOrderId(null);
+      setIsOrderDetailsOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to cancel order",
         variant: "destructive",
       });
     },
@@ -272,40 +293,25 @@ export default function Profile() {
 
   const handleViewOrderDetails = (order: Order) => {
     setSelectedOrder(order);
-    // fetch any ratings the current user has for this order
-    (async () => {
-      try {
-        if (!token) {
-          setOrderRatings([]);
-          return;
-        }
-        
-        const res = await fetch(`/api/orders/${order.id}/ratings`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-          credentials: 'include',
-        });
-        
-        if (res.ok) {
-          const json = await res.json();
-          setOrderRatings(json || []);
-        } else {
-          setOrderRatings([]);
-        }
-      } catch (e) {
-        setOrderRatings([]);
-      }
-    })();
     setIsOrderDetailsOpen(true);
+  };
+
+  const handleCancelOrder = (orderId: string) => {
+    setCancelOrderId(orderId);
+  };
+
+  const confirmCancelOrder = () => {
+    if (cancelOrderId) {
+      cancelOrderMutation.mutate(cancelOrderId);
+    }
   };
 
   const getStatusVariant = (status: string): "default" | "secondary" | "destructive" => {
     switch (status) {
       case "pending":
-        return "secondary";
       case "processing":
+        return "secondary";
+      case "confirmed":
       case "shipped":
       case "delivered":
       case "received":
@@ -640,6 +646,17 @@ export default function Profile() {
                                   Confirm Receipt
                                 </Button>
                               )}
+                              {(order.status === 'pending' || order.status === 'processing') && (
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  onClick={() => handleCancelOrder(order.id)}
+                                  disabled={cancelOrderMutation.isPending}
+                                >
+                                  <XCircle className="h-4 w-4 mr-1" />
+                                  Cancel Order
+                                </Button>
+                              )}
                             </div>
                           </TableCell>
                         </TableRow>
@@ -669,12 +686,12 @@ export default function Profile() {
                   <div className="space-y-1 text-sm">
                     <p><span className="text-muted-foreground">Order ID:</span> #{selectedOrder.id}</p>
                     <p><span className="text-muted-foreground">Date:</span> {selectedOrder.createdAt ? format(new Date(selectedOrder.createdAt), "PPP") : "N/A"}</p>
-                    <div>
+                    <p>
                       <span className="text-muted-foreground">Status:</span>{" "}
                       <Badge variant={getStatusVariant(selectedOrder.status)} className="ml-2">
                         {selectedOrder.status}
                       </Badge>
-                    </div>
+                    </p>
                   </div>
                 </div>
 
@@ -684,12 +701,12 @@ export default function Profile() {
                     <p><span className="text-muted-foreground">Name:</span> {selectedOrder.customerName}</p>
                     <p><span className="text-muted-foreground">Email:</span> {selectedOrder.customerEmail}</p>
                     <p><span className="text-muted-foreground">Phone:</span> {selectedOrder.customerPhone || "N/A"}</p>
-                    <div>
+                    <p>
                       <span className="text-muted-foreground">Payment:</span>{" "}
                       <Badge variant="outline" className="ml-1">
                         {(selectedOrder as any).paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery'}
                       </Badge>
-                    </div>
+                    </p>
                   </div>
                 </div>
               </div>
@@ -722,9 +739,6 @@ export default function Profile() {
                         <TableHead>Quantity</TableHead>
                         <TableHead>Price</TableHead>
                         <TableHead>Subtotal</TableHead>
-                        {(selectedOrder.status === 'delivered' || selectedOrder.status === 'received') && (
-                          <TableHead>Rating</TableHead>
-                        )}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -734,97 +748,6 @@ export default function Profile() {
                           <TableCell>{item.quantity}</TableCell>
                           <TableCell>₱{parseFloat(item.price).toLocaleString()}</TableCell>
                           <TableCell>₱{(parseFloat(item.price) * item.quantity).toLocaleString()}</TableCell>
-                          {(selectedOrder.status === 'delivered' || selectedOrder.status === 'received') && (
-                            <TableCell>
-                              {/* Show user's rating for this order item if present */}
-                              {(() => {
-                                const r = orderRatings.find((rr) => rr.productId === item.productId);
-                              if (editingRating && editingRating.productId === item.productId) {
-                                return (
-                                  <div className="flex items-center gap-2">
-                                    <select
-                                      value={editingRating.value || 5}
-                                      onChange={(e) => setEditingRating({ ...editingRating, value: parseInt(e.target.value) })}
-                                      className="border rounded px-2 py-1"
-                                      data-testid={`select-rating-${item.productId}`}
-                                    >
-                                      {[1,2,3,4,5].map((n) => (
-                                        <option key={n} value={n}>{n} ⭐</option>
-                                      ))}
-                                    </select>
-                                    <Button size="sm" onClick={async () => {
-                                      if (!editingRating || !token) return;
-                                      setRatingSubmitting(true);
-                                      try {
-                                        // Save rating with authentication
-                                        const ratingResponse = await fetch(`/api/orders/${selectedOrder.id}/rating`, {
-                                          method: 'POST',
-                                          headers: {
-                                            'Content-Type': 'application/json',
-                                            'Authorization': `Bearer ${token}`,
-                                          },
-                                          credentials: 'include',
-                                          body: JSON.stringify({ 
-                                            productId: item.productId, 
-                                            rating: editingRating.value, 
-                                            review: editingRating.review 
-                                          }),
-                                        });
-                                        
-                                        if (!ratingResponse.ok) {
-                                          throw new Error('Failed to save rating');
-                                        }
-                                        
-                                        // Refresh ratings
-                                        const ratingsResponse = await fetch(`/api/orders/${selectedOrder.id}/ratings`, {
-                                          method: 'GET',
-                                          headers: {
-                                            'Authorization': `Bearer ${token}`,
-                                          },
-                                          credentials: 'include',
-                                        });
-                                        
-                                        if (ratingsResponse.ok) {
-                                          const json = await ratingsResponse.json();
-                                          setOrderRatings(json || []);
-                                        }
-                                        
-                                        setEditingRating(null);
-                                        
-                                        toast({
-                                          title: "Rating Saved",
-                                          description: "Thank you for your feedback!",
-                                        });
-                                      } catch (err) {
-                                        toast({
-                                          title: "Error",
-                                          description: "Failed to save rating. Please try again.",
-                                          variant: "destructive",
-                                        });
-                                      } finally {
-                                        setRatingSubmitting(false);
-                                      }
-                                    }} disabled={ratingSubmitting}>Save</Button>
-                                    <Button size="sm" variant="outline" onClick={() => setEditingRating(null)}>Cancel</Button>
-                                  </div>
-                                );
-                              }
-
-                              return (
-                                <div className="flex items-center gap-3">
-                                  {r ? (
-                                    <>
-                                      <span className="text-sm font-semibold">{r.rating} ⭐</span>
-                                      <Button size="sm" variant="outline" onClick={() => setEditingRating({ productId: item.productId, value: r.rating, review: r.review })}>Edit</Button>
-                                    </>
-                                  ) : (
-                                    <Button size="sm" onClick={() => setEditingRating({ productId: item.productId, value: 5 })}>Rate</Button>
-                                  )}
-                                </div>
-                              );
-                            })()}
-                            </TableCell>
-                          )}
                         </TableRow>
                       ))}
                     </TableBody>
@@ -842,7 +765,7 @@ export default function Profile() {
                 </div>
               </div>
 
-              {/* Confirm Receipt Button */}
+              {/* Action Buttons */}
               {selectedOrder.status === 'delivered' && (
                 <div className="flex justify-end pt-4 border-t border-border">
                   <Button
@@ -855,10 +778,46 @@ export default function Profile() {
                   </Button>
                 </div>
               )}
+              
+              {(selectedOrder.status === 'pending' || selectedOrder.status === 'processing') && (
+                <div className="flex justify-end pt-4 border-t border-border">
+                  <Button
+                    variant="destructive"
+                    onClick={() => handleCancelOrder(selectedOrder.id)}
+                    disabled={cancelOrderMutation.isPending}
+                    className="flex items-center gap-2"
+                  >
+                    <XCircle className="h-4 w-4" />
+                    {cancelOrderMutation.isPending ? "Cancelling..." : "Cancel Order"}
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Cancel Order Confirmation Dialog */}
+      <AlertDialog open={!!cancelOrderId} onOpenChange={(open) => !open && setCancelOrderId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel Order?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to cancel this order? This action cannot be undone.
+              You will need to place a new order if you change your mind.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep Order</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmCancelOrder} 
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Cancel Order
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { Package, CheckCircle, Clock, Truck, XCircle, Trash2 } from "lucide-react";
+import { Package, CheckCircle, Clock, Truck, XCircle, Trash2, Receipt, RefreshCw, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -29,7 +29,9 @@ interface OrderManagementProps {
 export default function OrderManagement({ orders, isLoading }: OrderManagementProps) {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const [deleteOrderId, setDeleteOrderId] = useState<string | null>(null);
+  const [refundOrderId, setRefundOrderId] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -78,6 +80,30 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
     },
   });
 
+  const refundOrderMutation = useMutation({
+    mutationFn: async (orderId: string) => {
+      const response = await apiRequest("POST", `/api/orders/${orderId}/refund`, {});
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/orders'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats'] });
+      toast({
+        title: "Success",
+        description: "Refund processed successfully",
+      });
+      setRefundOrderId(null);
+      setIsReceiptOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to process refund",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleStatusChange = (orderId: string, newStatus: string) => {
     updateStatusMutation.mutate({ orderId, status: newStatus });
   };
@@ -87,14 +113,33 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
     setIsDetailsOpen(true);
   };
 
+  const handleViewReceipt = (order: Order) => {
+    setSelectedOrder(order);
+    setIsReceiptOpen(true);
+  };
+
   const handleDeleteOrder = (orderId: string) => {
     setDeleteOrderId(orderId);
+  };
+
+  const handleRefundOrder = (orderId: string) => {
+    setRefundOrderId(orderId);
   };
 
   const confirmDelete = () => {
     if (deleteOrderId) {
       deleteOrderMutation.mutate(deleteOrderId);
     }
+  };
+
+  const confirmRefund = () => {
+    if (refundOrderId) {
+      refundOrderMutation.mutate(refundOrderId);
+    }
+  };
+
+  const handlePrintReceipt = () => {
+    window.print();
   };
 
   const getStatusIcon = (status: string) => {
@@ -109,6 +154,8 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
         return <Package className="h-4 w-4" />;
       case "received":
         return <CheckCircle className="h-4 w-4" />;
+      case "refunded":
+        return <RefreshCw className="h-4 w-4" />;
       case "cancelled":
         return <XCircle className="h-4 w-4" />;
       default:
@@ -125,6 +172,8 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
       case "delivered":
       case "received":
         return "default";
+      case "refunded":
+        return "secondary";
       case "cancelled":
         return "destructive";
       default:
@@ -233,6 +282,12 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
                           <span>Received</span>
                         </div>
                       </SelectItem>
+                      <SelectItem value="refunded">
+                        <div className="flex items-center space-x-2">
+                          <RefreshCw className="h-4 w-4" />
+                          <span>Refunded</span>
+                        </div>
+                      </SelectItem>
                       <SelectItem value="cancelled">
                         <div className="flex items-center space-x-2">
                           <XCircle className="h-4 w-4" />
@@ -251,6 +306,14 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
                       data-testid={`button-view-details-${order.id}`}
                     >
                       View Details
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleViewReceipt(order)}
+                      data-testid={`button-view-receipt-${order.id}`}
+                    >
+                      <Receipt className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="destructive"
@@ -366,6 +429,202 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Receipt Dialog */}
+      <Dialog open={isReceiptOpen} onOpenChange={setIsReceiptOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto print:shadow-none">
+          <DialogHeader className="print:hidden">
+            <DialogTitle className="font-lora flex items-center justify-between">
+              <span>Order Receipt</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handlePrintReceipt}
+                className="ml-auto"
+              >
+                <Printer className="h-4 w-4 mr-2" />
+                Print
+              </Button>
+            </DialogTitle>
+          </DialogHeader>
+
+          {selectedOrder && (
+            <div className="space-y-6 print:text-black">
+              {/* Receipt Header */}
+              <div className="text-center border-b pb-4">
+                <h1 className="text-3xl font-bold font-lora mb-2">TechBazaar</h1>
+                <p className="text-sm text-muted-foreground print:text-gray-600">
+                  Order Receipt
+                </p>
+              </div>
+
+              {/* Order & Customer Info Grid */}
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-semibold font-geist mb-3 text-lg">Order Information</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground print:text-gray-600">Order ID:</span>
+                      <span className="font-mono font-semibold">#{selectedOrder.id.substring(0, 12)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground print:text-gray-600">Order Date:</span>
+                      <span>{selectedOrder.createdAt ? format(new Date(selectedOrder.createdAt), "PPP") : "N/A"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground print:text-gray-600">Status:</span>
+                      <Badge variant={getStatusVariant(selectedOrder.status)} className="print:border print:border-gray-400">
+                        {selectedOrder.status.toUpperCase()}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground print:text-gray-600">Payment Method:</span>
+                      <Badge variant="outline" className="print:border print:border-gray-400">
+                        {(selectedOrder as any).paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery'}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold font-geist mb-3 text-lg">Customer Details</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground print:text-gray-600">Name:</span>
+                      <span className="font-semibold">{selectedOrder.customerName}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground print:text-gray-600">Email:</span>
+                      <span>{selectedOrder.customerEmail}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground print:text-gray-600">Phone:</span>
+                      <span>{selectedOrder.customerPhone || "N/A"}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Shipping Address */}
+              <div>
+                <h3 className="font-semibold font-geist mb-3 text-lg">Shipping Address</h3>
+                <div className="text-sm bg-muted print:bg-gray-100 p-4 rounded-lg">
+                  {typeof selectedOrder.shippingAddress === 'string' 
+                    ? selectedOrder.shippingAddress
+                    : (
+                      <>
+                        <p className="font-medium">{(selectedOrder.shippingAddress as any).address}</p>
+                        <p>{(selectedOrder.shippingAddress as any).city}, {(selectedOrder.shippingAddress as any).state} {(selectedOrder.shippingAddress as any).zipCode}</p>
+                        <p>{(selectedOrder.shippingAddress as any).country}</p>
+                      </>
+                    )
+                  }
+                </div>
+              </div>
+
+              {/* Order Items */}
+              <div>
+                <h3 className="font-semibold font-geist mb-3 text-lg">Order Items</h3>
+                <div className="border border-border print:border-gray-300 rounded-lg overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="print:border-b print:border-gray-300">
+                        <TableHead className="print:text-black">Product</TableHead>
+                        <TableHead className="print:text-black text-center">Quantity</TableHead>
+                        <TableHead className="print:text-black text-right">Unit Price</TableHead>
+                        <TableHead className="print:text-black text-right">Subtotal</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {Array.isArray(selectedOrder.items) && selectedOrder.items.map((item: any, index: number) => (
+                        <TableRow key={index} className="print:border-b print:border-gray-200">
+                          <TableCell className="font-medium">{item.productName || item.name || "Product"}</TableCell>
+                          <TableCell className="text-center">{item.quantity}</TableCell>
+                          <TableCell className="text-right">₱{parseFloat(item.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-right font-semibold">₱{(parseFloat(item.price) * item.quantity).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+
+              {/* Total Section */}
+              <div className="border-t pt-4">
+                <div className="flex justify-end">
+                  <div className="w-80 space-y-3">
+                    <div className="flex justify-between text-lg">
+                      <span className="font-semibold">Subtotal:</span>
+                      <span>₱{parseFloat((selectedOrder as any).total || (selectedOrder as any).totalAmount || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    </div>
+                    <div className="flex justify-between text-2xl font-bold font-lora border-t pt-3">
+                      <span>Total:</span>
+                      <span>₱{parseFloat((selectedOrder as any).total || (selectedOrder as any).totalAmount || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    </div>
+                    
+                    {/* Refund Info */}
+                    {(selectedOrder as any).refundedAt && (
+                      <div className="border-t pt-3 mt-3">
+                        <div className="flex justify-between text-lg text-orange-600 print:text-orange-700">
+                          <span className="font-semibold">Refunded:</span>
+                          <span className="font-bold">₱{parseFloat((selectedOrder as any).refundAmount || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground print:text-gray-600 text-right mt-1">
+                          Refunded on {format(new Date((selectedOrder as any).refundedAt), "PPP")}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Refund Action */}
+              {selectedOrder.status === 'received' && !(selectedOrder as any).refundedAt && (
+                <div className="print:hidden border-t pt-4">
+                  <div className="flex justify-end">
+                    <Button
+                      variant="destructive"
+                      onClick={() => handleRefundOrder(selectedOrder.id)}
+                      className="flex items-center gap-2"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                      Process Full Refund
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Footer */}
+              <div className="text-center text-xs text-muted-foreground print:text-gray-600 border-t pt-4 mt-6">
+                <p>Thank you for your purchase!</p>
+                <p className="mt-1">For any inquiries, please contact support@techbazaar.com</p>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Refund Confirmation Dialog */}
+      <AlertDialog open={!!refundOrderId} onOpenChange={(open) => !open && setRefundOrderId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Process Refund?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will process a full refund for this order. The order status will be changed to "refunded" 
+              and the refund amount will be recorded. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmRefund} 
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Process Refund
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!deleteOrderId} onOpenChange={(open) => !open && setDeleteOrderId(null)}>

@@ -44,11 +44,13 @@ def register_products(app):
             app.before_serving(ensure_seeded)
         else:
             # older fallback: run immediately (safe during create_app)
-            ensure_seeded()
+            with app.app_context():
+                ensure_seeded()
     except Exception:
         # as a last resort call ensure_seeded
         try:
-            ensure_seeded()
+            with app.app_context():
+                ensure_seeded()
         except Exception:
             app.logger.exception('Failed to ensure seeded products')
 

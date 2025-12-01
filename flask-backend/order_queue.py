@@ -9,7 +9,8 @@ import threading
 import time
 from datetime import datetime
 from extensions import db
-from models import Order
+# Lazy import to avoid circular dependency
+# from models import Order
 
 
 class OrderProcessingQueue:
@@ -106,6 +107,7 @@ class OrderProcessingQueue:
                         # Update database
                         if self.app:
                             with self.app.app_context():
+                                from models import Order
                                 order = Order.query.get(item['order_id'])
                                 if order:
                                     order.status = 'delivered'
@@ -132,6 +134,7 @@ class OrderProcessingQueue:
                         # Update database
                         if self.app:
                             with self.app.app_context():
+                                from models import Order
                                 order = Order.query.get(item['order_id'])
                                 if order:
                                     order.status = 'received'

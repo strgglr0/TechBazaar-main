@@ -98,6 +98,8 @@ class Order(db.Model):
     total = db.Column(db.Float, default=0.0)
     payment_method = db.Column(db.String(32), nullable=True, default='cod')  # 'cod' or 'online'
     status = db.Column(db.String(32), nullable=False, default='processing')
+    refunded_at = db.Column(db.DateTime, nullable=True)
+    refund_amount = db.Column(db.Float, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
@@ -112,29 +114,7 @@ class Order(db.Model):
             'total': self.total,
             'paymentMethod': self.payment_method,
             'status': self.status,  # Now uses actual DB status managed by queue
+            'refundedAt': self.refunded_at.isoformat() if self.refunded_at else None,
+            'refundAmount': self.refund_amount,
             'createdAt': self.created_at.isoformat() if self.created_at else None,
-        }
-
-
-class Rating(db.Model):
-    __tablename__ = 'ratings'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    product_id = db.Column(db.String(64), db.ForeignKey('products.id'), nullable=False)
-    order_id = db.Column(db.String(64), db.ForeignKey('orders.id'), nullable=True)
-    rating = db.Column(db.Integer, nullable=False)
-    review = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'userId': self.user_id,
-            'productId': self.product_id,
-            'orderId': self.order_id,
-            'rating': self.rating,
-            'review': self.review,
-            'createdAt': self.created_at.isoformat() if self.created_at else None,
-            'updatedAt': self.updated_at.isoformat() if self.updated_at else None,
         }

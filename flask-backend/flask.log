@@ -1,58 +1,31 @@
-[2025-11-30 14:27:54,943] ERROR in products: Failed to ensure seeded products
-Traceback (most recent call last):
-  File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 51, in register_products
-    ensure_seeded()
-  File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 36, in ensure_seeded
-    current_app.logger.exception('Failed to seed products')
-    ^^^^^^^^^^^^^^^^^^
-  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/werkzeug/local.py", line 311, in __get__
-    obj = instance._get_current_object()
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/werkzeug/local.py", line 508, in _get_current_object
-    raise RuntimeError(unbound_message) from None
-RuntimeError: Working outside of application context.
-
-This typically means that you attempted to use functionality that needed
-the current application. To solve this, set up an application context
-with app.app_context(). See the documentation for more information.
 [OrderQueue] Order processing queue started
+Database ready: 11 products, 6 users
+ℹ️  Database already has 11 products. Skipping seed.
  * Serving Flask app 'app'
  * Debug mode: on
 WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:5001
- * Running on http://10.0.11.53:5001
+ * Running on http://10.0.12.235:5001
 Press CTRL+C to quit
  * Restarting with stat
-[2025-11-30 14:27:56,114] ERROR in products: Failed to ensure seeded products
-Traceback (most recent call last):
-  File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 51, in register_products
-    ensure_seeded()
-  File "/workspaces/TechBazaar-main/flask-backend/routes/products.py", line 36, in ensure_seeded
-    current_app.logger.exception('Failed to seed products')
-    ^^^^^^^^^^^^^^^^^^
-  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/werkzeug/local.py", line 311, in __get__
-    obj = instance._get_current_object()
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/werkzeug/local.py", line 508, in _get_current_object
-    raise RuntimeError(unbound_message) from None
-RuntimeError: Working outside of application context.
-
-This typically means that you attempted to use functionality that needed
-the current application. To solve this, set up an application context
-with app.app_context(). See the documentation for more information.
  * Debugger is active!
- * Debugger PIN: 598-473-673
-127.0.0.1 - - [30/Nov/2025 14:28:26] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
-127.0.0.1 - - [30/Nov/2025 14:28:26] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [30/Nov/2025 14:28:26] "GET /api/brands HTTP/1.1" 200 -
-127.0.0.1 - - [30/Nov/2025 14:28:26] "GET /api/me HTTP/1.1" 200 -
-127.0.0.1 - - [30/Nov/2025 14:28:26] "GET /api/products HTTP/1.1" 200 -
-127.0.0.1 - - [30/Nov/2025 14:28:26] "GET /api/categories HTTP/1.1" 200 -
-127.0.0.1 - - [30/Nov/2025 14:28:26] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [30/Nov/2025 14:29:38] "GET /api/products?minPrice=0&maxPrice=10000 HTTP/1.1" 200 -
-127.0.0.1 - - [30/Nov/2025 14:29:44] "GET /api/products?search=inifinix HTTP/1.1" 200 -
-127.0.0.1 - - [30/Nov/2025 14:29:55] "GET /api/products?search=samsung HTTP/1.1" 200 -
-127.0.0.1 - - [30/Nov/2025 14:30:10] "GET /api/products?search=xiaomi HTTP/1.1" 200 -
-127.0.0.1 - - [30/Nov/2025 14:30:16] "GET /api/products?search=google HTTP/1.1" 200 -
-127.0.0.1 - - [30/Nov/2025 14:30:25] "GET /api/products?search=Infinix HTTP/1.1" 200 -
+ * Debugger PIN: 889-318-566
+127.0.0.1 - - [01/Dec/2025 06:07:55] "GET /api/me HTTP/1.1" 401 -
+127.0.0.1 - - [01/Dec/2025 06:07:55] "GET /api/brands HTTP/1.1" 200 -
+127.0.0.1 - - [01/Dec/2025 06:07:55] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [01/Dec/2025 06:07:55] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
+127.0.0.1 - - [01/Dec/2025 06:07:55] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [01/Dec/2025 06:07:55] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [01/Dec/2025 06:07:55] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [01/Dec/2025 06:08:10] "POST /api/login HTTP/1.1" 200 -
+127.0.0.1 - - [01/Dec/2025 06:08:10] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [01/Dec/2025 06:08:10] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [01/Dec/2025 06:08:23] "POST /api/checkout HTTP/1.1" 201 -
+127.0.0.1 - - [01/Dec/2025 06:08:23] "DELETE /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [01/Dec/2025 06:08:23] "GET /api/orders/d4c49d33-6006-4af0-8546-b208375a0005 HTTP/1.1" 200 -
+127.0.0.1 - - [01/Dec/2025 06:08:27] "GET /api/user/orders HTTP/1.1" 200 -
+127.0.0.1 - - [01/Dec/2025 06:08:27] "GET /api/profile HTTP/1.1" 200 -
+127.0.0.1 - - [01/Dec/2025 06:08:40] "GET /api/admin/stats HTTP/1.1" 200 -
+127.0.0.1 - - [01/Dec/2025 06:08:40] "GET /api/orders HTTP/1.1" 200 -
+127.0.0.1 - - [01/Dec/2025 06:08:40] "GET /api/products HTTP/1.1" 200 -

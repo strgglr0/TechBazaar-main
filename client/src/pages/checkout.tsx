@@ -86,6 +86,11 @@ export default function Checkout() {
     } catch (e) {}
   }, []);
 
+  // Calculate totals
+  const shippingCost = totalAmount > 100 ? 0 : 9.99;
+  const tax = totalAmount * 0.08; // 8% tax
+  const finalTotal = totalAmount + shippingCost + tax;
+
   const createOrderMutation = useMutation({
     mutationFn: async (data: CheckoutFormData) => {
       const orderData = {
@@ -106,7 +111,8 @@ export default function Checkout() {
           quantity: item.quantity,
           category: item.product?.category || "Other",
         })),
-        totalAmount: totalAmount.toFixed(2),
+        total: parseFloat(finalTotal.toFixed(2)),
+        totalAmount: parseFloat(finalTotal.toFixed(2)),
         paymentMethod: data.paymentMethod,
       };
 
@@ -126,8 +132,14 @@ export default function Checkout() {
       });
 
       if (!response.ok) {
-        const txt = await response.text();
-        throw new Error(txt || response.statusText);
+        let errorMessage = response.statusText;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.details || errorMessage;
+        } catch {
+          errorMessage = await response.text() || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
 
       return response.json();
@@ -151,10 +163,10 @@ export default function Checkout() {
       // Clear cart after setting order ID to prevent redirect
       clearCart();
     },
-    onError: () => {
+    onError: (error: Error) => {
       toast({
         title: "Order failed",
-        description: "There was an error processing your order. Please try again.",
+        description: error.message || "There was an error processing your order. Please try again.",
         variant: "destructive",
       });
     },
@@ -331,10 +343,6 @@ export default function Checkout() {
       </div>
     );
   }
-
-  const shippingCost = totalAmount > 100 ? 0 : 9.99;
-  const tax = totalAmount * 0.08; // 8% tax
-  const finalTotal = totalAmount + shippingCost + tax;
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

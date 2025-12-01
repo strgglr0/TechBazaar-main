@@ -84,11 +84,34 @@ def update_address():
 @token_required
 def get_user_orders():
     """Get current user's orders"""
-    user_id = get_current_user_id()
-    if not user_id:
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    # Get all orders for the current user
-    orders = Order.query.filter_by(user_id=user_id).order_by(Order.created_at.desc()).all()
-    
-    return jsonify([order.to_dict() for order in orders])
+    import traceback
+    try:
+        user_id = get_current_user_id()
+        if not user_id:
+            print("[ERROR] get_user_orders: No user_id found")
+            return jsonify({'error': 'Unauthorized'}), 401
+        
+        print(f"[API] Fetching orders for user_id: {user_id}")
+        
+        # Get all orders for the current user
+        orders = Order.query.filter_by(user_id=user_id).order_by(Order.created_at.desc()).all()
+        
+        print(f"[API] Found {len(orders)} orders for user {user_id}")
+        
+        # Convert to dict with error handling
+        order_list = []
+        for order in orders:
+            try:
+                order_list.append(order.to_dict())
+            except Exception as e:
+                print(f"[ERROR] Failed to serialize order {order.id}: {e}")
+                traceback.print_exc()
+                # Skip problematic order but continue
+                continue
+        
+        return jsonify(order_list)
+        
+    except Exception as e:
+        print(f"[ERROR] get_user_orders failed: {e}")
+        traceback.print_exc()
+        return jsonify({'error': 'Failed to fetch orders', 'details': str(e)}), 500
