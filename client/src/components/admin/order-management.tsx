@@ -151,7 +151,7 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
     
     const receiptText = `
 ===========================================
-            TECHBAZAAR
+            HMN TECH
          Order Receipt
 ===========================================
 
@@ -193,7 +193,7 @@ ${(selectedOrder as any).refundedAt ? `\nREFUNDED: ₱${parseFloat((selectedOrde
 
 ===========================================
     Thank you for your purchase!
-For inquiries: support@techbazaar.com
+For inquiries: ryannoche116@gmail.com
 ===========================================
     `;
 
@@ -522,7 +522,7 @@ For inquiries: support@techbazaar.com
             <div className="space-y-6">
               {/* Receipt Header */}
               <div className="text-center border-b pb-4">
-                <h1 className="text-3xl font-bold font-lora mb-2">TechBazaar</h1>
+                <h1 className="text-3xl font-bold font-lora mb-2">HMN Tech</h1>
                 <p className="text-sm text-muted-foreground">
                   Order Receipt
                 </p>
@@ -667,7 +667,7 @@ For inquiries: support@techbazaar.com
               {/* Footer */}
               <div className="text-center text-xs text-muted-foreground border-t pt-4 mt-6">
                 <p>Thank you for your purchase!</p>
-                <p className="mt-1">For any inquiries, please contact support@techbazaar.com</p>
+                <p className="mt-1">For any inquiries, please contact ryannoche116@gmail.com</p>
               </div>
             </div>
           )}
