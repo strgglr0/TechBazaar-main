@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { format } from "date-fns";
-import { User, Package, MapPin, Phone, Mail, Edit2, Save, X, XCircle } from "lucide-react";
+import { User, Package, MapPin, Phone, Mail, Edit2, Save, X, XCircle, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -52,6 +52,8 @@ export default function Profile() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isOrderDetailsOpen, setIsOrderDetailsOpen] = useState(false);
   const [cancelOrderId, setCancelOrderId] = useState<string | null>(null);
+  const [refundOrderId, setRefundOrderId] = useState<string | null>(null);
+  const [confirmRefundId, setConfirmRefundId] = useState<string | null>(null);
 
   // Form states
   const [profileForm, setProfileForm] = useState({
@@ -199,6 +201,77 @@ export default function Profile() {
     },
   });
 
+  // Request refund mutation
+  const requestRefundMutation = useMutation({
+    mutationFn: async (orderId: string) => {
+      const response = await fetch(`/api/orders/${orderId}/request-refund`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        credentials: 'include',
+        body: JSON.stringify({}),
+      });
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Failed to request refund' }));
+        throw new Error(error.error || 'Failed to request refund');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/user/orders'] });
+      toast({
+        title: "Refund Processed Successfully",
+        description: "Your refund has been processed automatically. You can now confirm receipt of the refund.",
+      });
+      setRefundOrderId(null);
+      setIsOrderDetailsOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to request refund. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Confirm refund received mutation
+  const confirmRefundMutation = useMutation({
+    mutationFn: async (orderId: string) => {
+      const response = await fetch(`/api/orders/${orderId}/confirm-refund`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        credentials: 'include',
+        body: JSON.stringify({}),
+      });
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Failed to confirm refund' }));
+        throw new Error(error.error || 'Failed to confirm refund');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/user/orders'] });
+      toast({
+        title: "Refund Confirmed",
+        description: "Thank you for confirming that you received the refund.",
+      });
+      setConfirmRefundId(null);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to confirm refund. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Initialize form values when profile data is loaded
   useEffect(() => {
     if (profile) {
@@ -300,6 +373,14 @@ export default function Profile() {
     setCancelOrderId(orderId);
   };
 
+  const handleRequestRefund = (orderId: string) => {
+    setRefundOrderId(orderId);
+  };
+
+  const handleConfirmRefund = (orderId: string) => {
+    setConfirmRefundId(orderId);
+  };
+
   const confirmCancelOrder = () => {
     if (cancelOrderId) {
       cancelOrderMutation.mutate(cancelOrderId);
@@ -316,10 +397,25 @@ export default function Profile() {
       case "delivered":
       case "received":
         return "default";
+      case "refund_requested":
+        return "secondary";
+      case "refunded":
+        return "default";
       case "cancelled":
         return "destructive";
       default:
         return "secondary";
+    }
+  };
+
+  const getStatusLabel = (status: string): string => {
+    switch (status) {
+      case "refund_requested":
+        return "Refund Requested";
+      case "refunded":
+        return "Refunded";
+      default:
+        return status.charAt(0).toUpperCase() + status.slice(1);
     }
   };
 
@@ -623,7 +719,7 @@ export default function Profile() {
                           </TableCell>
                           <TableCell>
                             <Badge variant={getStatusVariant(order.status)}>
-                              {order.status}
+                              {getStatusLabel(order.status)}
                             </Badge>
                           </TableCell>
                           <TableCell>
@@ -644,6 +740,30 @@ export default function Profile() {
                                 >
                                   <Package className="h-4 w-4 mr-1" />
                                   Confirm Receipt
+                                </Button>
+                              )}
+                              {order.status === 'received' && !order.refundedAt && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleRequestRefund(order.id)}
+                                  disabled={requestRefundMutation.isPending}
+                                  className="text-orange-600 border-orange-600 hover:bg-orange-50"
+                                >
+                                  <XCircle className="h-4 w-4 mr-1" />
+                                  Request Refund
+                                </Button>
+                              )}
+                              {order.status === 'refunded' && (
+                                <Button
+                                  variant="default"
+                                  size="sm"
+                                  onClick={() => handleConfirmRefund(order.id)}
+                                  disabled={confirmRefundMutation.isPending}
+                                  className="bg-green-600 hover:bg-green-700 text-white"
+                                >
+                                  <CheckCircle className="h-4 w-4 mr-1" />
+                                  Confirm Refund Received
                                 </Button>
                               )}
                               {(order.status === 'pending' || order.status === 'processing') && (
@@ -686,12 +806,12 @@ export default function Profile() {
                   <div className="space-y-1 text-sm">
                     <p><span className="text-muted-foreground">Order ID:</span> #{selectedOrder.id}</p>
                     <p><span className="text-muted-foreground">Date:</span> {selectedOrder.createdAt ? format(new Date(selectedOrder.createdAt), "PPP") : "N/A"}</p>
-                    <p>
-                      <span className="text-muted-foreground">Status:</span>{" "}
-                      <Badge variant={getStatusVariant(selectedOrder.status)} className="ml-2">
-                        {selectedOrder.status}
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-muted-foreground">Status:</span>
+                      <Badge variant={getStatusVariant(selectedOrder.status)}>
+                        {getStatusLabel(selectedOrder.status)}
                       </Badge>
-                    </p>
+                    </div>
                   </div>
                 </div>
 
@@ -779,6 +899,36 @@ export default function Profile() {
                 </div>
               )}
               
+              {selectedOrder.status === 'received' && !selectedOrder.refundedAt && selectedOrder.status !== 'refund_requested' && (
+                <div className="flex justify-end pt-4 border-t border-border">
+                  <Button
+                    variant="outline"
+                    onClick={() => handleRequestRefund(selectedOrder.id)}
+                    disabled={requestRefundMutation.isPending}
+                    className="flex items-center gap-2 text-orange-600 border-orange-600 hover:bg-orange-50"
+                  >
+                    <XCircle className="h-4 w-4" />
+                    {requestRefundMutation.isPending ? "Requesting..." : "Request Refund"}
+                  </Button>
+                </div>
+              )}
+
+              {selectedOrder.status === 'refund_requested' && (
+                <div className="flex justify-end pt-4 border-t border-border">
+                  <div className="bg-orange-100 text-orange-800 text-sm px-4 py-2 rounded-md inline-flex items-center gap-2 font-medium">
+                    ⏳ Refund request pending admin review
+                  </div>
+                </div>
+              )}
+
+              {selectedOrder.refundedAt && (
+                <div className="flex justify-end pt-4 border-t border-border">
+                  <div className="bg-green-100 text-green-800 text-sm px-4 py-2 rounded-md inline-flex items-center gap-2 font-medium">
+                    ✓ Refunded on {format(new Date(selectedOrder.refundedAt), 'MMM d, yyyy')}
+                  </div>
+                </div>
+              )}
+              
               {(selectedOrder.status === 'pending' || selectedOrder.status === 'processing') && (
                 <div className="flex justify-end pt-4 border-t border-border">
                   <Button
@@ -814,6 +964,59 @@ export default function Profile() {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Cancel Order
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Request Refund Confirmation Dialog */}
+      <AlertDialog open={!!refundOrderId} onOpenChange={(open) => !open && setRefundOrderId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Request Refund?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to request a refund for this order? 
+              The full order amount will be refunded automatically.
+              Once processed, you'll be able to confirm receipt of the refund.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => {
+                if (refundOrderId) {
+                  requestRefundMutation.mutate(refundOrderId);
+                }
+              }}
+              className="bg-orange-600 text-white hover:bg-orange-700"
+            >
+              Request Refund
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Confirm Refund Received Dialog */}
+      <AlertDialog open={!!confirmRefundId} onOpenChange={(open) => !open && setConfirmRefundId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Refund Received?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Please confirm that you have received the refund for this order. 
+              This will mark the order as completed and close the refund process.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Not Yet</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => {
+                if (confirmRefundId) {
+                  confirmRefundMutation.mutate(confirmRefundId);
+                }
+              }}
+              className="bg-green-600 text-white hover:bg-green-700"
+            >
+              Confirm Received
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

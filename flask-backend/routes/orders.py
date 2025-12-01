@@ -53,6 +53,14 @@ def update_order_status(order_id):
     
     try:
         order.status = new_status
+        
+        # Automatically set refunded_at when status changes to refunded
+        if new_status == 'refunded' and not order.refunded_at:
+            order.refunded_at = datetime.utcnow()
+            # Set default refund amount if not already set
+            if order.refund_amount is None:
+                order.refund_amount = order.total
+        
         db.session.commit()
         return jsonify(order.to_dict())
     except Exception as e:
@@ -270,6 +278,47 @@ def checkout():
         }), 500
 
 
+@orders_bp.route('/orders/<order_id>/request-refund', methods=['POST'])
+@token_required
+def request_refund(order_id):
+    """Request and automatically process a refund for a received order (user only)"""
+    user_id = get_current_user_id()
+    order = Order.query.get(order_id)
+    
+    if not order:
+        return jsonify({'error': 'Order not found'}), 404
+    
+    # Verify this order belongs to the current user
+    if order.user_id != user_id:
+        return jsonify({'error': 'Unauthorized - This order does not belong to you'}), 403
+    
+    # Only allow requesting refund for received orders
+    if order.status != 'received':
+        return jsonify({'error': 'Can only request refund for received orders'}), 400
+    
+    # Check if already refunded
+    if order.refunded_at:
+        return jsonify({'error': 'Order has already been refunded'}), 400
+    
+    try:
+        # Automatically process the refund (no admin approval needed)
+        order.status = 'refunded'
+        order.refunded_at = datetime.utcnow()
+        order.refund_amount = order.total  # Full refund
+        db.session.commit()
+        
+        print(f"[REFUND] Automatic refund processed for order {order_id} by user {user_id}")
+        print(f"[REFUND] Refund amount: ₱{order.total:,.2f}")
+        
+        return jsonify({
+            'message': 'Refund processed successfully',
+            'order': order.to_dict()
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to process refund', 'details': str(e)}), 500
+
+
 @orders_bp.route('/orders/<order_id>/refund', methods=['POST'])
 @token_required
 def refund_order(order_id):
@@ -377,4 +426,37 @@ def cancel_order(order_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': 'Failed to cancel order', 'details': str(e)}), 500
+
+
+@orders_bp.route('/orders/<order_id>/confirm-refund', methods=['POST'])
+@token_required
+def confirm_refund_received(order_id):
+    """Confirm that customer has received the refund"""
+    user_id = get_current_user_id()
+    order = Order.query.get(order_id)
+    
+    if not order:
+        return jsonify({'error': 'Order not found'}), 404
+    
+    # Verify this order belongs to the current user
+    if order.user_id != user_id:
+        return jsonify({'error': 'Unauthorized - This order does not belong to you'}), 403
+    
+    # Only allow confirming refunded orders or refund_requested with refunded_at set
+    if order.status not in ['refunded', 'refund_requested']:
+        return jsonify({'error': 'Can only confirm refunds for orders with refunded or refund_requested status'}), 400
+    
+    if not order.refunded_at:
+        return jsonify({'error': 'This order has not been refunded yet. Admin must process the refund first.'}), 400
+    
+    try:
+        order.status = 'completed'  # Mark as completed after refund is confirmed
+        db.session.commit()
+        return jsonify({
+            'message': 'Refund receipt confirmed successfully',
+            'order': order.to_dict()
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to confirm refund receipt', 'details': str(e)}), 500
 

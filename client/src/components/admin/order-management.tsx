@@ -32,6 +32,7 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const [deleteOrderId, setDeleteOrderId] = useState<string | null>(null);
   const [refundOrderId, setRefundOrderId] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -154,6 +155,8 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
         return <Package className="h-4 w-4" />;
       case "received":
         return <CheckCircle className="h-4 w-4" />;
+      case "refund_requested":
+        return <RefreshCw className="h-4 w-4 text-orange-600" />;
       case "refunded":
         return <RefreshCw className="h-4 w-4" />;
       case "cancelled":
@@ -172,14 +175,34 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
       case "delivered":
       case "received":
         return "default";
-      case "refunded":
+      case "refund_requested":
         return "secondary";
+      case "refunded":
+        return "default";
       case "cancelled":
         return "destructive";
       default:
         return "secondary";
     }
   };
+
+  const getStatusLabel = (status: string): string => {
+    switch (status) {
+      case "pending": return "Pending";
+      case "processing": return "Processing";
+      case "shipped": return "Shipped";
+      case "delivered": return "Delivered";
+      case "received": return "Received";
+      case "refund_requested": return "Refund Requested";
+      case "refunded": return "Refunded";
+      case "cancelled": return "Cancelled";
+      default: return status;
+    }
+  };
+
+  const filteredOrders = statusFilter === 'all' 
+    ? orders 
+    : orders.filter(order => order.status === statusFilter);
 
   if (isLoading) {
     return (
@@ -201,8 +224,28 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
     <>
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-bold font-lora text-foreground">Order Management</h3>
-        <div className="text-sm text-muted-foreground">
-          Total Orders: {orders.length}
+        <div className="flex items-center gap-4">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Orders ({orders.length})</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="processing">Processing</SelectItem>
+              <SelectItem value="shipped">Shipped</SelectItem>
+              <SelectItem value="delivered">Delivered</SelectItem>
+              <SelectItem value="received">Received</SelectItem>
+              <SelectItem value="refund_requested">
+                <span className="text-orange-600 font-semibold">⚠️ Refund Requested</span>
+              </SelectItem>
+              <SelectItem value="refunded">Refunded</SelectItem>
+              <SelectItem value="cancelled">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
+          <div className="text-sm text-muted-foreground">
+            Showing: {filteredOrders.length} orders
+          </div>
         </div>
       </div>
 
@@ -219,7 +262,7 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orders.map((order) => (
+            {filteredOrders.map((order) => (
               <TableRow key={order.id} data-testid={`row-order-${order.id}`}>
                 <TableCell className="font-mono text-sm" data-testid={`text-order-id-${order.id}`}>
                   #{order.id.substring(0, 8)}
@@ -282,6 +325,12 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
                           <span>Received</span>
                         </div>
                       </SelectItem>
+                      <SelectItem value="refund_requested">
+                        <div className="flex items-center space-x-2">
+                          <RefreshCw className="h-4 w-4 text-orange-600" />
+                          <span className="text-orange-600 font-semibold">Refund Requested</span>
+                        </div>
+                      </SelectItem>
                       <SelectItem value="refunded">
                         <div className="flex items-center space-x-2">
                           <RefreshCw className="h-4 w-4" />
@@ -315,6 +364,17 @@ export default function OrderManagement({ orders, isLoading }: OrderManagementPr
                     >
                       <Receipt className="h-4 w-4" />
                     </Button>
+                    {(order.status === 'received' || order.status === 'refund_requested') && !(order as any).refundedAt && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleRefundOrder(order.id)}
+                        className="text-orange-600 border-orange-600 hover:bg-orange-50"
+                        data-testid={`button-refund-${order.id}`}
+                      >
+                        <RefreshCw className="h-4 w-4" />
+                      </Button>
+                    )}
                     <Button
                       variant="destructive"
                       size="sm"
