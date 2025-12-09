@@ -118,3 +118,74 @@ Press CTRL+C to quit
 127.0.0.1 - - [09/Dec/2025 03:50:30] "GET /api/user/orders HTTP/1.1" 200 -
 127.0.0.1 - - [09/Dec/2025 03:50:35] "POST /api/orders/b38172b9-f883-4860-92f9-b5f238061368/confirm-receipt HTTP/1.1" 200 -
 127.0.0.1 - - [09/Dec/2025 03:50:35] "GET /api/user/orders HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:54] "POST /api/orders/b38172b9-f883-4860-92f9-b5f238061368/rate HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:54] "GET /api/user/orders HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:51:01] "GET /api/admin/stats HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:51:01] "GET /api/orders HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:51:02] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:51:05] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:51:05] "GET /api/admin/stats HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:51:05] "GET /api/orders HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:51:05] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:51:05] "GET /api/me HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:51:05] "GET /api/cart HTTP/1.1" 200 -
+ * Detected change in '/workspaces/TechBazaar-main/flask-backend/routes/orders.py', reloading
+[OrderQueue] Order processing queue started
+Database ready: 11 products, 6 users
+ℹ️  Database already has 11 products. Skipping seed.
+[API /products] Total products in DB: 11
+[API /products] Returning 11 products
+[API /products] Total products in DB: 11
+[API /products] Returning 11 products
+[API /products] Total products in DB: 11
+[API /products] Filter category: phones
+[API /products] Returning 10 products
+[API /products] Total products in DB: 11
+[API /products] Filter category: laptops
+[API /products] Returning 1 products
+[API /products] Total products in DB: 11
+[API /products] Filter minPrice >= 0.0
+[API /products] Filter maxPrice <= 10000.0
+[API /products] Returning 1 products
+[API /products] Total products in DB: 11
+[API /products] Filter category: laptops
+[API /products] Filter minPrice >= 0.0
+[API /products] Filter maxPrice <= 10000.0
+[API /products] Returning 0 products
+[API /products] Total products in DB: 11
+[API /products] Returning 11 products
+[API /products] Total products in DB: 11
+[API /products] Returning 11 products
+[OrderQueue] Order a22d5378-af76-4fd6-aa6e-f340e9fc1ca6 added to processing queue
+[API] Fetching orders for user_id: 3
+[API] Found 4 orders for user 3
+[API /products] Total products in DB: 11
+[API /products] Returning 11 products
+[API /products] Total products in DB: 11
+[API /products] Returning 11 products
+[API /products] Total products in DB: 11
+[API /products] Returning 11 products
+[OrderQueue] Order b38172b9-f883-4860-92f9-b5f238061368 added to processing queue
+[API /products] Total products in DB: 11
+[API /products] Returning 11 products
+[API] Fetching orders for user_id: 3
+[API] Found 5 orders for user 3
+[API] Fetching orders for user_id: 3
+[API] Found 5 orders for user 3
+[API /products] Total products in DB: 11
+[API /products] Returning 11 products
+[API] Fetching orders for user_id: 3
+[API] Found 5 orders for user 3
+[API] Fetching orders for user_id: 3
+[API] Found 5 orders for user 3
+[API] Fetching orders for user_id: 3
+[API] Found 5 orders for user 3
+[API] Fetching orders for user_id: 3
+[API] Found 5 orders for user 3
+[API /products] Total products in DB: 11
+[API /products] Returning 11 products
+[API /products] Total products in DB: 11
+[API /products] Returning 11 products
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 179-793-731
