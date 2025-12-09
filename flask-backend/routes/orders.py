@@ -116,6 +116,27 @@ def checkout():
         total_value = data.get('total') if data.get('total') is not None else data.get('totalAmount')
         payment_method = data.get('paymentMethod', 'cod')  # Default to COD
         
+        # Validate stock availability and reduce stock for each product
+        for item in items:
+            product_id = item.get('productId')
+            quantity = item.get('quantity', 0)
+            
+            if not product_id or quantity <= 0:
+                return jsonify({'error': f'Invalid item: {item}'}), 400
+            
+            product = Product.query.get(product_id)
+            if not product:
+                return jsonify({'error': f'Product not found: {product_id}'}), 404
+            
+            # Check if enough stock is available
+            if product.stock < quantity:
+                return jsonify({
+                    'error': f'Insufficient stock for {product.name}. Available: {product.stock}, Requested: {quantity}'
+                }), 400
+            
+            # Reduce stock
+            product.stock -= quantity
+        
         order = Order(
             user_id=user_id,
             customer_name=data.get('customerName'),
@@ -198,6 +219,16 @@ def refund_order(order_id):
             return jsonify({'error': 'Rating must be between 1 and 5'}), 400
     
     try:
+        # Restore stock for refunded order
+        for item in order.items:
+            product_id = item.get('productId')
+            quantity = item.get('quantity', 0)
+            
+            if product_id and quantity > 0:
+                product = Product.query.get(product_id)
+                if product:
+                    product.stock += quantity
+        
         order.refunded_at = datetime.utcnow()
         order.refund_amount = refund_amount
         order.refund_reason = refund_reason
@@ -262,6 +293,16 @@ def cancel_order(order_id):
         return jsonify({'error': f'Cannot cancel order with status: {order.status}. Only pending or processing orders can be cancelled.'}), 400
     
     try:
+        # Restore stock for cancelled order
+        for item in order.items:
+            product_id = item.get('productId')
+            quantity = item.get('quantity', 0)
+            
+            if product_id and quantity > 0:
+                product = Product.query.get(product_id)
+                if product:
+                    product.stock += quantity
+        
         order.status = 'cancelled'
         db.session.commit()
         return jsonify({

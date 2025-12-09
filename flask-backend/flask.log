@@ -6,129 +6,115 @@ Database ready: 11 products, 6 users
 WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:5001
- * Running on http://10.0.0.206:5001
+ * Running on http://10.0.1.132:5001
 Press CTRL+C to quit
  * Restarting with stat
  * Debugger is active!
- * Debugger PIN: 188-419-061
-127.0.0.1 - - [01/Dec/2025 12:17:50] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:17:50] "GET /api/categories HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:17:50] "GET /api/brands HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:17:50] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:17:50] "GET /api/me HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:17:50] "GET /api/products HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:17:50] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:19:22] "GET /api/profile HTTP/1.1" 200 -
-Traceback (most recent call last):
-  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1965, in _exec_single_context
-    self.dialect.do_execute(
-  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 921, in do_execute
-    cursor.execute(statement, parameters)
-sqlite3.OperationalError: no such column: orders.refund_reason
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/workspaces/TechBazaar-main/flask-backend/routes/profile.py", line 97, in get_user_orders
-    orders = Order.query.filter_by(user_id=user_id).order_by(Order.created_at.desc()).all()
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2688, in all
-    return self._iter().all()  # type: ignore
-           ^^^^^^^^^^^^
-  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2842, in _iter
-    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
-                                                  ^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2262, in execute
-    return self._execute_internal(
-           ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2144, in _execute_internal
-    result: Result[Any] = compile_state_cls.orm_execute_statement(
-                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
-    result = conn.execute(
-             ^^^^^^^^^^^^^
-  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1412, in execute
-    return meth(
-           ^^^^^
-  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 515, in _execute_on_connection
-    return connection._execute_clauseelement(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1635, in _execute_clauseelement
-    ret = self._execute_context(
-          ^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1844, in _execute_context
-    return self._exec_single_context(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1984, in _exec_single_context
-    self._handle_dbapi_exception(
-  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2339, in _handle_dbapi_exception
-    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
-  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1965, in _exec_single_context
-    self.dialect.do_execute(
-  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 921, in do_execute
-    cursor.execute(statement, parameters)
-sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such column: orders.refund_reason
-[SQL: SELECT orders.id AS orders_id, orders.user_id AS orders_user_id, orders.customer_name AS orders_customer_name, orders.customer_email AS orders_customer_email, orders.customer_phone AS orders_customer_phone, orders.shipping_address AS orders_shipping_address, orders.items AS orders_items, orders.total AS orders_total, orders.payment_method AS orders_payment_method, orders.status AS orders_status, orders.refunded_at AS orders_refunded_at, orders.refund_amount AS orders_refund_amount, orders.refund_reason AS orders_refund_reason, orders.rating AS orders_rating, orders.created_at AS orders_created_at 
-FROM orders 
-WHERE orders.user_id = ? ORDER BY orders.created_at DESC]
-[parameters: (3,)]
-(Background on this error at: https://sqlalche.me/e/20/e3q8)
-127.0.0.1 - - [01/Dec/2025 12:19:23] "GET /api/user/orders HTTP/1.1" 500 -
-127.0.0.1 - - [01/Dec/2025 12:19:42] "POST /api/checkout HTTP/1.1" 500 -
-127.0.0.1 - - [01/Dec/2025 12:21:44] "POST /api/checkout HTTP/1.1" 500 -
-127.0.0.1 - - [01/Dec/2025 12:21:45] "POST /api/checkout HTTP/1.1" 500 -
-127.0.0.1 - - [01/Dec/2025 12:21:45] "POST /api/checkout HTTP/1.1" 500 -
- * Detected change in '/workspaces/TechBazaar-main/flask-backend/routes/orders.py', reloading
-[OrderQueue] Order processing queue started
-Database ready: 11 products, 6 users
-ℹ️  Database already has 11 products. Skipping seed.
-[API /products] Total products in DB: 11
-[API /products] Returning 11 products
-[API] Fetching orders for user_id: 3
-[ERROR] get_user_orders failed: (sqlite3.OperationalError) no such column: orders.refund_reason
-[SQL: SELECT orders.id AS orders_id, orders.user_id AS orders_user_id, orders.customer_name AS orders_customer_name, orders.customer_email AS orders_customer_email, orders.customer_phone AS orders_customer_phone, orders.shipping_address AS orders_shipping_address, orders.items AS orders_items, orders.total AS orders_total, orders.payment_method AS orders_payment_method, orders.status AS orders_status, orders.refunded_at AS orders_refunded_at, orders.refund_amount AS orders_refund_amount, orders.refund_reason AS orders_refund_reason, orders.rating AS orders_rating, orders.created_at AS orders_created_at 
-FROM orders 
-WHERE orders.user_id = ? ORDER BY orders.created_at DESC]
-[parameters: (3,)]
-(Background on this error at: https://sqlalche.me/e/20/e3q8)
- * Restarting with stat
- * Debugger is active!
- * Debugger PIN: 188-419-061
- * Detected change in '/workspaces/TechBazaar-main/flask-backend/routes/orders.py', reloading
-[OrderQueue] Order processing queue started
-Database ready: 11 products, 6 users
-ℹ️  Database already has 11 products. Skipping seed.
- * Restarting with stat
- * Debugger is active!
- * Debugger PIN: 188-419-061
-127.0.0.1 - - [01/Dec/2025 12:25:55] "POST /api/checkout HTTP/1.1" 500 -
-127.0.0.1 - - [01/Dec/2025 12:26:01] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:26:01] "GET /api/me HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:26:01] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:26:15] "POST /api/checkout HTTP/1.1" 500 -
-127.0.0.1 - - [01/Dec/2025 12:26:16] "POST /api/checkout HTTP/1.1" 500 -
-127.0.0.1 - - [01/Dec/2025 12:26:16] "POST /api/checkout HTTP/1.1" 500 -
-127.0.0.1 - - [01/Dec/2025 12:26:17] "POST /api/checkout HTTP/1.1" 500 -
-127.0.0.1 - - [01/Dec/2025 12:27:48] "POST /api/checkout HTTP/1.1" 500 -
-127.0.0.1 - - [01/Dec/2025 12:28:14] "POST /api/checkout HTTP/1.1" 201 -
-127.0.0.1 - - [01/Dec/2025 12:28:38] "POST /api/checkout HTTP/1.1" 201 -
-127.0.0.1 - - [01/Dec/2025 12:28:38] "DELETE /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:28:38] "GET /api/orders/834da7ce-97bd-4d0b-a93e-9b8784cf2b9e HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:28:41] "GET /api/orders/834da7ce-97bd-4d0b-a93e-9b8784cf2b9e HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:28:44] "GET /api/products HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:28:44] "GET /api/admin/stats HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:28:44] "GET /api/orders HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:28:49] "PUT /api/orders/8bd3490e-9c7f-467c-a0c5-845b3c8b1967/status HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:28:49] "GET /api/orders HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:28:49] "GET /api/admin/stats HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:28:52] "GET /api/user/orders HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:28:52] "GET /api/profile HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:29:02] "POST /api/orders/8bd3490e-9c7f-467c-a0c5-845b3c8b1967/rate HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:29:02] "GET /api/user/orders HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:29:09] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:29:09] "GET /api/me HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:29:10] "GET /api/cart HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:29:10] "GET /api/profile HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:29:10] "GET /api/user/orders HTTP/1.1" 200 -
-127.0.0.1 - - [01/Dec/2025 12:31:44] "POST /api/orders/test-order/rate HTTP/1.1" 401 -
-127.0.0.1 - - [01/Dec/2025 12:32:38] "POST /api/orders/test/rate HTTP/1.1" 401 -
+ * Debugger PIN: 179-793-731
+127.0.0.1 - - [09/Dec/2025 03:43:33] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:43:33] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:43:33] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:43:33] "GET /api/brands HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:43:33] "GET /api/me HTTP/1.1" 401 -
+127.0.0.1 - - [09/Dec/2025 03:43:33] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:43:33] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:45:38] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:45:38] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:45:38] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:45:38] "GET /api/brands HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:45:38] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:45:49] "GET /api/products?category=phones HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:45:53] "GET /api/products?category=laptops HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:45:57] "GET /api/products?minPrice=0&maxPrice=10000 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:46:01] "GET /api/products?category=laptops&minPrice=0&maxPrice=10000 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:46:52] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:46:52] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:46:52] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:46:52] "GET /api/brands HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:46:52] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:47:23] "POST /api/login HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:47:23] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:47:24] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:47:24] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:47:30] "POST /api/cart HTTP/1.1" 201 -
+127.0.0.1 - - [09/Dec/2025 03:47:33] "GET /api/frequently-bought-together?productId=1 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:47:33] "GET /api/products/1 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:47:33] "GET /api/recommendations?productId=1&limit=4 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:47:33] "POST /api/browsing-history HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:47:43] "POST /api/login HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:47:43] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:47:43] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:47:43] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:47:48] "GET /api/orders HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:47:48] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:47:48] "GET /api/admin/stats HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:48:29] "POST /api/checkout HTTP/1.1" 201 -
+127.0.0.1 - - [09/Dec/2025 03:48:29] "DELETE /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:48:29] "GET /api/orders/a22d5378-af76-4fd6-aa6e-f340e9fc1ca6 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:48:32] "GET /api/orders/a22d5378-af76-4fd6-aa6e-f340e9fc1ca6 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:48:35] "GET /api/orders/a22d5378-af76-4fd6-aa6e-f340e9fc1ca6 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:48:36] "GET /api/profile HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:48:36] "GET /api/user/orders HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:48:55] "GET /api/brands HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:48:55] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:48:55] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:48:55] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:48:55] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:10] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:10] "GET /api/orders HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:10] "GET /api/admin/stats HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:10] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:28] "POST /api/login HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:29] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:29] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:29] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:33] "GET /api/frequently-bought-together?productId=1 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:33] "GET /api/recommendations?productId=1&limit=4 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:33] "GET /api/products/1 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:33] "POST /api/browsing-history HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:33] "POST /api/login HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:33] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:33] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:33] "GET /api/brands HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:33] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:33] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:33] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:34] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:36] "POST /api/cart HTTP/1.1" 201 -
+127.0.0.1 - - [09/Dec/2025 03:49:48] "POST /api/checkout HTTP/1.1" 201 -
+127.0.0.1 - - [09/Dec/2025 03:49:48] "DELETE /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:49] "GET /api/orders/b38172b9-f883-4860-92f9-b5f238061368 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:52] "GET /api/admin/stats HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:52] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:52] "GET /api/orders HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:56] "PUT /api/orders/a22d5378-af76-4fd6-aa6e-f340e9fc1ca6/status HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:56] "GET /api/orders HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:56] "GET /api/admin/stats HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:49:57] "POST /api/browsing-history HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:00] "PUT /api/orders/b38172b9-f883-4860-92f9-b5f238061368/status HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:00] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:00] "GET /api/products/1 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:00] "GET /api/frequently-bought-together?productId=1 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:00] "GET /api/me HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:00] "GET /api/recommendations?productId=1&limit=4 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:00] "GET /api/orders HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:00] "GET /api/admin/stats HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:00] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:00] "POST /api/browsing-history HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:08] "GET /api/user/orders HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:08] "GET /api/profile HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:11] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:11] "GET /api/me HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:11] "GET /api/cart HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:11] "GET /api/profile HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:11] "GET /api/user/orders HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:21] "GET /api/brands HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:21] "GET /api/categories HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:21] "GET /api/browsing-history?limit=8 HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:21] "GET /api/products HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:23] "GET /api/profile HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:23] "GET /api/user/orders HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:30] "POST /api/orders/b87b771c-42d0-4cd3-9a2f-9526dfa80675/confirm-receipt HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:30] "GET /api/user/orders HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:35] "POST /api/orders/b38172b9-f883-4860-92f9-b5f238061368/confirm-receipt HTTP/1.1" 200 -
+127.0.0.1 - - [09/Dec/2025 03:50:35] "GET /api/user/orders HTTP/1.1" 200 -
